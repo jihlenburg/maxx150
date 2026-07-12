@@ -26,6 +26,15 @@ def test_hex_prism():
 
 def test_rect_path_points():
     pts = F.rect_path_points(100, 100, 60)
-    assert len(pts) >= 12                                  # Umfang 800 / 60 aufgerundet je Seite
+    assert len(pts) >= 12
     for x, y in pts:
         assert abs(abs(x) - 100) < 1e-6 or abs(abs(y) - 100) < 1e-6
+    # Vertrag aus dem Docstring: Punktabstand entlang jeder Seite <= spacing
+    for fixed, coord in (("y", -100), ("y", 100), ("x", -100), ("x", 100)):
+        if fixed == "y":
+            line_pts = sorted(px for px, py in pts if abs(py - coord) < 1e-6)
+        else:
+            line_pts = sorted(py for px, py in pts if abs(px - coord) < 1e-6)
+        gaps = [b - a for a, b in zip(line_pts, line_pts[1:])]
+        assert gaps and max(gaps) <= 60 + 1e-6, \
+            f"Seite {fixed}={coord}: max Abstand {max(gaps):.1f}"

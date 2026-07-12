@@ -49,7 +49,7 @@ def rect_path_points(half_x, half_y, spacing):
     def line(p0, p1):
         dx, dy = p1[0] - p0[0], p1[1] - p0[1]
         length = math.hypot(dx, dy)
-        n = max(2, int(length / spacing) + 1)
+        n = max(2, math.ceil(length / spacing) + 1)
         for i in range(n):
             t = i / (n - 1)
             pts.append((p0[0] + t * dx, p0[1] + t * dy))
