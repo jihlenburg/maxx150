@@ -41,6 +41,11 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
   übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
   Porenschluss), 0,4er Düse.
+- **PFLICHT gegen Verzug** (ASA, 275-mm-Teil mit massiven Eck-/Stoßzonen):
+  geschlossener, beheizter Bauraum (≥ 45 °C Kammer), Bett 100–110 °C auf
+  texturiertem PEI, **Brim ≥ 10 mm**, Draft-Shield, nach Druckende im
+  geschlossenen Bauraum abkühlen lassen. Beim Druckservice ausdrücklich
+  „ASA-erfahren, geschlossene Maschine" anfordern — KEIN offener Drucker.
 - Nach dem Druck **Tempern** (ASA: 80 °C, 4 h) für Maßstabilität bei Dachhitze.
 
 ## Fügen

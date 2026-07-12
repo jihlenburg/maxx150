@@ -37,5 +37,7 @@ def test_montagenotiz_inhalt():
     h = PRM.params_hash()
     text = Path(f"out/test_export/montagenotiz_{h}.md").read_text()
     for muss in ("140", "Carloflex", "Deckfläche nach unten", "Tempern",
-                 "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid"):
+                 "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid",
+                 "PFLICHT gegen Verzug", "beheizter Bauraum", "Brim",
+                 "PFLICHT", "ISO-20653", "Kernloch", "M5x"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"
