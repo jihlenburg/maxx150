@@ -1627,7 +1627,7 @@ def test_montagenotiz_inhalt():
     h = PRM.params_hash()
     text = Path(f"out/test_export/montagenotiz_{h}.md").read_text()
     for muss in ("140", "Carloflex", "Deckfläche nach unten", "Tempern",
-                 "4 Perimeter", "Gyroid"):
+                 "4 Perimeter", "Gyroid", "Dichtheit", "2K-Epoxid"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"
 ```
 
@@ -1668,8 +1668,18 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 
 ## Fügen
 - 4 Stöße: Halbüberlappung, je 1x M5x{int(p.H_RAISE - p.GLUE_GAP + p.JOINT_NUT_T + 2)}
-  Zylinderkopf (DIN 912) + Mutter in der Tasche, Fügeflächen mit 2K-Epoxid oder
-  ASA-Kleber benetzen, verschrauben (0,8 Nm).
+  Zylinderkopf (DIN 912) + Mutter in der Tasche, Fügeflächen VOLLFLÄCHIG mit
+  2K-Epoxid benetzen, verschrauben (0,8 Nm). Die Epoxid-Fügung ist Teil des
+  Dichtheitskonzepts (Spec §4) — nicht weglassen.
+
+## Dichtheit
+- Beide Kleber-Ringe (untere Rille, Belluna-Ringklebenut) laufen GESCHLOSSEN über
+  alle vier Stöße — nicht an Stößen absetzen.
+- Optional, empfohlen: Außenflächen mit 2K-PU oder Epoxid versiegeln
+  (Porenschluss + UV-Schutz).
+- Wassertest nach Einbau: erst drucklos fluten (Gießkanne, 10 min, Innenkontrolle),
+  dann Hochdruck nur aus ISO-20653-9K-Abstand auf den Sockelbereich — nie direkt
+  auf die Lüfterhaube (Belluna ist IPX4).
 
 ## Verkleben auf dem Dach
 - Untergrund: Mini-Heki-Altbett vollständig entfernen, mit Isopropanol reinigen.

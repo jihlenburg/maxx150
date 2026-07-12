@@ -101,6 +101,18 @@ Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindu
 (Bewegungsaufnahme MS-Polymer ≥ 20 % bei 2–3 mm Fuge) — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
 
+**Dichtheitskonzept (Mehrteiligkeit):** Dichtheit kommt von durchgehenden Elastomer-Ebenen,
+nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt. Barrierenkette:
+(1) Sika-Kehlnaht außen, umlaufend geschlossen über alle Stöße; (2) Carloflex-Ring in der
+unteren Kleberille, geschlossen über die Stöße; (3) Ringklebenut der Belluna-Platte auf der
+Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
+2K-Epoxid-Verklebung der Fügeflächen (M5 = Verpressung der Klebung, nicht Dichtung).
+FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; optional 2K-PU/Epoxid-Versiegelung
+(zugleich UV-Schutz). Validierung praktisch (Flutungstest, dann Hochdruck aus
+ISO-20653-9K-Abstand am verbauten Sockel); eine normative IP6K9K-Zertifizierung wäre
+Prüfstandssache. Systemgrenze: der Belluna selbst ist nur IPX4 — Ziel ist die dichte
+Dachdurchdringung, nicht ein dichter Lüfter.
+
 ## 5. Software-Architektur
 
 ```
