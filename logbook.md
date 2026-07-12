@@ -58,3 +58,54 @@ User-Auftrag „alles vor der Messkampagne Mögliche"). Ausgangsstand: 7524cda,
 - todo.md abgehakt: I3, Ledger 10, Ledger 21/22, Noppenfuß-Radius-Punkt,
   Ledger 3/15 (im Kleinkram-Eintrag vermerkt).
 - Vollständiger Nachweis: `.superpowers/sdd/task-15-report.md`.
+
+## 2026-07-12 — Task 15 Nachbesserung: Review-Critical Achsen-Fehlbezug (Stand 24f6fe1)
+
+Befund (Final-Review nach Task 15): `_chamber_cell_centers` nutzte für die
+u-Bandlänge (Zellposition entlang einer Seite) die EIGENE W_TOP der Seite
+statt der beiden SENKRECHTEN Nachbarseiten, die die Bandlänge physisch
+begrenzen. Bei symmetrischen Defaults unsichtbar (eigene W_TOP == Nachbar-
+W_TOP), bei Asymmetrie (z. B. W_TOP_REAR=90, Rest 50) erodiert das
+SOLID_CORNER bzw. erzeugt Phantom-Slots jenseits des Rahmenrandes.
+
+- Kanonik verifiziert (Rotations-Mapping `(x,y)->(-y,x)` je 90°-Schritt,
+  hergeleitet UND per Skript-Probe an echter Geometrie bestätigt, siehe
+  `model/frame.py::_side_neighbor_bounds`-Docstring): k=0 REAR (+u←RIGHT,
+  -u←LEFT), k=1 RIGHT (+u←FRONT, -u←REAR), k=2 FRONT (+u←LEFT, -u←RIGHT),
+  k=3 LEFT (+u←REAR, -u←FRONT).
+- `model/frame.py`: `_chamber_cell_centers(p, limit_w)` unverändert in der
+  Formel, aber `limit_w` jetzt explizit als Nachbargrenze dokumentiert;
+  neue `_side_neighbor_bounds(p)` kapselt die Kanonik; `_chamber_cuts`/
+  `chamber_slot_count` bauen +u-/-u-Hälfte jetzt UNABHÄNGIG mit ihrer
+  jeweiligen Nachbargrenze (vorher: `[-c for c in half]` derselben Liste).
+- Symmetrie-Anker bei Defaults bitidentisch zu 24f6fe1: chamber_slot_count
+  24, dfm._allowed_bridge_area 36788.23334770628, frame.Volume
+  1736006.070242394, params_hash unverändert 88bacca5 (nur Code geändert,
+  keine Parameterwerte).
+- Neue Tests `tests/test_asymmetrie.py` (P_CORNER = W_TOP_REAR=90, Rest
+  Default): REAR-Band bleibt ≤ 205 (Nachbargrenze LEFT/RIGHT=50, nicht
+  REARs eigene 90); chamber_slot_count konsistent zu `len(_chamber_cuts)/4`;
+  geometrische Eck-Probe (Prüfquader, common==Quadervolumen).
+- Entdeckung bei der Eck-Probe: der im Befund vorgeschlagene Prüfquader
+  (x/y 210..240) liegt legitim im Reichweitenbereich der reziprok
+  mitwachsenden RIGHT-Seite (RIGHTs -u-Grenze ist laut derselben Kanonik
+  W_TOP_REAR) — RIGHT wird durch REAR=90 physisch länger und bekommt dort
+  KORREKT eine zusätzliche Zelle, keine Erosion. Skript-Beweis: an dieser
+  Box weicht common-Volumen um 6626 mm³ vom Quadervolumen ab, OBWOHL die
+  Formel exakt der Review-Vorgabe (Punkt 1) entspricht. Test verwendet
+  stattdessen einen per Skript verifizierten, isolierten Prüfquader
+  (x 210..240, y 193..199, z 6..18): trennt REARs eigenen (vormals
+  fehlerhaften) Beitrag von RIGHTs legitimer reziproker Zelle. Beleg: unter
+  der alten (eigene-W_TOP-)Formel wäre dieselbe Box um 1463.5 mm³ hohl
+  gewesen (Regressionsnachweis), unter der neuen Formel exakt massiv (diff
+  0.0000 mm³).
+- Tests: `TEST_FILTER=asymmetrie` 6/6 grün (3 alt + 3 neu). Volle Suite
+  56/56 grün, 0 fehlgeschlagen (davon 4 aus unbeteiligten, ungetrackten
+  Testdateien eines parallelen Arbeitsstands im selben Repo — eigener
+  Tracked-Beitrag 49 Basis + 3 neu = 52).
+- Commit: gemäß CLAUDE.md-Vorgabe ("nie automatisch committen, erst nach
+  Freigabe") NICHT automatisch erstellt — Änderungen liegen bereit
+  (`model/frame.py`, `tests/test_asymmetrie.py`), Commit-Message im Report
+  hinterlegt.
+- Vollständiger Nachweis: `.superpowers/sdd/task-15-report.md`
+  (Abschnitt „Review-Nachbesserung: Achsen-Fehlbezug").

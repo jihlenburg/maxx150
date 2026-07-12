@@ -19,6 +19,30 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       hergeleitet und dokumentiert (k=0 REAR, k=1 RIGHT, k=2 FRONT, k=3 LEFT);
       model/dfm.py::lap_step = (LAP_L-TOL_JOINT)*Summe(W_TOP). Symmetrie-Anchor
       bestätigt: chamber_slot_count/DFM-allowed bei Defaults bitidentisch zu vorher.
+- [x] Review-Critical (Achsen-Fehlbezug) auf obigem Ledger-21/22-Fix: die erste
+      Fassung nahm für die u-Bandlänge fälschlich die EIGENE W_TOP der Seite statt
+      der beiden SENKRECHTEN Nachbarseiten (physische Bandgrenze) — bei Asymmetrie
+      (z. B. W_TOP_REAR=90, Rest 50) erodierte das SOLID_CORNER bzw. hätte
+      Phantom-Slots erzeugt. Fix (Task-15-Nachbesserung): model/frame.py::
+      _side_neighbor_bounds(p) kapselt die Kanonik (k=0 REAR: +u←W_TOP_RIGHT/
+      -u←W_TOP_LEFT; k=1 RIGHT: +u←W_TOP_FRONT/-u←W_TOP_REAR; k=2 FRONT:
+      +u←W_TOP_LEFT/-u←W_TOP_RIGHT; k=3 LEFT: +u←W_TOP_REAR/-u←W_TOP_FRONT),
+      hergeleitet UND per Skript-Probe an echter Geometrie verifiziert (Rotations-
+      Mapping (x,y)->(-y,x) je k). _chamber_cuts/chamber_slot_count bauen +u-/-u-
+      Hälfte jetzt unabhängig mit ihrer jeweiligen Nachbargrenze (keine pauschale
+      Spiegelung derselben Liste mehr). Symmetrie-Anker bei Defaults bitidentisch
+      (slots=24, dfm_allowed=36788.23334770628, frame.Volume=1736006.070242394).
+      Neue Tests: tests/test_asymmetrie.py (3 neu: REAR-Band-Nachbargrenze,
+      Slot-Count-Konsistenz, geometrische Eck-Probe). Dabei entdeckt: der ERSTE
+      Entwurf des Eck-Prüfquaders im Review-Befund (x/y 210..240) liegt legitim
+      im Reichweitenbereich der reziprok mitwachsenden RIGHT/LEFT-Seite (RIGHTs
+      -u-Grenze ist laut derselben Kanonik W_TOP_REAR) — keine Erosion, sondern
+      beabsichtigte Konsequenz derselben Formel (Skript-Beweis: 6626 mm³
+      Differenz trotz korrekter Formel). Test nutzt stattdessen einen isolierten,
+      per Skript verifizierten Prüfquader (y 193..199), der REARs eigenen Fehler
+      von RIGHTs legitimer reziproker Zelle trennt (alte Formel dort nachweislich
+      1463.5 mm³ hohl, neue Formel exakt massiv). Details: .superpowers/sdd/
+      task-15-report.md (Abschnitt „Review-Nachbesserung").
 
 ## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
 - [ ] Montagenotiz: ASA-Pflichtbedingungen (geschlossener Bauraum >=45 °C, Bett 100-110 °C,

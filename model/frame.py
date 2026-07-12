@@ -20,20 +20,27 @@ def _rot(shape, k):
     return s
 
 
-def _chamber_cell_centers(p: PRM.Params, side_w: float):
+def _chamber_cell_centers(p: PRM.Params, limit_w: float):
     """u-Positionen (entlang einer Seite, Ursprung = Seitenmitte/Stoß) der
-    Kammerzellen EINER Seitenhälfte (u > 0). Zellenraster CELL_L/CELL_RIB,
-    zentriert im Band zwischen SOLID_JOINT_HALF und SOLID_CORNER (gemessen
-    ab der Außenkante DIESER Seite: side_w = deren eigene W_TOP-Breite).
-    Ledger 21/22: vormals global min(W_TOP) für alle vier Seiten -- jetzt
-    seitenspezifisch, damit schmale und breite Seiten ihr eigenes,
-    unabhängiges Zellenraster erhalten (siehe test_asymmetrie.py). Bei
-    symmetrischen Defaults (alle W_TOP gleich) ist side_w == der frühere
-    globale min() -> identisches Raster, identischer chamber_slot_count
-    (Regressionsanker). Identisches Raster für beide Kammerringe EINER Seite
-    (dieselbe side_w-Herleitung), damit Ring 1 und Ring 2 dieselbe Zellenzahl
-    erhalten (siehe Brief: sonst Vent-Fehlanbindung -> zusätzliche Shell)."""
-    side_half = p.CUTOUT_W / 2 + side_w
+    Kammerzellen EINER Seiten-HALBSEITE (u > 0, also nur +u ODER nur -u,
+    je nachdem welche Nachbargrenze der Aufrufer übergibt -- siehe
+    _side_neighbor_bounds). Zellenraster CELL_L/CELL_RIB, zentriert im Band
+    zwischen SOLID_JOINT_HALF und SOLID_CORNER.
+
+    limit_w ist NICHT die W_TOP-Breite dieser Seite selbst, sondern die
+    W_TOP-Breite der SENKRECHTEN Nachbarseite, die an diesem Ende physisch
+    die Bandlänge begrenzt (side_half = CUTOUT_W/2 + limit_w): eine Seite
+    läuft entlang ihrer eigenen W_TOP-Richtung nicht weiter, als der Nachbar
+    an der Ecke reicht -- die eigene W_TOP-Breite bestimmt nur die radiale
+    Kammertiefe (r_in..r_out, fest, siehe _chamber_cuts), nicht die
+    Bandlänge (Review-Fund nach Ledger 21/22: die vorige 'seitenspezifische'
+    Fassung nahm faelschlich die EIGENE W_TOP als Bandgrenze -- bei
+    asymmetrischen Messwerten erodierte das SOLID_CORNER bzw. erzeugte
+    Phantom-Slots jenseits des tatsaechlichen Rahmenrandes, siehe
+    tests/test_asymmetrie.py). Bei symmetrischen Defaults (alle W_TOP=50)
+    ist limit_w für jede Halbseite ohnehin 50 -> identisches Raster,
+    identischer chamber_slot_count (Regressionsanker)."""
+    side_half = p.CUTOUT_W / 2 + limit_w
     band_start = p.SOLID_JOINT_HALF
     band_end = side_half - p.SOLID_CORNER
     band_len = band_end - band_start
@@ -48,22 +55,69 @@ def _chamber_cell_centers(p: PRM.Params, side_w: float):
     return centers
 
 
-# Kanonik k -> Seite (siehe _chamber_cuts-Docstring für die Herleitung):
-# k=0 REAR, k=1 RIGHT, k=2 FRONT, k=3 LEFT.
-def _side_w_by_k(p: PRM.Params):
-    return (p.W_TOP_REAR, p.W_TOP_RIGHT, p.W_TOP_FRONT, p.W_TOP_LEFT)
+def _side_neighbor_bounds(p: PRM.Params):
+    """Für jede Seite k (Kanonik k=0 REAR, k=1 RIGHT, k=2 FRONT, k=3 LEFT --
+    siehe _chamber_cuts-Docstring) die (Nachbar-Grenze für +u, Nachbar-
+    Grenze für -u), d. h. die W_TOP-Breiten der BEIDEN SENKRECHTEN
+    Nachbarseiten, die die Bandlänge dieser Seite an ihren beiden Enden
+    begrenzen (siehe _chamber_cell_centers).
+
+    Herleitung aus dem Rotations-Mapping (Part.Shape.rotate um +z,
+    Rechte-Hand-Regel: (x,y) -> (-y,x) je 90°-Schritt, also nach k
+    Anwendungen (x,y) -> [(x,y), (-y,x), (-x,-y), (y,-x)][k]):
+
+    Die kanonische (k=0, unrotierte) Kammerzelle liegt bei radialem r>0
+    (feste Kammertiefe, X-Achse) und Bandkoordinate u (Y-Achse, das ist die
+    Variable, deren Vorzeichen +u/-u hier bestimmt wird; siehe
+    _chamber_profile_face/_chamber_cavity: Profil in x=r, Extrusion entlang
+    +y ab y0=u-CELL_L/2). Ein Punkt (r,u) der kanonischen Zelle liegt nach
+    k Rotationsschritten bei globalem (X,Y):
+      k=0: (X,Y) = ( r,  u)   ->  u wächst  => +Y global
+      k=1: (X,Y) = (-u,  r)   ->  u wächst  => -X global
+      k=2: (X,Y) = (-r, -u)   ->  u wächst  => -Y global
+      k=3: (X,Y) = ( u, -r)   ->  u wächst  => +X global
+
+    Aus build_frame (siehe _chamber_cuts-Docstring) ist bekannt:
+      +X-Rand = CUTOUT_W/2 + W_TOP_REAR    (REAR-Außenkante)
+      -X-Rand = -(CUTOUT_W/2 + W_TOP_FRONT) (FRONT-Außenkante)
+      +Y-Rand = CUTOUT_W/2 + W_TOP_RIGHT   (RIGHT-Außenkante)
+      -Y-Rand = -(CUTOUT_W/2 + W_TOP_LEFT)  (LEFT-Außenkante)
+
+    +u (u>0, die von _chamber_cell_centers direkt gelieferte Halbseite) und
+    -u (gespiegelt, u<0) je k zeigen also auf folgende Außenkanten und damit
+    folgende Nachbar-W_TOP-Breiten:
+      k=0 REAR:  +u -> +Y-Rand -> W_TOP_RIGHT | -u -> -Y-Rand -> W_TOP_LEFT
+      k=1 RIGHT: +u -> -X-Rand -> W_TOP_FRONT | -u -> +X-Rand -> W_TOP_REAR
+      k=2 FRONT: +u -> -Y-Rand -> W_TOP_LEFT  | -u -> +Y-Rand -> W_TOP_RIGHT
+      k=3 LEFT:  +u -> +X-Rand -> W_TOP_REAR  | -u -> -X-Rand -> W_TOP_FRONT
+
+    Deckt sich exakt mit der Review-Vorgabe (Task-15-Nachbesserung,
+    Achsen-Fehlbezug). Rückgabe: Tuple aus 4 (plus_w, minus_w)-Paaren,
+    Index = k."""
+    return (
+        (p.W_TOP_RIGHT, p.W_TOP_LEFT),   # k=0 REAR
+        (p.W_TOP_FRONT, p.W_TOP_REAR),   # k=1 RIGHT
+        (p.W_TOP_LEFT, p.W_TOP_RIGHT),   # k=2 FRONT
+        (p.W_TOP_REAR, p.W_TOP_FRONT),   # k=3 LEFT
+    )
 
 
 def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
     """Anzahl der Kammer-SLOTS (u-Positionen) über ALLE 4 Seiten, SUMME je
     Seite (Ledger 21/22: nicht mehr 4x2xn, weil jede Seite jetzt ihr eigenes
     Zellenraster hat -- eine schmale Seite kann weniger Slots liefern als
-    eine breite). Ein Slot enthält ZWEI Einzelkammern (Ring 1 + Ring 2) und
-    2 Vent-Kanäle -- Einzelkammern gesamt = 2 x Slots. Für die
-    DFM-Vent-Allowance."""
+    eine breite). +u- und -u-Halbseite werden UNABHÄNGIG mit ihrer jeweils
+    eigenen Nachbargrenze gezählt (Review-Fix: keine pauschale Verdopplung
+    mehr, da beide Hälften bei Asymmetrie unterschiedlich groß sein können).
+    Ein Slot enthält ZWEI Einzelkammern (Ring 1 + Ring 2) und 2 Vent-Kanäle
+    -- Einzelkammern gesamt = 2 x Slots. Für die DFM-Vent-Allowance."""
     if not p.CHAMBERS:
         return 0
-    return sum(2 * len(_chamber_cell_centers(p, w)) for w in _side_w_by_k(p))
+    total = 0
+    for plus_w, minus_w in _side_neighbor_bounds(p):
+        total += len(_chamber_cell_centers(p, plus_w))
+        total += len(_chamber_cell_centers(p, minus_w))
+    return total
 
 
 def _chamber_profile_face(r_in, r_out, apex_z, y0, p):
@@ -101,9 +155,15 @@ def _chamber_cuts(p: PRM.Params):
       k=2 (180°): -x  = FRONT  (W_TOP_FRONT)
       k=3 (270°): -y  = LEFT   (W_TOP_LEFT)
     Die radiale Kammertiefe (r_in1..r_out2) ist bewusst NICHT seitenspezifisch
-    (feste Größen aus INNER_WALL/CHAMBER_W/CHAMBER_RIB) -- nur die Zellenzahl/
-    -länge je Seite (_chamber_cell_centers) hängt von DEREN W_TOP ab
-    (Ledger 21/22)."""
+    (feste Größen aus INNER_WALL/CHAMBER_W/CHAMBER_RIB) und hängt NICHT von
+    W_TOP ab. Die Zellenzahl/-länge ENTLANG einer Seite (u-Richtung) wird
+    dagegen physisch von den beiden SENKRECHTEN NACHBARSEITEN begrenzt, nicht
+    von der eigenen W_TOP-Breite (Review-Fund nach Ledger 21/22, siehe
+    _chamber_cell_centers/_side_neighbor_bounds für die vollständige
+    Herleitung samt Rotations-Nachweis). +u-Hälfte und -u-Hälfte werden daher
+    UNABHÄNGIG mit ihrer jeweiligen Nachbargrenze berechnet -- KEINE
+    pauschale Spiegelung derselben Liste mehr, da beide Hälften bei
+    asymmetrischen W_TOP unterschiedlich groß sein können."""
     if not p.CHAMBERS:
         return []
     r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
@@ -111,12 +171,14 @@ def _chamber_cuts(p: PRM.Params):
     r_in2 = r_out1 + p.CHAMBER_RIB
     r_out2 = r_in2 + p.CHAMBER_W
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
-    side_w = _side_w_by_k(p)
+    neighbor_bounds = _side_neighbor_bounds(p)
 
     tools = []
     for k in range(4):
-        half = _chamber_cell_centers(p, side_w[k])
-        centers = half + [-c for c in half]
+        plus_w, minus_w = neighbor_bounds[k]
+        plus_half = _chamber_cell_centers(p, plus_w)
+        minus_half = _chamber_cell_centers(p, minus_w)
+        centers = plus_half + [-c for c in minus_half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
