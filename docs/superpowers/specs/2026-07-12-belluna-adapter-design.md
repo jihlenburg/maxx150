@@ -92,9 +92,9 @@ Parametern und schreibt sie in die Montagenotiz.
   Kleberille für die Carloflex-Raupe.
 
 **Segmentierung:** Standard **4 identische L-Ecksegmente** (Rotationssymmetrie → eine Druckdatei),
-Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: vertikale
-Nut-Feder-Verzahnung (Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 2 Schraubdome
-je Stoß (M4 oder Blechschraube) + Klebefläche. Segmentanzahl parametrisch (2/4/8).
+Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: Halbüberlappung
+(Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 1 Durchsteckschraube M5 je Stoß
+(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Segmentanzahl parametrisch.
 
 **Thermik konstruktiv:** ASA α ≈ 90 µm/(m·K) vs. GFK ≈ 25 → auf 500 mm Kante bei ΔT 105 K
 (−20…+85 °C) ~3,4 mm Differenzdehnung. Aufnahme ausschließlich durch die elastische Klebschicht

@@ -46,12 +46,12 @@ class Params:
     N_SEGMENTS: int = 4          # nur 4 unterstützt (Quadranten)
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
     TOL_JOINT: float = 0.25      # Passungsluft je Fügefläche
-    JOINT_BOLT_D: float = 4.5    # M4-Durchgang
+    JOINT_BOLT_D: float = 5.5    # M5-Durchgang (M4 fiel bei 480 N Lochleibungs-Nachweis durch)
     JOINT_BOLT_OFF: float = 35.0 # Bolzenlage ab Öffnungskante (kollidiert nicht mit Rille)
-    JOINT_CB_D: float = 8.5     # Zylindersenkung Kopf (DIN912 M4)
-    JOINT_CB_T: float = 4.5
-    JOINT_NUT_AF: float = 7.4    # Sechskant-Schlüsselweite Muttertasche
-    JOINT_NUT_T: float = 3.5
+    JOINT_CB_D: float = 10.0     # Zylindersenkung Kopf (DIN912 M5)
+    JOINT_CB_T: float = 5.0
+    JOINT_NUT_AF: float = 8.0    # Sechskant-Schlüsselweite Muttertasche (M5)
+    JOINT_NUT_T: float = 4.0
     SEG_MAX_BBOX: float = 300.0  # zulässige Segment-Boundingbox (Druckservice)
     # --- Lüfter / Lasten (Spec §3/§6) ---
     FAN_MASS: float = 6.5        # kg (Maxxfan-Hüllkurve; Belluna 5.0)

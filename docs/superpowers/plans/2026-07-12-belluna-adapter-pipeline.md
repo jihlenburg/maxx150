@@ -1667,9 +1667,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Nach dem Druck **Tempern** (ASA: 80 °C, 4 h) für Maßstabilität bei Dachhitze.
 
 ## Fügen
-- 4 Stöße: Halbüberlappung, je 1x M4x{int(p.H_RAISE - p.GLUE_GAP + p.JOINT_NUT_T + 2)}
+- 4 Stöße: Halbüberlappung, je 1x M5x{int(p.H_RAISE - p.GLUE_GAP + p.JOINT_NUT_T + 2)}
   Zylinderkopf (DIN 912) + Mutter in der Tasche, Fügeflächen mit 2K-Epoxid oder
-  ASA-Kleber benetzen, verschrauben (0,5 Nm).
+  ASA-Kleber benetzen, verschrauben (0,8 Nm).
 
 ## Verkleben auf dem Dach
 - Untergrund: Mini-Heki-Altbett vollständig entfernen, mit Isopropanol reinigen.
