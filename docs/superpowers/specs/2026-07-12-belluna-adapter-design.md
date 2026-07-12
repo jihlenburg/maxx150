@@ -68,8 +68,13 @@ Parametern und schreibt sie in die Montagenotiz.
 3. **Temperatur:** Bauteiltemperatur −20 … **+85 °C** dauerhaft formstabil und tragfähig.
 4. **Fertigung:** Druckservice, druckerunabhängig; Segment-Boundingbox konservativ ≤ 250 mm
    Kantenlänge; stützenfrei druckbar.
-5. **Material:** ASA weiß (UV-stabil, Tg ≈ 100 °C, geringe solare Aufheizung). Eskalationsstufe
-   bei FEM-Engpass: ASA-GF oder PC-Blend (Modell materialagnostisch).
+5. **Material & Prozess:** ASA weiß im **FDM/FFF**-Verfahren (User-Festlegung 2026-07-12).
+   Hauptgrund: direkte Klebefähigkeit mit MS-Polymer/Epoxid ohne Primer — tragend für das
+   klebebasierte Befestigungs- und Dichtkonzept. Pulververfahren (SLS/MJF-PA12) verworfen:
+   Verklebung nur mit Primer/Plasma zuverlässig, Wasseraufnahme, stärkeres Kriechen.
+   UV-stabil nativ, Tg ≈ 100 °C. Eskalationsstufe bei FEM-Engpass: ASA-GF oder PC-Blend.
+   Die Kammer-Vents (Ø4) dienen dem Druckausgleich der geschlossenen Zellen
+   (−20…+85 °C ≈ 35 % Innendruckhub), nicht mehr der Entpulverung.
 6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
    verklebt (Ringklebenut); zusätzlich seitliche Verschraubung Kragen → Adapter-Innenwand
    (Adapter übernimmt die Holzrahmen-Rolle der Anleitung). Keine Verschraubung von oben.

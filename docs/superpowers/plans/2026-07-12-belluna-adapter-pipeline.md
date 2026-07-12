@@ -1867,7 +1867,7 @@ verlangt künftig 100 % Infill (Kammern übernehmen die Gewichtsreduktion).
     SOLID_CORNER: float = 45.0 # massiv ab Eck-Außenkante
     SOLID_JOINT_HALF: float = 40.0  # massiv um Seitenmitte (deckt Lap + M5)
     CHEVRON_DEG: float = 47.0  # Kammerboden-Zelt; >45° mit Reserve (DFM-Kante)
-    VENT_D: float = 4.0        # Entpulverungsbohrung je Zelle
+    VENT_D: float = 4.0        # Druckausgleichsbohrung je Zelle (FDM; SLS verworfen)
     VENT_Z: float = 17.0       # Bohrungshöhe (weit weg von Schraubzone)
 ```
 
@@ -1879,7 +1879,8 @@ verlangt künftig 100 % Infill (Kammern übernehmen die Gewichtsreduktion).
   die Kammer-„Decke" mit 47°-Flanken → stützenfrei, kein neuer DFM-Beitrag.
 - Zellen je Seite zwischen den massiven Zonen (Ecken: SOLID_CORNER ab Außenkante;
   Stöße: ±SOLID_JOINT_HALF um die Seitenmitte), Raster CELL_L mit CELL_RIB.
-- Vents: je Zelle Ø VENT_D horizontal von der Innenfläche (r=200) bei z=VENT_Z in Ring 1,
+- Vents (Druckausgleich der geschlossenen Zellen bei −20…+85 °C): je Zelle Ø VENT_D
+  horizontal von der Innenfläche (r=200) bei z=VENT_Z in Ring 1,
   plus Durchgang Ring 1→Ring 2 durch den Steg. Dadurch sind ALLE Kammern belüftet →
   das Solid bleibt topologisch EINE geschlossene Shell (kein eingeschlossener Hohlraum) —
   der bestehende Test `len(Shells)==1 && isClosed` erzwingt damit korrekt verbundene Vents.
