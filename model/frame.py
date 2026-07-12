@@ -44,9 +44,10 @@ def _chamber_cell_centers(p: PRM.Params):
     return centers
 
 
-def chamber_cell_count(p: PRM.Params = PRM.P) -> int:
-    """Gesamtzahl der Kammerzellen über alle 4 Seiten (je Zelle: ein Kammerpaar
-    Ring 1 + Ring 2 plus 2 Vent-Kanäle). Für die DFM-Vent-Allowance."""
+def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
+    """Anzahl der Kammer-SLOTS (u-Positionen) über alle 4 Seiten. Ein Slot
+    enthält ZWEI Einzelkammern (Ring 1 + Ring 2) und 2 Vent-Kanäle —
+    Einzelkammern gesamt = 2 x Slots. Für die DFM-Vent-Allowance."""
     if not p.CHAMBERS:
         return 0
     half = _chamber_cell_centers(p)

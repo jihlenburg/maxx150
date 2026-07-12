@@ -8,7 +8,7 @@ import MeshPart
 from FreeCAD import Matrix
 
 import params as PRM
-from model.frame import chamber_cell_count
+from model.frame import chamber_slot_count
 
 COS45 = math.cos(math.radians(45))
 
@@ -32,7 +32,7 @@ def _allowed_bridge_area(p):
     nut = 4 * 2 * math.sqrt(3) * (p.JOINT_NUT_AF / 2) ** 2
     band = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
     lap_step = 4 * (p.LAP_L - p.TOL_JOINT) * band
-    vent = (chamber_cell_count(p) * 2 * (math.pi / 2) * (p.VENT_D / 2)
+    vent = (chamber_slot_count(p) * 2 * (math.pi / 2) * (p.VENT_D / 2)
             * max(p.INNER_WALL, p.CHAMBER_RIB))
     return rec_ring + cb + nut + lap_step + vent
 
