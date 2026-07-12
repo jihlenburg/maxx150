@@ -527,7 +527,7 @@ def test_valide_und_wasserdicht():
 def test_hauptmasse():
     s = _frame()
     bb = s.BoundBox
-    assert abs(bb.XLen - 500.0) < 0.01 and abs(bb.YLen - 500.0) < 0.01
+    assert abs(bb.XLength - 500.0) < 0.01 and abs(bb.YLength - 500.0) < 0.01
     assert abs(bb.ZMin + PRM.P.GLUE_GAP) < 1e-6          # Noppen bis -3
     assert abs(bb.ZMax - top_z()) < 1e-6                 # Deckfläche bei 25
 
@@ -829,8 +829,8 @@ def test_vier_valide_segmente():
 def test_bbox_druckservice():
     for s in _segs():
         bb = s.BoundBox
-        assert max(bb.XLen, bb.YLen) <= PRM.P.SEG_MAX_BBOX, \
-            f"Segment {bb.XLen:.0f}x{bb.YLen:.0f} zu groß"
+        assert max(bb.XLength, bb.YLength) <= PRM.P.SEG_MAX_BBOX, \
+            f"Segment {bb.XLength:.0f}x{bb.YLength:.0f} zu groß"
 
 def test_identische_segmente_bei_symmetrie():
     vols = sorted(s.Volume for s in _segs())
