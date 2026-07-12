@@ -12,6 +12,15 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 - [ ] Ledger 10: test_deckflaeche-Schwelle aus Parametern berechnen statt 60000 hart
 - [ ] Ledger 21/22: min(W_TOP)-Kopplungen in dfm/frame seitenspezifisch machen
 
+## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
+- [ ] Montagenotiz: ASA-Pflichtbedingungen (geschlossener Bauraum >=45 °C, Bett 100-110 °C,
+      PEI+Brim 10 mm, Draft-Shield, Abkühlen im Bauraum, Tempern) — SOFORT nach Fix-Agent
+- [ ] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
+      (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
+- [ ] DFM-Warp-Metrik: größten zusammenhängenden Massivquerschnitt je Segment berechnen
+      und in Montagenotiz/Report ausweisen (Schwelle diskutieren)
+- [ ] ASA-GF als Herstellbarkeits-Empfehlung dokumentieren (Verzug + CTE, Spec §3.5)
+
 ## Allgemeine Follow-ups (Priorität nach Bedarf)
 - [ ] M1/Ledger 23/30/33: Formel-/Helfer-Duplikate konsolidieren (lap_height, min_band,
       groove_centerline_len, _rot -> features.py, _ensure_binary_paths -> fem)
