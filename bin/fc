@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd "$@"
