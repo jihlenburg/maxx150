@@ -16,8 +16,8 @@ class Params:
     ROOF_T: float = 35.0         # Dachstärke X-Modelle (Messkampagne 8)
     EDGE_DIST: float = 250.0     # Ausschnitt-Hinterkante -> Dachkante (Messkampagne 7)
     EDGE_H: float = 55.0         # Höhe Dachkante über Dachebene (Messkampagne 7)
-    # --- Haubengeometrie für Freigang-Check (Messkampagne 7) ---
-    HOOD_TIP_REACH: float = 130.0   # horizontaler Haubenüberstand über Ausschnitt-Hinterkante
+    # --- Haubengeometrie für Freigang-Check (MaxxFan-Deluxe-Maßblatt) ---
+    HOOD_TIP_REACH: float = 179.0   # Haubenüberstand über Ausschnitt-Hinterkante, offen (Maßblatt)
     HOOD_UNDERSIDE_H: float = 30.0  # Haubenunterkante am Überstand über Plattensitz
     CLEAR_MIN: float = 5.0          # geforderter Freigang
     H_CG: float = 160.0             # Angriffshöhe Windlast über Deckfläche
@@ -57,7 +57,7 @@ class Params:
     FAN_MASS: float = 6.5        # kg (Maxxfan-Hüllkurve; Belluna 5.0)
     V_DESIGN_KMH: float = 200.0  # 160 Reise + Böenreserve
     CD_HOOD: float = 1.2
-    A_HOOD: float = 0.10         # m² projiziert, Haube offen
+    A_HOOD: float = 0.108        # m² projiziert, Haube offen: MaxxFan Deluxe 0.408 x (0.236+0.028)
     SF_WIND: float = 2.0
     G_VERT: float = 4.0          # Schlechtweg vertikal
     G_LAT: float = 2.0           # Schlechtweg quer

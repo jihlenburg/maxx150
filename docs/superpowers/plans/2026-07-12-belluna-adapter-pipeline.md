@@ -19,7 +19,7 @@ gebündeltes `ccx` und `gmsh`, Python 3.11 (FreeCAD-intern).
 - FreeCAD headless: `/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd` (verifiziert: Version 1.1.1; `ccx` und `gmsh` im Bundle unter `Contents/Resources/bin/`; **kein** Netgen-Python-Modul → Vernetzung ausschließlich Gmsh).
 - Alle Ausführungen über den Wrapper `bin/fc` (Task 1). Tests: `bin/fc tests/run_tests.py`; Einzelfilter über Umgebungsvariable `TEST_FILTER=<substring>`.
 - Einheiten: mm, N, MPa, °C. Koordinaten: Öffnung zentriert um (0,0); +x = Fahrtrichtung hinten (heckseitig); z=0 = Unterkante des Rahmenkörpers; Klebenoppen ragen bis z=−`GLUE_GAP`; Deckfläche bei z=`H_RAISE`−`GLUE_GAP`.
-- Kennzahlen aus der Spec (müssen in Tests exakt so herauskommen): effektive Wandstärke 35+28=63 mm → 140er-Welle; Windlast 200 km/h → 444 N (mit SF 2); Zulässigkeiten ASA bei 85 °C: 3,36 MPa dauerhaft / 8,4 MPa kurzzeitig (Kette 40 × 0,35 × 0,6 [× 0,4]).
+- Kennzahlen aus der Spec (müssen in Tests exakt so herauskommen): effektive Wandstärke 35+28=63 mm → 140er-Welle; Windlast 200 km/h → **480 N** (A_HOOD 0,108 m² aus MaxxFan-Deluxe-Maßblatt, mit SF 2; Amendment nach Task 2); Zulässigkeiten ASA bei 85 °C: 3,36 MPa dauerhaft / 8,4 MPa kurzzeitig (Kette 40 × 0,35 × 0,6 [× 0,4]).
 - Keine externen Python-Pakete (kein pip, kein pytest) — nur FreeCAD-Bundle-Module + Stdlib.
 - **Git: NIEMALS automatisch committen.** Globale User-Regel, überschreibt jede Skill-Vorgabe. Jeder Task endet mit „Checkpoint": Ergebnis melden, Commit-Freigabe des Users abwarten (Vorschlag für Commit-Message angeben).
 - `out/` ist gitignored (generierte Artefakte).

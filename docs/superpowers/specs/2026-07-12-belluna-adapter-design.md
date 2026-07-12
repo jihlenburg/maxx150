@@ -39,6 +39,14 @@ CalculiX-Solver aus dem FreeCAD-Bundle. Kein GUI-Schritt ist Teil des Workflows.
 | Dach am Ausschnitt | plan (Fotobefund), Mini-Heki in Dichtmittelbett verklebt |
 | Reisegeschwindigkeit | bis 160 km/h |
 
+### MaxxFan Deluxe (Hüllkurven-Lüfter für die Auslegung, Maßblatt liegt vor)
+| Größe | Wert |
+|---|---|
+| Haube L × B | 586 × 408 mm |
+| Höhe geschlossen / offen | 132 / 236 mm |
+| Hecküberstand offen ab Dachausschnitt | 179 mm (123 mm bis Haubenknick) |
+| Masse | 6,5 kg (Belluna: 5,0 kg) |
+
 ### Befunde aus Fotos der Karosseriebefestigungsplatte (Gerät liegt vor)
 - Flanschoberseite plan, Schraublöcher verstöpselt; schwarze Dichtung umlaufend am Kragenfuß (Dichtebene Platte↔Lüftereinheit).
 - Unterseite: Klebe-/Kontaktzone ist der **äußere Flanschbereich mit konzentrischen Ringrippen**
@@ -133,7 +141,7 @@ statt fehlerhafte Artefakte zu exportieren.
 **Lastfälle:**
 | # | Lastfall | Ansatz |
 |---|---|---|
-| LF1 | Fahrtwind | 200 km/h → q ≈ 1,9 kPa; Haube offen (zulässig lt. Anleitung): A ≈ 0,1 m², cd ≈ 1,2 → ~230 N horizontal, ×2 Sicherheit = **460 N** am Hebelarm der Haubenhöhe (Kippmoment auf Deckfläche) |
+| LF1 | Fahrtwind | 200 km/h → q ≈ 1,85 kPa; Haube offen (zulässig lt. Anleitung), Worst Case MaxxFan Deluxe: A = 0,408 m × (0,236 + 0,028) m ≈ 0,108 m² (Maßblatt), cd ≈ 1,2 → ~240 N horizontal, ×2 Sicherheit = **480 N** am Hebelarm der Haubenhöhe (Kippmoment auf Deckfläche) |
 | LF2 | Schlechtweg | quasistatisch ±4 g vert. / ±2 g quer auf 6,5 kg → ±255 N / ±130 N |
 | LF3 | Klemmung/Montage | Vorspannung Innenrahmen-Verschraubung (aus 0,7 Nm Anzugsmoment lt. Anleitung ≈ 400–600 N je Schraube, konservativ 600 N × 4) + Anzug der Seitenschrauben; Schraubenauszug/Flächenpressung Innenwand |
 | LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |

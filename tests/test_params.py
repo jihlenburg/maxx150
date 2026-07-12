@@ -16,7 +16,8 @@ def test_wellenwahl_grenzen():
         pass
 
 def test_windlast():
-    assert abs(PRM.wind_force() - 444.4) < 1.0   # 200 km/h, cd 1.2, A 0.1, SF 2
+    # 200 km/h, cd 1.2, A 0.108 (MaxxFan Deluxe offen, Maßblatt), SF 2
+    assert abs(PRM.wind_force() - 480.0) < 1.0
 
 def test_zulaessigkeiten():
     lang, kurz = PRM.allowables()
