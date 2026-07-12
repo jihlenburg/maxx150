@@ -34,7 +34,7 @@ def test_oeffnung_bleibt_400():
 
 def test_volumen_plausibel():
     v = _frame().Volume
-    assert 1.9e6 < v < 2.4e6, f"Volumen {v/1e6:.2f} l unplausibel"
+    assert 1.55e6 < v < 1.95e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
     s = _frame()
@@ -42,3 +42,12 @@ def test_deckflaeche_vorhanden():
     top_area = sum(f.Area for f in s.Faces
                    if abs(f.CenterOfMass.z - zt) < 1e-4)
     assert top_area > 60000, "zu wenig plane Klebefläche oben"
+
+def test_kammern_wirken():
+    """Rippenkammern (Task 14) müssen substanziellen Materialanteil entfernen,
+    aber nicht die Festigkeitsstruktur sprengen (Bandbreite laut Brief)."""
+    import params as PRM
+    from model.frame import build_frame
+    v_solid = build_frame(PRM.Params(CHAMBERS=False)).Volume
+    v_cham = build_frame().Volume
+    assert 2.5e5 < (v_solid - v_cham) < 5.0e5, f"Kammervolumen {v_solid - v_cham:.0f}"

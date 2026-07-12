@@ -75,7 +75,22 @@ class Params:
     DERATE_TEMP: float = 0.35    # bei 85 °C
     DERATE_Z: float = 0.6        # FDM-Schichthaftung
     DERATE_CREEP: float = 0.4    # Dauerlast
-    INFILL_FACTOR: float = 0.5   # Homogenisierung >=4 Perimeter + 40 % Gyroid
+    INFILL_FACTOR: float = 1.0   # 100 % Infill (Kammern übernehmen die Gewichtsreduktion,
+                                  # kein Slicer-Infill mehr nötig)
+    # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
+    CHAMBERS: bool = True
+    DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
+    BOTTOM_T: float = 4.0      # Bodenplatte: enthält Kleberille (Tiefe 2)
+    INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
+    CHAMBER_W: float = 15.0    # radiale Kammerbreite (2 konzentrische Ringe)
+    CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
+    CELL_L: float = 45.0       # Zellenteilung entlang der Seite
+    CELL_RIB: float = 3.0      # Quersteg zwischen Zellen
+    SOLID_CORNER: float = 45.0 # massiv ab Eck-Außenkante
+    SOLID_JOINT_HALF: float = 40.0  # massiv um Seitenmitte (deckt Lap + M5)
+    CHEVRON_DEG: float = 47.0  # Kammerboden-Zelt; >45° mit Reserve (DFM-Kante)
+    VENT_D: float = 4.0        # Druckausgleichsbohrung je Zelle (FDM; SLS verworfen)
+    VENT_Z: float = 17.0       # Bohrungshöhe (weit weg von Schraubzone)
     # --- FEM-Steuerung ---
     MESH_MM: float = 10.0        # Produktionsnetz
     MESH_MM_TEST: float = 20.0   # Grobnetz für Tests
