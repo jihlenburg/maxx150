@@ -24,6 +24,7 @@ def main():
         except Exception:
             print(f"LADEFEHLER {tf.name}")
             traceback.print_exc()
+            sys.stdout.flush()
             failed += 1
             continue
         for name in sorted(dir(mod)):
@@ -36,7 +37,13 @@ def main():
                     print(f"FAIL {tf.stem}.{name}")
                     traceback.print_exc()
                     failed += 1
+                sys.stdout.flush()
     print(f"\n{passed} bestanden, {failed} fehlgeschlagen")
+    # freecadcmd flusht den gepufferten Python-stdout beim regulären
+    # Prozessende nicht zuverlässig (sys.exit() allein verschluckt bei
+    # nicht-interaktivem stdout, z. B. Pipe/Datei-Redirect, die letzten
+    # print()-Zeilen inkl. dieser Zusammenfassung). Explizit flushen.
+    sys.stdout.flush()
     sys.exit(1 if failed else 0)
 
 
