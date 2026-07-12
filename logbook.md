@@ -270,3 +270,54 @@ Params-Feldänderung, Hash bleibt zwangsläufig unverändert.
   **~3.4 s gespart** — deutlich weniger als die im Brief geschätzten
   „20-30 s", ehrlich als Diskrepanz dokumentiert statt schöngerechnet.
 - Vollständiger Nachweis: `.superpowers/sdd/task-16-report.md`.
+
+## 2026-07-12 — Task 19: Materialwechsel Default → Bambu ASA-CF
+
+Quelle: `.superpowers/sdd/task-19-brief.md` (User-Entscheidung, TDS V1.0 liegt
+vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
+
+- params.py Materialkarte (geometriefrei, nur Materialfelder): E_BASE 4200
+  (Zug-E XY; Z 2290), SIGMA_BASE 34 (XY; Z 30), RHO 1020, CTE_ASA 60e-6
+  (konservative OBERGRENZE — TDS nennt keinen CTE; bewusst NICHT die
+  optimistischeren ~40e-6, Gate-Muting-Lehre), DERATE_TEMP 0.5 (85 °C vs.
+  HDT 102/Vicat 108), DERATE_Z 0.8 (GEMESSEN Z/XY=0.88, konservativ
+  gerundet), DERATE_CREEP 0.4 unverändert (keine CF-Kriechdaten). NU 0.35
+  unverändert. Preset-Vergleichstabelle (Standard-ASA, CR3D FibCR20) NUR
+  als Kommentar. GEOM_REV bleibt 2 (keine Geometrieänderung).
+- Abgeleitete Zahlen nachgerechnet (alle Brief-Werte bestätigt, nur
+  Rundungsartefakte dokumentiert): allowables lang/kurz 5.44/13.60;
+  Fugenauslastung u=0.208542 (~21 %, Brief 0.2086 = Zwischenrundung);
+  side_screw_pullout 430.6747 N (Brief 430.6); τ_zul 6.80,
+  Lochleibung_zul 13.60. M5 bleibt (M4 ginge rechnerisch wieder:
+  Lochleibung mit M4-Durchgang 4.5 mm = 480/(4.5·12.5) = 8.53 MPa — vorher
+  über 8.40 zulässig [durchgefallen], jetzt klar unter 13.60 — aber KEINE
+  Geometrieänderung in diesem Task).
+- Tests (Erwartungswerte geändert, KEINE Toleranz-Aufweichung):
+  test_zulaessigkeiten 5.44/13.60 (±0.01), test_fugenauslastung
+  0.15<u<0.30 (mit Rechnung im Kommentar), test_seitenschrauben_auszug
+  430.6±5, test_materialkarte "4200.0 MPa" (im Brief nicht gelistet, aber
+  zwingend: fem/material.py liest E_BASE), test_export +"ASA-CF"/"250"/
+  "Kammer". RED je Block vor Anpassung nachgewiesen (alte Erwartungen
+  scheitern an neuen params; Suite-Lauf 1: 74/75 mit exakt dem erwarteten
+  einen FAIL vor dem test_materialkarte-Fix).
+- Montagenotiz: Bambu ASA-CF (TDS V1.0), Düse 250–280 °C, Bett 80–100 °C
+  texturiertes PEI, Kammer 45–60 °C, Trocknung 8 h/80 °C VOR Druck,
+  Tempern 80–90 °C/6–12 h (statt 80 °C/4 h), Verzugs-Pflichtblock auf
+  CF-Formulierung („dimensional stability", Maßnahmen bleiben PFLICHT),
+  Brücken-Hinweis: Stoßstufen-Brücke ~25 mm < 40 mm TDS-Maximum.
+- Spec §3.5 (Bambu ASA-CF Default + Datenblatt + DA-3-Begründung + Presets
+  + CTE-Vorbehalt), §4 Thermik (60e-6 → ~1,84 mm statt 3,4 mm), §6
+  Materialkette (34/4200, 0.5·0.8·0.4 → 5.44/13.60, DERATE_Z gemessen).
+  todo.md: neuer offener Punkt CTE-Herstellerwert anfragen.
+- Volle Suite: **75 bestanden, 0 fehlgeschlagen** (Lauf 2, nach
+  test_materialkarte-Fix). Geometrie-Anker unverändert grün
+  (test_eckkammern_default_anker_unveraendert: Volumen 1736006.070242394).
+- Produktionslauf `bin/fc run_all.py` (Hintergrund+Poll): params_hash neu
+  **`5f063cc3`** (vorher da0d8553). DFM 4x PASS (8909/44346 mm²). FEM:
+  LF1 0.80/13.60 (5.9 %), LF2 0.41/13.60 (3.0 %), LF3 2.27/5.44 (41.7 %,
+  Brief-Erwartung ~41 % getroffen; vM-Istwert 2.27 vs. 2.25 Task 16 =
+  Netz-Rauschen), LF4 0.19/13.60 (1.4 %), Stoß 3.40/13.60 (25.0 %).
+  Fugenauslastung 21 % (vorher 39 %). „PASS mit Vorbehalt" (Freigang
+  OFFEN, Messkampagne 7) unverändert korrekt, !-Banner im Log, Manifest
+  14 Dateien + Git-Rev + GEOM_REV=2, FERTIG nach 127 s.
+- Vollständiger Nachweis: `.superpowers/sdd/task-19-report.md`.

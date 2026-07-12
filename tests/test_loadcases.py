@@ -22,8 +22,9 @@ def _face_by_name(shape, name):
 
 def test_materialkarte():
     m = fem_material_dict(PRM.P)
-    # 2000 * INFILL 1.0 — Kammern, kein Slicer-Infill
-    assert m["YoungsModulus"] == "2000.0 MPa"
+    # Task 19 (Bambu ASA-CF, TDS V1.0): 4200 * INFILL 1.0 — Kammern, kein
+    # Slicer-Infill; NU unveraendert (keine Herstellerangabe)
+    assert m["YoungsModulus"] == "4200.0 MPa"
     assert m["PoissonRatio"] == "0.35"
 
 

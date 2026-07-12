@@ -35,18 +35,26 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
 ## Druck (je 4x Segment, identisch)
-- Material: ASA weiß; Orientierung: **Deckfläche nach unten** (Schichten parallel
-  zum Dach; bei MJF/SLS beliebig). Brücken in Gusset-Freistellung/Muttertaschen sind
-  beabsichtigt und unkritisch.
+- Material: **Bambu ASA-CF** (TDS V1.0); Orientierung: **Deckfläche nach unten**
+  (Schichten parallel zum Dach; bei MJF/SLS beliebig). Brücken in
+  Gusset-Freistellung/Muttertaschen sind beabsichtigt und unkritisch; die
+  längste vorgesehene Brücke (Stoßstufe der Halbüberlappung, ~25 mm) liegt
+  klar unter der dokumentierten max. Brückenlänge von **40 mm** (TDS).
+- Druckparameter (Bambu-TDS): Düse **250–280 °C**, Bett **80–100 °C** auf
+  texturiertem PEI, **Kammer 45–60 °C**. Filament **VOR dem Druck 8 h bei
+  80 °C trocknen** (hygroskopisches CF-Compound).
 - Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
   übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
   Porenschluss), 0,4er Düse.
-- **PFLICHT gegen Verzug** (ASA, 275-mm-Teil mit massiven Eck-/Stoßzonen):
-  geschlossener, beheizter Bauraum (≥ 45 °C Kammer), Bett 100–110 °C auf
-  texturiertem PEI, **Brim ≥ 10 mm**, Draft-Shield, nach Druckende im
+- **PFLICHT gegen Verzug**: der Carbonfaser-Anteil senkt den Verzug laut
+  Herstellerangabe ("dimensional stability") gegenüber Standard-ASA deutlich —
+  das ändert aber NICHTS an der Pflicht, das 275-mm-Teil mit massiven
+  Eck-/Stoßzonen sauber zu fahren: geschlossener, beheizter Bauraum
+  (Kammer 45–60 °C), **Brim ≥ 10 mm**, Draft-Shield, nach Druckende im
   geschlossenen Bauraum abkühlen lassen. Beim Druckservice ausdrücklich
-  „ASA-erfahren, geschlossene Maschine" anfordern — KEIN offener Drucker.
-- Nach dem Druck **Tempern** (ASA: 80 °C, 4 h) für Maßstabilität bei Dachhitze.
+  „ASA-CF-erfahren, geschlossene Maschine" anfordern — KEIN offener Drucker.
+- Nach dem Druck **Tempern** (Bambu-Angabe: 80–90 °C, 6–12 h) für
+  Maßstabilität bei Dachhitze.
 
 ## Fügen
 - 4 Stöße: Halbüberlappung, je 1x M5x{_m5_bolt_length(p)}

@@ -68,13 +68,28 @@ Parametern und schreibt sie in die Montagenotiz.
 3. **Temperatur:** Bauteiltemperatur −20 … **+85 °C** dauerhaft formstabil und tragfähig.
 4. **Fertigung:** Druckservice, druckerunabhängig; Segment-Boundingbox konservativ ≤ 250 mm
    Kantenlänge; stützenfrei druckbar.
-5. **Material & Prozess:** ASA weiß im **FDM/FFF**-Verfahren (User-Festlegung 2026-07-12).
-   Hauptgrund: direkte Klebefähigkeit mit MS-Polymer/Epoxid ohne Primer — tragend für das
-   klebebasierte Befestigungs- und Dichtkonzept. Pulververfahren (SLS/MJF-PA12) verworfen:
-   Verklebung nur mit Primer/Plasma zuverlässig, Wasseraufnahme, stärkeres Kriechen.
-   UV-stabil nativ, Tg ≈ 100 °C. Eskalationsstufe bei FEM-Engpass: ASA-GF oder PC-Blend.
+5. **Material & Prozess (§3.5):** **Bambu ASA-CF (TDS V1.0)** im **FDM/FFF**-Verfahren als
+   Default (User-Entscheidung Task 19, Datenblatt liegt vor — gedruckte Probekörper XY+Z:
+   E 4200±270/2290±260 MPa, Zug 34±3/30±4 MPa, Bruchdehnung 9,6/4,4 %, HDT(1,8 MPa) 102 °C,
+   Vicat 108 °C, Dichte 1,02 g/cm³, Kerbschlag 6,2 gekerbt XY/9,4 Z). Löst den bisherigen
+   Standard-ASA-Default ab: gedruckte XY+Z-Probekörper liefern eine evidenzbasierte
+   Derating-Kette statt geschätzter Pauschalfaktoren — erfüllt die DA-3-Forderung nach
+   belegten Werkstoffkennwerten damit substanziell besser als zuvor. Hauptgrund für
+   FDM/FFF unverändert: direkte Klebefähigkeit mit MS-Polymer/Epoxid ohne Primer —
+   tragend für das klebebasierte Befestigungs- und Dichtkonzept. Pulververfahren
+   (SLS/MJF-PA12) weiterhin verworfen: Verklebung nur mit Primer/Plasma zuverlässig,
+   Wasseraufnahme, stärkeres Kriechen. UV-stabil nativ, HDT/Vicat 102/108 °C (deutlich
+   über der 85-°C-Bauteilgrenze). Eskalationsstufe bei FEM-Engpass unverändert:
+   ASA-GF oder PC-Blend (§6).
    Die Kammer-Vents (Ø4) dienen dem Druckausgleich der geschlossenen Zellen
    (−20…+85 °C ≈ 35 % Innendruckhub), nicht mehr der Entpulverung.
+   **Presets (params.py-Kommentar, kein Code-Pfad):** Standard-ASA (vorheriger
+   Projekt-Default, Task 1–18, ebenfalls belegt) und CR3D FibCR20 (20 %-CF-FDM-
+   Filament, grobe Marktklassenwerte — KEIN eigenes TDS im Haus, vor Umstieg erst
+   beschaffen) bleiben als Vergleichszeilen dokumentiert.
+   **Offener Punkt:** `CTE_ASA` = 60e-6 1/K ist eine konservative Obergrenze (das
+   TDS nennt keinen CTE-Wert) — Herstelleranfrage folgt (todo.md); ein belegter,
+   niedrigerer Wert senkt die aktuelle Fugenauslastung (~21 %) weiter.
 6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
    verklebt (Ringklebenut); zusätzlich seitliche Verschraubung Kragen → Adapter-Innenwand
    (Adapter übernimmt die Holzrahmen-Rolle der Anleitung). Keine Verschraubung von oben.
@@ -111,8 +126,10 @@ Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindu
 (Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 1 Durchsteckschraube M5 je Stoß
 (M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Segmentanzahl parametrisch.
 
-**Thermik konstruktiv:** ASA α ≈ 90 µm/(m·K) vs. GFK ≈ 25 → auf 500 mm Kante bei ΔT 105 K
-(−20…+85 °C) ~3,4 mm Differenzdehnung. Aufnahme ausschließlich durch die elastische Klebschicht
+**Thermik konstruktiv:** Bambu ASA-CF α ≈ 60 µm/(m·K, konservative Obergrenze, s. §3.5) vs.
+GFK ≈ 25 → auf 500 mm Kante bei ΔT 105 K (−20…+85 °C) ~1,84 mm Differenzdehnung (Task 19:
+vorher ASA α ≈ 90 → ~3,4 mm — der CF-Anteil senkt die Thermik-Differenzdehnung spürbar).
+Aufnahme ausschließlich durch die elastische Klebschicht
 (Bewegungsaufnahme MS-Polymer ≥ 20 % bei 2–3 mm Fuge) — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
 
@@ -174,9 +191,11 @@ statt fehlerhafte Artefakte zu exportieren.
 | LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |
 | LF5 | Thermik | ΔT −20…+85 °C, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch) + Verformungscheck (FEM) |
 
-**Materialabminderung ASA (Kern des Nachweises):** Basis 40 MPa / E ≈ 2000 MPa (23 °C).
-Faktoren: Temperatur 85 °C ≈ 0,35 · Z-Schichthaftung ≈ 0,6 · Kriechen (Dauerlast) ≈ 0,4.
-→ zulässig **3,36 MPa dauerhaft**, **8,40 MPa kurzzeitig** (Böe, Schlagloch; exakte Kettenwerte,
+**Materialabminderung Bambu ASA-CF (Kern des Nachweises, Task 19):** Basis 34 MPa / E ≈ 4200 MPa
+(XY, TDS V1.0, gedruckte Probekörper). Faktoren: Temperatur 85 °C vs. HDT 102/Vicat 108 °C ≈ 0,5 ·
+Z-Schichthaftung ≈ 0,8 (GEMESSEN Z/XY = 30/34 = 0,88, konservativ gerundet) · Kriechen (Dauerlast,
+keine CF-Kriechdaten) ≈ 0,4 (unverändert konservativ).
+→ zulässig **5,44 MPa dauerhaft**, **13,60 MPa kurzzeitig** (Böe, Schlagloch; exakte Kettenwerte,
 von Plan/Code so verwendet). Drucklage so, dass
 Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 

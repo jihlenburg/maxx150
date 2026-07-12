@@ -4,6 +4,12 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 (validate(p), M5-Kommentare, Normlänge) — dieses File sammelt NUR die Follow-ups.
 
 ## Pflichtpaket VOR dem Messkampagnen-Re-Run
+- [ ] CTE-Herstellerwert Bambu ASA-CF anfragen (senkt Fugenauslastung von 21 % weiter)
+      — Task 19: `CTE_ASA=60e-6` ist eine konservative Obergrenze für die
+      Datenblatt-Lücke (Bambu TDS V1.0 nennt keinen CTE-Wert; in-flow typ.
+      30–45e-6, quer höher). Ein belegter, niedrigerer Wert senkt
+      `fem.analytic.glue_shear_utilization` unter die aktuellen ~21 % weiter
+      (Spec §3.5 „Offener Punkt").
 - [x] I3: Asymmetrie-Smoke-Test (W_TOP je Seite verschieden, innerhalb validate(p)):
       Segmente valide, Union-Invariante, DFM grün; test_identische_segmente auf
       Symmetrie bedingen; Kammerraster-min()-Kopplung geprüft (Ledger 17/28/29, T6/T8)

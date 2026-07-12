@@ -73,18 +73,40 @@ class Params:
     SNOW_LOAD: float = 200.0     # N auf Grundfläche
     T_MIN: float = -20.0
     T_MAX: float = 85.0
-    # --- Material ASA (23 °C Basiswerte) + Abminderung (Spec §6) ---
-    E_BASE: float = 2000.0
-    SIGMA_BASE: float = 40.0
-    NU: float = 0.35
-    RHO: float = 1070.0          # kg/m^3
-    CTE_ASA: float = 90e-6       # 1/K
+    # --- Material Bambu ASA-CF (TDS V1.0, GEDRUCKTE Probekörper XY+Z; Task 19,
+    # Spec §3.5) + Abminderung (Spec §6) ---
+    E_BASE: float = 4200.0       # Zug-E XY; Z: 2290 (FEM isotrop-homogen, Verformungen unkritisch)
+    SIGMA_BASE: float = 34.0     # Zugfestigkeit XY (Z: 30 -> Z/XY=0.88 gemessen)
+    NU: float = 0.35             # unverändert (keine Herstellerangabe)
+    RHO: float = 1020.0          # kg/m^3
+    CTE_ASA: float = 60e-6       # 1/K; DATENBLATT-LÜCKE: konservative OBERGRENZE für
+                                  # CF-ASA (in-flow typ. 30-45e-6, quer höher). BEWUSST
+                                  # nicht die optimistischeren ~40e-6 (Gate-Muting-Lehre!);
+                                  # Herstellerwert anfragen -> senkt Fugenauslastung
+                                  # weiter (todo.md).
     CTE_ROOF: float = 25e-6      # 1/K (GFK)
-    DERATE_TEMP: float = 0.35    # bei 85 °C
-    DERATE_Z: float = 0.6        # FDM-Schichthaftung
-    DERATE_CREEP: float = 0.4    # Dauerlast
+    DERATE_TEMP: float = 0.5     # 85 °C Bauteil vs. HDT 102/Vicat 108 (TDS)
+    DERATE_Z: float = 0.8        # GEMESSEN Z/XY=0.88 (30/34 MPa), konservativ gerundet
+    DERATE_CREEP: float = 0.4    # keine CF-Kriechdaten -> unverändert konservativ
     INFILL_FACTOR: float = 1.0   # 100 % Infill (Kammern übernehmen die Gewichtsreduktion,
                                   # kein Slicer-Infill mehr nötig)
+
+    # Preset-Vergleich (NUR Kommentar, kein totes Dict -- Spec §3.5). Aktueller
+    # Default ist Bambu ASA-CF (TDS V1.0, gedruckte XY+Z-Probekörper -- einzige
+    # der drei Spalten mit echtem Datenblatt für DIESES Bauteil, Task 19).
+    # Standard-ASA = vorheriger Projekt-Default (Task 1-18, ebenfalls belegt).
+    # CR3D FibCR20 = grobe Marktklassen-Richtwerte für 20%-CF-verstärktes FDM-
+    # Filament OHNE eigenes TDS im Haus -- vor einem Umstieg erst Datenblatt
+    # beschaffen (sonst DA-3-Bruch/Gate-Muting-Gefahr, siehe CTE_ASA oben):
+    #
+    #   Feld              Bambu ASA-CF*  Standard-ASA   CR3D FibCR20 (unbelegt)
+    #   E_BASE     [MPa]    4200           2000           ~3500-4000
+    #   SIGMA_BASE [MPa]      34             40             ~30-35
+    #   RHO      [kg/m^3]   1020           1070           ~1150-1200
+    #   CTE_ASA    [1/K]   60e-6          90e-6          ~30-40e-6 (offen)
+    #   DERATE_TEMP           0.5            0.35           n/a (HDT unbekannt)
+    #   DERATE_Z              0.8            0.6            n/a (keine Z-Probekörper)
+    #   * aktueller Default (Task 19)
     # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
     CHAMBERS: bool = True
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
