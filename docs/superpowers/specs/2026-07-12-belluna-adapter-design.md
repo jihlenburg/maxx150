@@ -114,10 +114,14 @@ Parametern und schreibt sie in die Montagenotiz.
 - **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
   Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 45°-Chevron
   (stützenfrei in Druckorientierung), Ø4-Entpulverungsbohrungen je Zelle zur Innenseite
-  (für MJF/SLS; hinter dem Lüfterkragen verdeckt). Stoß-, Eck- und Schraubzonen bleiben
-  massiv. Damit ist die Festigkeit geometrie-definiert (druckprofil-unabhängig); die FEM
-  rechnet auf der echten Kammergeometrie mit vollem E-Modul (INFILL_FACTOR = 1,0).
-  [Entscheidung mit User 2026-07-12, ersetzt Slicer-Infill-Ansatz]
+  (für MJF/SLS; hinter dem Lüfterkragen verdeckt). Stoß- und Schraubzonen bleiben
+  massiv. Eckkammern (90°-Rotationsfortsetzung der Kammerringe um die vier Eckblöcke,
+  Task 17) sind seit 2026-07-12 Default EIN (`CORNER_CHAMBERS = True`, Task 20;
+  Verzugs-/Gewichtsnutzen, FEM-verifiziert — abschaltbar, die AUS-Variante bleibt
+  volumen-anker-geprüft reproduzierbar). Damit ist die Festigkeit geometrie-definiert
+  (druckprofil-unabhängig); die FEM rechnet auf der echten Kammergeometrie mit vollem
+  E-Modul (INFILL_FACTOR = 1,0). [Entscheidung mit User 2026-07-12, ersetzt
+  Slicer-Infill-Ansatz]
 - **Unterseite:** Klebespalt-Noppen (2,5 mm) für definierte Elastikfugen-Dicke + umlaufende
   Kleberille für die Carloflex-Raupe.
 

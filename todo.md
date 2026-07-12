@@ -64,6 +64,11 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       Bambu-ASA-CF-Profil aktualisiert (Bett 80-100 °C, Kammer 45-60 °C)
 - [x] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
       (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
+      — VOLLSTÄNDIG ERLEDIGT/AKTIVIERT: seit Task 20 (User-Entscheidung 2026-07-12)
+      Default EIN (CORNER_CHAMBERS=True; neuer Default-Anker 1694758.489540970 mm³,
+      AUS-Variante bleibt anker-geprüft 1736006.070242394 mm³; GEOM_REV bleibt 2,
+      params_hash wechselt über das Feld selbst — Details .superpowers/sdd/
+      task-20-report.md).
       — Task 17: params.py::CORNER_CHAMBERS (Default AUS)/CORNER_ANGLE_MARGIN=18°;
       model/frame.py::_corner_chamber_cuts (90°-Rotationssektor je Ecke, Ring1 r13-28/
       Ring2 r32-47 relativ zum Eckzentrum (CUTOUT_W/2-CUTOUT_R, dito), Part.Face.revolve

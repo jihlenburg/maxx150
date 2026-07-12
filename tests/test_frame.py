@@ -57,9 +57,20 @@ def test_deckflaeche_vorhanden():
 
 def test_kammern_wirken():
     """Rippenkammern (Task 14) müssen substanziellen Materialanteil entfernen,
-    aber nicht die Festigkeitsstruktur sprengen (Bandbreite laut Brief)."""
+    aber nicht die Festigkeitsstruktur sprengen (Bandbreite laut Brief).
+
+    Task 20 (Eckkammern Default EIN): die Solid-Referenz braucht jetzt
+    explizit CORNER_CHAMBERS=False (CHAMBERS=False allein wirft seit dem
+    Flip ValueError -- Eckkammern setzen CHAMBERS voraus). Das Delta enthält
+    zusätzlich die Eckkammern. Rechnung (bin/fc-Probe, Task-20-Report):
+      v_solid   = 2127732.386711353 mm³ (ohne jede Kammer, unverändert)
+      v_default = 1694758.489540970 mm³ (EIN-Anker aus Task 17)
+      Delta     =  432973.897170383 mm³
+                = altes Seitenkammer-Delta 391726.316 + Eckkammern 41247.581
+    Band (3.0e5, 5.5e5) statt (2.5e5, 5.0e5): identische Bandbreite 2.5e5,
+    nur um das Eckkammer-Delta nach oben verschoben -- KEINE Aufweichung."""
     import params as PRM
     from model.frame import build_frame
-    v_solid = build_frame(PRM.Params(CHAMBERS=False)).Volume
+    v_solid = build_frame(PRM.Params(CHAMBERS=False, CORNER_CHAMBERS=False)).Volume
     v_cham = build_frame().Volume
-    assert 2.5e5 < (v_solid - v_cham) < 5.0e5, f"Kammervolumen {v_solid - v_cham:.0f}"
+    assert 3.0e5 < (v_solid - v_cham) < 5.5e5, f"Kammervolumen {v_solid - v_cham:.0f}"

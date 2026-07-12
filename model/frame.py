@@ -94,7 +94,7 @@ def _chamber_cell_centers(p: PRM.Params, limit_w: float):
     NACH statt eine Ersetzung VOR der Zentrierung nötig ist (Erhalt des
     Default-Rasters). Bei Defaults bleibt der Filter wirkungslos:
     corner_keepout=196.22 > tatsächliche Reichweite der letzten Zelle = 193
-    (siehe test_eckkammern_default_anker_unveraendert) -- deshalb identisches
+    (siehe test_eckkammern_delta_und_keepout_exakt) -- deshalb identisches
     Raster, identisches Default-Volumen."""
     side_half = p.CUTOUT_W / 2 + limit_w
     band_start = p.SOLID_JOINT_HALF

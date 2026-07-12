@@ -123,7 +123,11 @@ class Params:
     VENT_Z: float = 17.0       # Bohrungshöhe (weit weg von Schraubzone)
     # --- Eckkammern (optional; Herstellbarkeit: entlastet die vier massiven
     # Eckblöcke, Haupt-Schrumpfspannungs-Reservoirs -- Task 17) ---
-    CORNER_CHAMBERS: bool = False   # Default AUS: verifizierter Stand unverändert
+    CORNER_CHAMBERS: bool = True    # seit 2026-07-12 Default EIN (User-Entscheidung
+                                     # Task 20; Verzugs-/Gewichtsnutzen, FEM-verifiziert
+                                     # Task 17). GEOM_REV bleibt (Parameter-, keine
+                                     # Code-Änderung -- params_hash ändert sich über
+                                     # das Feld selbst).
     CORNER_ANGLE_MARGIN: float = 18.0  # Grad Randabstand des 90°-Sektors je Seite
     CORNER_GAP: float = 3.0    # Mindestluft zwischen Ecksektor-Keepout und Zellraster
                                 # (Review-Critical Task 17: model/frame.py::_corner_keepout)

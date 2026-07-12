@@ -4,7 +4,13 @@ symmetrischen Defaults (alle W_TOP=50) unentdeckt blieben (z. B. eine
 Seitenvertauschung in der k<->Seite-Kanonik in model/frame.py::_chamber_cuts
 waere bei Symmetrie unsichtbar). min(46,48,55,60)=46 >= Kammergrenze 44.4
 (INNER_WALL 8 + 2*CHAMBER_W 15 + CHAMBER_RIB 4 + 2.4), validate() akzeptiert
-also diesen Parametersatz."""
+also diesen Parametersatz.
+
+Task 20: P_ASYM und P_CORNER erben jetzt CORNER_CHAMBERS=True (Default EIN).
+Alle formelbasierten Erwartungen (allowed(p) im DFM-Gate, Nachbargrenzen-
+Bänder, Eck-Massiv-Prüfquader y 193..199) halten nachweislich unverändert
+(RED-Lauf Task 20: nur die Werkzeugzahl-Formel unten brach -- geometrische
+Ursache: 16 fixe Eck-Werkzeuge, siehe dort)."""
 import Part
 from FreeCAD import Vector
 
@@ -103,10 +109,23 @@ def test_asym_rear_band_durch_senkrechte_nachbarn_begrenzt():
 def test_asym_chamber_slot_count_konsistent_zu_werkzeugzahl():
     """chamber_slot_count muss zur tatsächlich erzeugten Werkzeuganzahl aus
     _chamber_cuts passen: je Slot 2 Kammer-Cuts (Ring 1 + Ring 2) + 2
-    Vent-Bohrungen = 4 Werkzeuge je Slot."""
+    Vent-Bohrungen = 4 Werkzeuge je Slot.
+
+    Task 20 (Eckkammern Default EIN): P_CORNER erbt jetzt CORNER_CHAMBERS=
+    True -- _chamber_cuts hängt zusätzlich GENAU 16 fixe Eck-Werkzeuge an
+    (frame._corner_chamber_cuts: 2 Ring-Profile x 4 Ecken = 8 Sektor-
+    Kavitäten + 2 Diagonal-Vents x 4 Ecken = 8 Vents), UNABHÄNGIG von
+    CELL_L/W_TOP/Slot-Zahl. Rechnung am Istfall (bin/fc-Probe, Task-20-
+    Report): slots(P_CORNER)=24, len(tools)=112 = 4*24 + 16. Die alte Form
+    (len//4 == slots) galt nur ohne Eckkammern; +16 ist dieselbe exakte
+    Werkzeugbilanz wie in test_eckkammern_werkzeugzahl_konsistent_zu_slot_
+    count_cell_l_53 -- keine Aufweichung."""
     tools = frame._chamber_cuts(P_CORNER)
-    assert len(tools) % 4 == 0
-    assert frame.chamber_slot_count(P_CORNER) == len(tools) // 4
+    slots = frame.chamber_slot_count(P_CORNER)
+    assert len(tools) == 4 * slots + 16, (
+        f"{len(tools)} Werkzeuge != 4*{slots} (Slot-Kavitäten+Vents) + "
+        f"16 (fixe Eck-Werkzeuge)"
+    )
 
 
 def test_asym_ecke_bleibt_massiv_bei_w_top_rear_90():

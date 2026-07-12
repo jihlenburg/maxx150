@@ -1,9 +1,14 @@
-"""Eckkammern (Task 17): optionale 90°-Rotationsfortsetzung der Seiten-
-Kammerringe um die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-
-Reservoirs laut Herstellbarkeitsanalyse). Default AUS (CORNER_CHAMBERS=False)
--- der verifizierte Stand (GEOM_REV=2) ändert sich geometrisch NICHT; nur
-params_hash ändert sich zwangsläufig durch die zwei neuen Parameterfelder
-(siehe test_eckkammern_default_anker_unveraendert unten und Report).
+"""Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
+die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
+Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
+Default EIN (CORNER_CHAMBERS=True) -- die Semantik dieses Files dreht sich
+damit: der frühere P_ECK-Sonderfall IST jetzt der Default (PRM.P, EIN-Anker
+1694758.489540970 mm³ aus Task 17), die frühere Default-Geometrie bleibt
+als AUS-Variante (Params(CORNER_CHAMBERS=False), Anker 1736006.070242394
+mm³) beweisbar erhalten (siehe test_eckkammern_default_anker und
+test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
+Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
+selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
 
 Review-Critical-Fix (nach 66/66-grün-Stand 80c6fbb): die ursprüngliche
 validate()-Ungleichung verglich den UNKRITISCHEN Sektorpunkt (Außenradius
@@ -19,8 +24,9 @@ Tests deckte CELL_L != Default ab). Fix: _chamber_cell_centers filtert das
 fertig zentrierte Zellraster gegen _corner_keepout(p); PRM.validate() prüft
 nur noch die Kohärenzbedingung (Platz für mindestens eine Zelle). Neue
 Tests unten: test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53
-(Fix-Verifikation) und test_eckkammern_p_eck_volumen_exakt_unveraendert
-(Fix darf das Default-Eckkammern-Volumen NICHT verändern)."""
+(Fix-Verifikation) und test_eckkammern_delta_und_keepout_exakt (Fix darf
+das Eckkammern-EIN-Volumen NICHT verändern; bis Task 20 hieß der Test
+test_eckkammern_p_eck_volumen_exakt_unveraendert)."""
 import math
 
 import Part
@@ -32,19 +38,15 @@ from model import frame
 from model.frame import build_frame
 from model.segments import build_segments
 
-P_ECK = PRM.Params(CORNER_CHAMBERS=True)
-
-
-def _frame_eck():
-    global _CACHED_FRAME_ECK
-    try:
-        return _CACHED_FRAME_ECK
-    except NameError:
-        _CACHED_FRAME_ECK = build_frame(P_ECK)
-        return _CACHED_FRAME_ECK
+# Task 20: der frühere P_ECK-Sonderfall (CORNER_CHAMBERS=True) ist jetzt der
+# Default -- alle EIN-Tests laufen direkt auf PRM.P. Die AUS-Variante bleibt
+# als eigener Parametersatz beweisbar (alter Default-Anker).
+P_AUS = PRM.Params(CORNER_CHAMBERS=False)
 
 
 def _frame_default():
+    """Default-Frame (Eckkammern EIN seit Task 20) -- EIN Cache, kein
+    doppeltes Bauen von PRM.P und einem äquivalenten P_ECK mehr."""
     global _CACHED_FRAME_DEFAULT
     try:
         return _CACHED_FRAME_DEFAULT
@@ -53,28 +55,39 @@ def _frame_default():
         return _CACHED_FRAME_DEFAULT
 
 
-def _segs_eck():
-    global _CACHED_SEGS_ECK
+def _frame_aus():
+    global _CACHED_FRAME_AUS
     try:
-        return _CACHED_SEGS_ECK
+        return _CACHED_FRAME_AUS
     except NameError:
-        _CACHED_SEGS_ECK = build_segments(P_ECK)
-        return _CACHED_SEGS_ECK
+        _CACHED_FRAME_AUS = build_frame(P_AUS)
+        return _CACHED_FRAME_AUS
+
+
+def _segs_default():
+    global _CACHED_SEGS_DEFAULT
+    try:
+        return _CACHED_SEGS_DEFAULT
+    except NameError:
+        _CACHED_SEGS_DEFAULT = build_segments(PRM.P)
+        return _CACHED_SEGS_DEFAULT
 
 
 def test_eckkammern_frame_valide_und_wasserdicht():
-    s = _frame_eck()
+    s = _frame_default()
     assert s.isValid()
     assert len(s.Shells) == 1 and s.Shells[0].isClosed()
 
 
 def test_eckkammern_volumendelta_plausibel():
-    delta = _frame_default().Volume - _frame_eck().Volume
+    # Semantik seit Task 20 gedreht: AUS (mehr Material) minus Default (EIN).
+    # Istwert 41247.58 mm³ liegt unverändert im Band (2.5e4, 7.0e4).
+    delta = _frame_aus().Volume - _frame_default().Volume
     assert 2.5e4 < delta < 7.0e4, f"Eckkammer-Volumendelta {delta:.0f} mm³ unplausibel"
 
 
 def test_eckkammern_segmente_valide_ueberschneidungsfrei():
-    segs = _segs_eck()
+    segs = _segs_default()
     assert len(segs) == 4
     for s in segs:
         assert s.isValid() and s.Volume > 1e5
@@ -85,8 +98,8 @@ def test_eckkammern_segmente_valide_ueberschneidungsfrei():
 
 
 def test_eckkammern_dfm_ueberhang():
-    for i, s in enumerate(_segs_eck()):
-        bad, allowed = dfm.overhang_area(s, P_ECK)
+    for i, s in enumerate(_segs_default()):
+        bad, allowed = dfm.overhang_area(s, PRM.P)
         assert bad <= allowed * 1.2 + 200, \
             f"Segment {i}: {bad:.0f} mm² Überhang (erlaubt ~{allowed:.0f})"
 
@@ -99,17 +112,28 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
         pass
 
 
-def test_eckkammern_default_anker_unveraendert():
-    """Default (CORNER_CHAMBERS=False) muss geometrisch IDENTISCH zum
-    verifizierten Stand (Ledger 21/22, Task 15) bleiben -- Volumen-Anker
-    1736006.070242394 mm³ (Symmetrie-Anker aus todo.md), GEOM_REV bleibt 2.
-    params_hash ändert sich zwangsläufig (zwei neue Felder), das ist
-    dokumentiert kein Geometrie-Bruch: Volumengleichheit ist der Beleg."""
+def test_eckkammern_default_anker():
+    """Default ist seit Task 20 die EIN-Variante: Volumen-Anker
+    1694758.489540970 mm³ (exakter P_ECK-Anker aus dem Task-17-Report §7,
+    in Task 17/20 verifiziert -- der Flip ändert nur das Default-Feld,
+    nicht die EIN-Geometrie). params_hash muss Feldänderungen weiterhin
+    abbilden (Hash-Logik unabhängig vom Flip)."""
     v = _frame_default().Volume
-    assert abs(v - 1736006.070242394) < 1.0, f"Default-Volumen driftete: {v}"
+    assert abs(v - 1694758.489540970) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
     assert h_default != h_alt_feld
+
+
+def test_eckkammern_ausschalt_anker():
+    """Die AUS-Variante (Params(CORNER_CHAMBERS=False)) muss geometrisch
+    IDENTISCH zum vor Task 20 verifizierten Default bleiben -- Volumen-Anker
+    1736006.070242394 mm³ (Symmetrie-Anker Ledger 21/22, Task 15; bis
+    Task 19 der Default-Anker). Damit bleibt der alte Stand beweisbar
+    reproduzierbar: der Flip hat NUR den Default gedreht, keine Geometrie
+    verändert (GEOM_REV weiterhin 2)."""
+    v = _frame_aus().Volume
+    assert abs(v - 1736006.070242394) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -180,19 +204,21 @@ def test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53():
     assert len(body.Shells) == 1 and body.Shells[0].isClosed()
 
 
-def test_eckkammern_p_eck_volumen_exakt_unveraendert():
-    """Der Fix darf das Eckkammern-Default-Volumen (P_ECK = alle Parameter
-    Default außer CORNER_CHAMBERS=True) NICHT verändern: corner_keepout bei
-    Defaults ist 196.22 mm (siehe frame._corner_keepout), die tatsächliche
-    Reichweite der letzten Zelle bei Default-CELL_L=45 ist aber nur 193 mm
-    -- der neue Keepout-Filter greift bei Defaults also gar nicht (nichts
-    wird gefiltert), das Raster bleibt bitidentisch. Exakter Volumen-Anker
-    aus dem ursprünglichen Task-17-Report (§7)."""
-    v_eck = _frame_eck().Volume
-    assert abs(v_eck - 1694758.489540970) < 1.0, f"P_ECK-Volumen driftete: {v_eck}"
-    delta = _frame_default().Volume - v_eck
+def test_eckkammern_delta_und_keepout_exakt():
+    """Exaktes Eckkammer-Delta und Keepout (Review-Critical-Nachweis Task 17,
+    Task 20 auf die gedrehte Semantik umgestellt -- vorher hieß der Test
+    test_eckkammern_p_eck_volumen_exakt_unveraendert und verglich P_ECK
+    gegen den damaligen AUS-Default): der Keepout-Filter greift bei
+    Default-Parametern NICHT -- corner_keepout ist 196.22 mm (siehe
+    frame._corner_keepout), die tatsächliche Reichweite der letzten Zelle
+    bei Default-CELL_L=45 ist nur 193 mm, es wird also nichts gefiltert und
+    das Zellraster bleibt bitidentisch zum Stand ohne Filter. Deshalb ist
+    das Delta AUS-EIN exakt der Task-17-Reportwert 41247.580701424 mm³
+    (= 1736006.070242394 - 1694758.489540970)."""
+    v_eck = _frame_default().Volume
+    delta = _frame_aus().Volume - v_eck
     assert abs(delta - 41247.580701424) < 1.0, f"Delta driftete: {delta:.3f} mm³"
-    keepout = frame._corner_keepout(P_ECK)
+    keepout = frame._corner_keepout(PRM.P)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"
 
 

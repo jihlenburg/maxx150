@@ -321,3 +321,50 @@ vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
   OFFEN, Messkampagne 7) unverändert korrekt, !-Banner im Log, Manifest
   14 Dateien + Git-Rev + GEOM_REV=2, FERTIG nach 127 s.
 - Vollständiger Nachweis: `.superpowers/sdd/task-19-report.md`.
+
+## 2026-07-12 — Task 20: Eckkammern als Default aktivieren (Stand 3be4b64)
+
+- params.py: `CORNER_CHAMBERS: bool = True` (User-Entscheidung 2026-07-12;
+  Verzugs-/Gewichtsnutzen, FEM-verifiziert Task 17). GEOM_REV bleibt 2 —
+  reine Parameter-, keine Code-Änderung; params_hash wechselt über das
+  Feld selbst: Default neu **5ba1ea4b**, die AUS-Variante
+  (`Params(CORNER_CHAMBERS=False)`) hasht exakt auf den alten Stand
+  **5f063cc3** (Beweis der Rückführbarkeit).
+- RED nachgewiesen (Suite-Lauf 1 nach Flip, 70/75): exakt die im Brief
+  erwarteten 5 Fälle — test_kammern_wirken (ValueError CHAMBERS=False ohne
+  CORNER_CHAMBERS=False), 3× test_eckkammern (Anker/Delta gedreht),
+  test_asym_chamber_slot_count (P_CORNER erbt die 16 fixen Eck-Werkzeuge).
+- Tests angepasst (KEINE Toleranz-Aufweichung, jede Band-Änderung
+  nachgerechnet und im Testkommentar dokumentiert):
+  - test_kammern_wirken: Solid-Referenz `Params(CHAMBERS=False,
+    CORNER_CHAMBERS=False)`; Band (3.0e5, 5.5e5) statt (2.5e5, 5.0e5) —
+    Rechnung: v_solid 2127732.386711353, v_default 1694758.489540970,
+    Delta 432973.897170383 = 391726.316 (Seitenkammern) + 41247.581
+    (Eckkammern); Bandbreite unverändert 2.5e5.
+  - test_eckkammern.py: Semantik gedreht — Default-Anker jetzt EIN
+    (1694758.489540970), NEU test_eckkammern_ausschalt_anker
+    (1736006.070242394, alter Default bleibt beweisbar); P_ECK-Caches
+    durch PRM.P/P_AUS ersetzt (kein Doppel-Bauen äquivalenter Frames);
+    test_eckkammern_p_eck_volumen_exakt_unveraendert →
+    test_eckkammern_delta_und_keepout_exakt (Delta 41247.580701424 exakt,
+    corner_keepout 196.223956).
+  - test_asymmetrie.py: Werkzeugbilanz len(tools) == 4*slots + 16
+    (16 fixe Eck-Werkzeuge: 8 Sektor-Kavitäten + 8 Diagonal-Vents,
+    unabhängig von CELL_L/W_TOP; Istfall P_CORNER 112 = 4*24 + 16).
+    Übrige Asym-Tests halten formelbasiert unverändert (RED-Beleg).
+- Volle Suite: **76 bestanden, 0 fehlgeschlagen** (75 Bestand + 1 neuer
+  Ausschalt-Anker-Test).
+- Produktionslauf `bin/fc run_all.py` (Hintergrund+Poll): Hash
+  **5ba1ea4b**. DFM 4× PASS (8972 bzw. 8959/44828 mm² — Zone 6 aktiv,
+  Allowance +482 durch die 8 Eck-Vents). FEM: LF1 0.78/13.60 (5.7 %),
+  LF2 0.42/13.60 (3.1 %), LF3 2.29/5.44 (42.1 %, vorher 2.27 = minimal
+  höher, Eckmaterial fehlt — Brief-Erwartung getroffen), LF4 0.19/13.60
+  (1.4 %), Stoß 3.40/13.60 (25.0 %). „PASS mit Vorbehalt" (Freigang
+  OFFEN, Messkampagne 7) unverändert, !-Banner im Log, Manifest 14
+  Dateien + Git-Rev + GEOM_REV=2, FERTIG nach 146 s.
+- Kosten-STL: `out/adapterrahmen_segment_5ba1ea4b.stl` (Kopie seg0);
+  Segmentgewicht 430.7 g (V=422235.2 mm³ × RHO 1020) — vorher ~441 g,
+  ~10.5 g je Segment gespart.
+- Doku: Spec §4 Innenleben (Eckkammern seit 2026-07-12 Default EIN),
+  todo.md Eckkammern-Punkt als aktiviert markiert.
+- Vollständiger Nachweis: `.superpowers/sdd/task-20-report.md`.
