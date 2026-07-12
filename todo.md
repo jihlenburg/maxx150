@@ -4,12 +4,19 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 (validate(p), M5-Kommentare, Normlänge) — dieses File sammelt NUR die Follow-ups.
 
 ## Pflichtpaket VOR dem Messkampagnen-Re-Run
-- [ ] CTE-Herstellerwert Bambu ASA-CF anfragen (senkt Fugenauslastung von 21 % weiter)
-      — Task 19: `CTE_ASA=60e-6` ist eine konservative Obergrenze für die
-      Datenblatt-Lücke (Bambu TDS V1.0 nennt keinen CTE-Wert; in-flow typ.
-      30–45e-6, quer höher). Ein belegter, niedrigerer Wert senkt
-      `fem.analytic.glue_shear_utilization` unter die aktuellen ~21 % weiter
-      (Spec §3.5 „Offener Punkt").
+- [ ] Würth/OEM nach gedruckten Kennwerten (XY+Z) und CTE fragen — würde
+      Annahmen durch Messwerte ersetzen (senkt Fugenauslastung von 21 % weiter
+      UND ersetzt die Druckwert-Annahmen `E_BASE`/`SIGMA_BASE`) — Task 21:
+      Würth ASA GF15 (Art. 4954641201) Datenblatt liefert nur HALBZEUG-Werte
+      (Spritzguss-Probekörper, Zug 91,2/E 3520/3500 MPa) — `E_BASE=3000.0`/
+      `SIGMA_BASE=45.0` sind DOKUMENTIERTE ANNAHMEN für die gedruckten
+      XY-Werte (abgeleitet aus GF-ASA-Analoga, s. params.py-Kommentar), keine
+      Messwerte. `DERATE_Z=0.5` ist ebenfalls GESCHÄTZT (kein Z-Probekörper
+      im Blatt, strenger als Bambus gemessene 0,8). `CTE_ASA=60e-6` bleibt
+      unverändert seit Task 19 eine konservative Obergrenze (auch das
+      Würth-Blatt nennt keinen CTE-Wert). Ein belegter, niedrigerer CTE-Wert
+      senkt `fem.analytic.glue_shear_utilization` unter die aktuellen ~21 %
+      weiter (Spec §3.5 „Offene Punkte").
 - [x] I3: Asymmetrie-Smoke-Test (W_TOP je Seite verschieden, innerhalb validate(p)):
       Segmente valide, Union-Invariante, DFM grün; test_identische_segmente auf
       Symmetrie bedingen; Kammerraster-min()-Kopplung geprüft (Ledger 17/28/29, T6/T8)
@@ -60,8 +67,10 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       task-15-report.md (Abschnitt „Review-Nachbesserung").
 
 ## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
-- [x] Montagenotiz: Verzugs-Pflichtbedingungen — erledigt (15bd068), seit Task 19 auf
-      Bambu-ASA-CF-Profil aktualisiert (Bett 80-100 °C, Kammer 45-60 °C)
+- [x] Montagenotiz: Verzugs-Pflichtbedingungen — erledigt (15bd068), Task 19 auf
+      Bambu-ASA-CF-Profil (Bett 80-100 °C, Kammer 45-60 °C), seit Task 21 auf
+      Würth-ASA-GF15-Profil aktualisiert (Düse 250-270 °C gehärtet, Bett
+      100-110 °C, geschlossener Bauraum PFLICHT, Schrumpf 0,3 % lt. Blatt)
 - [x] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
       (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
       — VOLLSTÄNDIG ERLEDIGT/AKTIVIERT: seit Task 20 (User-Entscheidung 2026-07-12)

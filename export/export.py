@@ -35,26 +35,31 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
 ## Druck (je 4x Segment, identisch)
-- Material: **Bambu ASA-CF** (TDS V1.0); Orientierung: **Deckfläche nach unten**
-  (Schichten parallel zum Dach; bei MJF/SLS beliebig). Brücken in
-  Gusset-Freistellung/Muttertaschen sind beabsichtigt und unkritisch; die
-  längste vorgesehene Brücke (Stoßstufe der Halbüberlappung, ~25 mm) liegt
-  klar unter der dokumentierten max. Brückenlänge von **40 mm** (TDS).
-- Druckparameter (Bambu-TDS): Düse **250–280 °C**, Bett **80–100 °C** auf
-  texturiertem PEI, **Kammer 45–60 °C**. Filament **VOR dem Druck 8 h bei
-  80 °C trocknen** (hygroskopisches CF-Compound).
+- Material: **Würth ASA GF15** (Art. 4954641201), **Signalweiß RAL 9003** —
+  weiß = geringere Solaraufheizung (die Thermik-Auslegung setzt ein HELLES
+  Bauteil voraus!). Orientierung: **Deckfläche nach unten** (Schichten
+  parallel zum Dach; bei MJF/SLS beliebig). Brücken in Gusset-Freistellung/
+  Muttertaschen sind beabsichtigt und unkritisch.
+- Druckparameter (Würth-Datenblatt Art. 4954641201): Düse **250–270 °C**,
+  GEHÄRTETE Düse PFLICHT (Glasfaser abrasiv), max. Durchsatz **12 mm³/s**
+  (Druckzeit entsprechend einplanen). Bett **100–110 °C** auf texturiertem
+  PEI, Haftmittel empfohlen. Filament **VOR dem Druck trocknen**:
+  Trockenbox/**80 °C, 4–6 h** (hygroskopisches Compound).
 - Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
   übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
   Porenschluss), 0,4er Düse.
-- **PFLICHT gegen Verzug**: der Carbonfaser-Anteil senkt den Verzug laut
-  Herstellerangabe ("dimensional stability") gegenüber Standard-ASA deutlich —
-  das ändert aber NICHTS an der Pflicht, das 275-mm-Teil mit massiven
-  Eck-/Stoßzonen sauber zu fahren: geschlossener, beheizter Bauraum
-  (Kammer 45–60 °C), **Brim ≥ 10 mm**, Draft-Shield, nach Druckende im
-  geschlossenen Bauraum abkühlen lassen. Beim Druckservice ausdrücklich
-  „ASA-CF-erfahren, geschlossene Maschine" anfordern — KEIN offener Drucker.
-- Nach dem Druck **Tempern** (Bambu-Angabe: 80–90 °C, 6–12 h) für
-  Maßstabilität bei Dachhitze.
+- **PFLICHT gegen Verzug**: Datenblatt nennt **0,3 % Schrumpf** — die
+  Glasfaser senkt den Verzug spürbar, ersetzt aber NICHT die Sorgfaltspflicht
+  bei diesem 275-mm-Teil mit massiven Eck-/Stoßzonen: geschlossener,
+  beheizter Bauraum (Kammer) PFLICHT, **Brim ≥ 10 mm**, Draft-Shield, nach
+  Druckende im geschlossenen Bauraum abkühlen lassen. Beim Druckservice
+  ausdrücklich „GF-erfahren, gehärtete Düse, geschlossene Maschine"
+  anfordern — KEIN offener Drucker.
+- Nach dem Druck **Tempern** (80 °C, 4 h; ANNAHME analog Standard-ASA-Profil
+  — das Würth-Blatt macht keine Temper-Angabe, Vicat 101 °C/HDT-B 99 °C
+  liegen über dieser Temperatur) für Maßstabilität bei Dachhitze.
+- **Spulenlogistik**: **4× 750-g-Spule** (Nettobedarf 4 Segmente ≈ 1,86 kg
+  bei RHO {p.RHO:.0f} kg/m³ + Fehldruck-Reserve).
 
 ## Fügen
 - 4 Stöße: Halbüberlappung, je 1x M5x{_m5_bolt_length(p)}

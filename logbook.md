@@ -368,3 +368,53 @@ vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
 - Doku: Spec §4 Innenleben (Eckkammern seit 2026-07-12 Default EIN),
   todo.md Eckkammern-Punkt als aktiviert markiert.
 - Vollständiger Nachweis: `.superpowers/sdd/task-20-report.md`.
+
+## 2026-07-13 — Task 21: Materialwechsel Default -> Würth ASA GF15 (Stand b3123da)
+
+- params.py: Materialkarte Würth ASA GF15 (Art. 4954641201, Signalweiß
+  RAL 9003, Blatt-Stand 05.03.2026). KERNPUNKT Datenlage: das Blatt
+  deklariert explizit HALBZEUG-Werte (Spritzguss: Zug 91,2/E 3520/
+  Biegemodul 3500 MPa) — E_BASE=3000/SIGMA_BASE=45 sind deshalb
+  DOKUMENTIERTE DRUCKWERT-ANNAHMEN (Vorbehalts-Kette wie CTE_ASA seit
+  Task 19; SIGMA aus gedruckten GF-ASA-Analoga Phaetus GF10 40-46 XY,
+  Halbzeug 91,2 bewusst NICHT verwendet). RHO 1100 (Blattwert),
+  DERATE_TEMP 0.5 (Vicat 101/HDT-B 99; Bauteil WEISS -> reale
+  Dachtemperatur niedriger als bei schwarzem CF), DERATE_Z 0.5
+  (GESCHÄTZT, keine Z-Daten — strenger als Bambus gemessene 0.8),
+  DERATE_CREEP 0.4 und CTE_ASA 60e-6 unverändert (gleiche Blatt-Lücke).
+  Preset-Tabelle: Würth* / Bambu ASA-CF (NRND) / Standard-ASA mit
+  (A.)-Kennzeichnung; Fiberon ASA-CF08, CR3D FibCR20, Extrudr DuraPro
+  ASA GF als unbelegte Alternativen OHNE Zahlen (Gate-Muting-Lehre).
+- Abgeleitete Werte alle unabhängig nachgerechnet: allowables
+  4.50/11.25 (45*0.5*0.5[*0.4]); Auszug 356.2566 N (pi*4.2*12*0.5*4.50);
+  tau_zul 5.625; Lochleibung-Ist 6.98 < 11.25; Fugenauslastung
+  0.208542 UNVERÄNDERT (CTE gleich); Gewicht 422235.2 mm³ * 1.10 =
+  464.46 g/Segment, 4 Segmente 1857.8 g -> 4x 750-g-Spule.
+- RED skriptbasiert nachgewiesen (drei alte Erwartungen AssertionError
+  gegen neue params: 5.44/13.60, "4200.0 MPa", 430.6±5); Fugen-Intervall
+  korrekt weiter GREEN. Tests: test_zulaessigkeiten 4.50/11.25,
+  test_materialkarte "3000.0 MPa", test_seitenschrauben_auszug 356.26±5,
+  test_export +"ASA GF15"/"RAL 9003"/"12 mm³/s"/"Würth" (ersetzt
+  "ASA-CF"; "250"/"Kammer" bleiben). KEINE Toleranz aufgeweicht.
+- Montagenotiz: Würth-Profil (Düse 250-270 gehärtet PFLICHT, max.
+  12 mm³/s, Bett 100-110 PEI + Haftmittel, geschlossener Bauraum
+  PFLICHT, Trocknung 80 °C 4-6 h, Tempern 80 °C/4 h als ANNAHME
+  gekennzeichnet, Schrumpf 0,3 % lt. Blatt, Spulenlogistik 4x 750 g).
+- Volle Suite: **76 bestanden, 0 fehlgeschlagen** (out/run_tests_task21.log).
+- Produktionslauf run_all (Hintergrund+Poll): Hash **12ffab2a** (vorher
+  5ba1ea4b), FERTIG nach 142 s. DFM 4x PASS (8972 bzw. 8959/44828 —
+  identisch Task 20). FEM: LF1 0.80/11.25 (7.1 %), LF2 0.41/11.25
+  (3.6 %), LF3 2.25/4.50 (50.0 %; Brief ~51 % mit vM 2.29 — Ist 2.25 =
+  übliches Netz-Rauschen, kraftgesteuert E-unabhängig), LF4 0.19/11.25
+  (1.7 %), Stoß 3.37/11.25 (30.0 %). Fugen 21 % unverändert. „PASS mit
+  Vorbehalt" (Freigang OFFEN, Messkampagne 7) unverändert, !-Banner
+  vorhanden, Manifest 14 Dateien + Git b3123da + GEOM_REV 2.
+- Geometrie-Anker bitidentisch: seg0_12ffab2a.stl SHA256 == seg0_5ba1ea4b.stl
+  (276a88b7…) — Materialwechsel nachweislich geometriefrei; das
+  5ba1ea4b-STL bleibt geometrisch gleichwertig.
+- Kosten-STL: out/adapterrahmen_segment_12ffab2a.stl (Kopie seg0);
+  Segmentgewicht 464.46 g (V=422235.2 mm³ x RHO 1100).
+- Doku: Spec §3.5 (Würth-Default, Halbzeug-Vorbehalt, NRND-Bambu,
+  5 Alternativen), §4 Thermik, §6 Kette 45*0.5*0.5[*0.4]=11.25/4.50,
+  §9/§10 nachgezogen; todo.md CTE-Punkt -> Würth/OEM-Anfrage (XY+Z+CTE).
+- Vollständiger Nachweis: .superpowers/sdd/task-21-report.md.

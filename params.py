@@ -73,40 +73,82 @@ class Params:
     SNOW_LOAD: float = 200.0     # N auf Grundfläche
     T_MIN: float = -20.0
     T_MAX: float = 85.0
-    # --- Material Bambu ASA-CF (TDS V1.0, GEDRUCKTE Probekörper XY+Z; Task 19,
-    # Spec §3.5) + Abminderung (Spec §6) ---
-    E_BASE: float = 4200.0       # Zug-E XY; Z: 2290 (FEM isotrop-homogen, Verformungen unkritisch)
-    SIGMA_BASE: float = 34.0     # Zugfestigkeit XY (Z: 30 -> Z/XY=0.88 gemessen)
+    # --- Material Würth ASA GF15 (Art. 4954641201, Signalweiß RAL 9003,
+    # Datenblatt Stand 05.03.2026, 750-g-Spule; Task 21 -- User-Entscheidung
+    # 2026-07-13, Spec §3.5) + Abminderung (Spec §6) ---
+    # ACHTUNG Datenlage: das Datenblatt deklariert EXPLIZIT Halbzeug-Werte
+    # (Spritzguss-Probekörper), NICHT gedruckte FDM-Probekörper -- anders als
+    # Bambu ASA-CF TDS V1.0 (Task 19, gedruckte XY+Z-Werte). Halbzeug: Zug
+    # 91,2 MPa, Dehnung 8 %, E(100%) 3520 MPa, Biegemodul 3500 MPa (ASTM),
+    # Kerbschlag 88 J/m, Vicat 101 °C, HDT/B(0,45 MPa) 99 °C, Dichte 1,1 g/cm³,
+    # Schrumpf 0,3 %, Düse 250-270 °C, max. 12 mm³/s, geschlossener Bauraum +
+    # gehärtete Düse empfohlen (GF abrasiv). Druckwerte (E_BASE/SIGMA_BASE)
+    # sind daher ANNAHMEN mit eigener Vorbehalts-Kette -- wie CTE_ASA seit
+    # Task 19 -- NICHT Messwerte:
+    E_BASE: float = 3000.0       # ANNAHME gedruckt XY (Halbzeug 3520/Biegemodul
+                                  # 3500 -- gedruckte FDM-Bauteile liegen wegen
+                                  # Schichthaftung/Porosität i. d. R. UNTER dem
+                                  # Spritzguss-Halbzeugwert; 3000 als konservativer
+                                  # Abschlag, keine eigene Messung)
+    SIGMA_BASE: float = 45.0     # ANNAHME gedruckt XY, NICHT aus dem Halbzeugwert
+                                  # (91,2 MPa) abgeleitet -- der ist für gedruckte
+                                  # GF-Teile unrealistisch hoch. Stattdessen aus
+                                  # gedruckten GF-ASA-Analoga geschätzt (Phaetus
+                                  # ASA-GF10 TDS: 40-46 MPa XY gedruckt) --
+                                  # Halbzeug 91,2 MPa bewusst NICHT verwendet
     NU: float = 0.35             # unverändert (keine Herstellerangabe)
-    RHO: float = 1020.0          # kg/m^3
-    CTE_ASA: float = 60e-6       # 1/K; DATENBLATT-LÜCKE: konservative OBERGRENZE für
-                                  # CF-ASA (in-flow typ. 30-45e-6, quer höher). BEWUSST
-                                  # nicht die optimistischeren ~40e-6 (Gate-Muting-Lehre!);
-                                  # Herstellerwert anfragen -> senkt Fugenauslastung
-                                  # weiter (todo.md).
+    RHO: float = 1100.0          # kg/m^3 (Datenblatt Dichte 1,1 -- Halbzeug- vs.
+                                  # Druckdichte weichen bei Dichte kaum ab, anders
+                                  # als bei E/Zugfestigkeit -- daher hier Messwert,
+                                  # keine ANNAHME)
+    CTE_ASA: float = 60e-6       # 1/K; unverändert konservative OBERGRENZE aus
+                                  # Task 19 (Würth-Blatt nennt KEINEN CTE-Wert --
+                                  # gleiche Datenblatt-Lücke). GF-Materialien
+                                  # koennten je nach Faserorientierung abweichen,
+                                  # ohne Herstellerwert bleibt die Obergrenze der
+                                  # sichere Default (Gate-Muting-Lehre);
+                                  # Herstelleranfrage weiterhin offen (todo.md).
     CTE_ROOF: float = 25e-6      # 1/K (GFK)
-    DERATE_TEMP: float = 0.5     # 85 °C Bauteil vs. HDT 102/Vicat 108 (TDS)
-    DERATE_Z: float = 0.8        # GEMESSEN Z/XY=0.88 (30/34 MPa), konservativ gerundet
-    DERATE_CREEP: float = 0.4    # keine CF-Kriechdaten -> unverändert konservativ
+    DERATE_TEMP: float = 0.5     # Vicat 101 °C / HDT-B(0,45 MPa) 99 °C -- UNGEKERBTE
+                                  # Bauteiltemperatur 85 °C liegt näher an diesen
+                                  # Werten als bei Bambu (Vicat 108/HDT 102 bei
+                                  # 1,8 MPa, strengerer Prüfdruck); Bauteil ist
+                                  # SIGNALWEISS RAL 9003 -> geringere Solaraufheizung
+                                  # als bei schwarzem CF-Filament, reale Dach-
+                                  # temperatur real niedriger -- Faktor bewusst NICHT
+                                  # verschärft trotz knapperer Datenblattmarge
+    DERATE_Z: float = 0.5        # GESCHÄTZT (keine Z-Probekörper im Datenblatt --
+                                  # anders als Bambu, wo Z GEMESSEN war/0.8 ergab;
+                                  # strenger als Bambu angesetzt, da keine Evidenz)
+    DERATE_CREEP: float = 0.4    # unverändert konservativ (keine Kriechdaten)
     INFILL_FACTOR: float = 1.0   # 100 % Infill (Kammern übernehmen die Gewichtsreduktion,
                                   # kein Slicer-Infill mehr nötig)
 
     # Preset-Vergleich (NUR Kommentar, kein totes Dict -- Spec §3.5). Aktueller
-    # Default ist Bambu ASA-CF (TDS V1.0, gedruckte XY+Z-Probekörper -- einzige
-    # der drei Spalten mit echtem Datenblatt für DIESES Bauteil, Task 19).
-    # Standard-ASA = vorheriger Projekt-Default (Task 1-18, ebenfalls belegt).
-    # CR3D FibCR20 = grobe Marktklassen-Richtwerte für 20%-CF-verstärktes FDM-
-    # Filament OHNE eigenes TDS im Haus -- vor einem Umstieg erst Datenblatt
-    # beschaffen (sonst DA-3-Bruch/Gate-Muting-Gefahr, siehe CTE_ASA oben):
+    # Default ist Würth ASA GF15 (Art. 4954641201, ECHTES 15%-Glasfaser-Compound,
+    # Task 21 -- User-Entscheidung 2026-07-13). Datenblatt liefert nur Halbzeug-
+    # (Spritzguss-)Werte -- E_BASE/SIGMA_BASE sind daher Druckwert-ANNAHMEN (s.o.),
+    # nicht Messwerte wie bei Bambu ASA-CF (gedruckte XY+Z-Probekörper).
     #
-    #   Feld              Bambu ASA-CF*  Standard-ASA   CR3D FibCR20 (unbelegt)
-    #   E_BASE     [MPa]    4200           2000           ~3500-4000
-    #   SIGMA_BASE [MPa]      34             40             ~30-35
-    #   RHO      [kg/m^3]   1020           1070           ~1150-1200
-    #   CTE_ASA    [1/K]   60e-6          90e-6          ~30-40e-6 (offen)
-    #   DERATE_TEMP           0.5            0.35           n/a (HDT unbekannt)
-    #   DERATE_Z              0.8            0.6            n/a (keine Z-Probekörper)
-    #   * aktueller Default (Task 19)
+    #   Feld              Würth GF15*  Bambu ASA-CF   Standard-ASA
+    #                     (Druck=ANN.) (NRND)
+    #   E_BASE     [MPa]    3000 (A.)    4200           2000
+    #   SIGMA_BASE [MPa]      45 (A.)      34             40
+    #   RHO      [kg/m^3]   1100         1020           1070
+    #   CTE_ASA    [1/K]   60e-6 (A.)   60e-6          90e-6
+    #   DERATE_TEMP           0.5          0.5            0.35
+    #   DERATE_Z              0.5 (Gesch.) 0.8 (gemessen) 0.6
+    #   * aktueller Default (Task 21); (A.) = Annahme, (Gesch.) = geschätzt
+    #
+    # Weitere Alternativen OHNE eigenes TDS im Haus -- KEINE Zahlen hier
+    # eingetragen (sonst DA-3-Bruch/Gate-Muting-Gefahr, siehe CTE_ASA oben);
+    # vor einem Umstieg erst Datenblatt beschaffen, Begründung Spec §3.5:
+    #   - Bambu ASA-CF (TDS V1.0): seit Task 21 NRND (vorheriger Default
+    #     Task 19/20, abgelöst durch Würth GF15 -- echtes GF statt CF,
+    #     Beschaffungsargument; TDS-Zahlen oben bleiben gültig/belegt)
+    #   - Fiberon ASA-CF08 (8 % CF-Filament, KEIN TDS im Haus)
+    #   - CR3D FibCR20 (20 % CF, grobe Marktklassen-Richtwerte, unbelegt)
+    #   - Extrudr DuraPro ASA GF (GF-verstärkt, KEIN TDS im Haus)
     # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
     CHAMBERS: bool = True
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest

@@ -16,12 +16,11 @@ def test_haubenfreigang_mit_ueberlapp():
 
 def test_fugenauslastung():
     u = A.glue_shear_utilization()
-    # Task 19 (Bambu ASA-CF, CTE_ASA 60e-6 statt 90e-6): Segmentlänge 275 mm,
-    # dT = max(85-20, 20-(-20)) = 65 K, dAlpha = (60-25)e-6 = 35e-6:
-    # delta = 35e-6*275*65 = 0.625625 mm; je Ende 0.3128125; gamma = 0.104271;
-    # /GLUE_SHEAR_CAP(0.5) = 0.208542 (~21 %) -- Brief rundete gamma vor dem
-    # Halbieren (0.1043*2=0.2086), exakt/unrundend ergibt sich 0.208542;
-    # Differenz nur Rundungsartefakt, ändert nichts am Intervall.
+    # Task 21 (Würth ASA GF15): CTE_ASA unverändert 60e-6 (gleiche Datenblatt-
+    # Lücke wie Bambu ASA-CF, Task 19) -> Formel und Ergebnis UNVERÄNDERT.
+    # Segmentlänge 275 mm, dT = max(85-20, 20-(-20)) = 65 K,
+    # dAlpha = (60-25)e-6 = 35e-6: delta = 35e-6*275*65 = 0.625625 mm;
+    # je Ende 0.3128125; gamma = 0.104271; /GLUE_SHEAR_CAP(0.5) = 0.208542 (~21 %).
     assert 0.15 < u < 0.30
 
 
@@ -42,7 +41,7 @@ def test_klebfugen_schub_aus_last():
 def test_seitenschrauben_auszug():
     r = A.side_screw_pullout(PRM.P)
     assert r["F_zul_N"] > 150.0            # je Schraube, dauerfest
-    # Sollwert statt nur Schwelle (Ledger 15, Task-5-Review). Task 19 (Bambu
-    # ASA-CF): pi*4.2*12*0.5*5.44 = 430.6747 (Brief rundete auf 430.6).
-    assert abs(r["F_zul_N"] - 430.6) < 5.0
+    # Sollwert statt nur Schwelle (Ledger 15, Task-5-Review). Task 21 (Würth
+    # ASA GF15): pi*4.2*12*0.5*4.50 = 356.2566 (gerundet 356.26).
+    assert abs(r["F_zul_N"] - 356.26) < 5.0
     assert r["PASS"]

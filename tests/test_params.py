@@ -22,10 +22,11 @@ def test_windlast():
     assert abs(PRM.wind_force() - 480.0) < 1.0
 
 def test_zulaessigkeiten():
-    # Task 19 (Bambu ASA-CF TDS V1.0): 34*0.5*0.8 = 13.60 kurz, *0.4 = 5.44 lang
+    # Task 21 (Würth ASA GF15, Druckwerte ANNAHME): 45*0.5*0.5 = 11.25 kurz,
+    # *0.4 = 4.50 lang (vorher Bambu ASA-CF: 34*0.5*0.8 = 13.60/5.44)
     lang, kurz = PRM.allowables()
-    assert abs(lang - 5.44) < 0.01               # 34*0.5*0.8*0.4
-    assert abs(kurz - 13.60) < 0.01              # 34*0.5*0.8
+    assert abs(lang - 4.50) < 0.01               # 45*0.5*0.5*0.4
+    assert abs(kurz - 11.25) < 0.01              # 45*0.5*0.5
 
 def test_aussenmasse_und_hash():
     L, W = PRM.outer_dims()

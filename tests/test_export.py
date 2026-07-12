@@ -42,5 +42,6 @@ def test_montagenotiz_inhalt():
                  "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid",
                  "PFLICHT gegen Verzug", "beheizter Bauraum", "Brim",
                  "PFLICHT", "ISO-20653", "Kernloch", "M5x",
-                 "ASA-CF", "250", "Kammer"):     # Task 19: Bambu ASA-CF
+                 "ASA GF15", "250", "Kammer", "RAL 9003", "12 mm³/s",
+                 "Würth"):     # Task 21: Würth ASA GF15 statt Bambu ASA-CF
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"
