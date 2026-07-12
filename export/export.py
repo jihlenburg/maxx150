@@ -14,6 +14,20 @@ def _write_mesh(shape, path: Path):
     mesh.write(str(path))
 
 
+DIN912_M5_LENGTHS = (20, 25, 30, 35, 40, 45, 50)
+
+
+def _m5_bolt_length(p: PRM.Params) -> int:
+    """M5-Länge: Klemmlänge + Muttertasche + Überstand, aufgerundet auf die
+    nächste DIN-912-Normlänge."""
+    raw = p.H_RAISE - p.GLUE_GAP + p.JOINT_NUT_T + 2
+    for length in DIN912_M5_LENGTHS:
+        if length >= raw:
+            return length
+    raise ValueError(f"M5-Länge {raw:.1f} mm übersteigt die Normlängen-Tabelle "
+                     f"(max {DIN912_M5_LENGTHS[-1]})")
+
+
 def _montagenotiz(p: PRM.Params, h: str) -> str:
     L, W = PRM.outer_dims(p)
     groove_len = 4 * (p.CUTOUT_W + 2 * p.GROOVE_OFF + p.GROOVE_W)
@@ -30,7 +44,7 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Nach dem Druck **Tempern** (ASA: 80 °C, 4 h) für Maßstabilität bei Dachhitze.
 
 ## Fügen
-- 4 Stöße: Halbüberlappung, je 1x M5x{int(p.H_RAISE - p.GLUE_GAP + p.JOINT_NUT_T + 2)}
+- 4 Stöße: Halbüberlappung, je 1x M5x{_m5_bolt_length(p)}
   Zylinderkopf (DIN 912) + Mutter in der Tasche, Fügeflächen VOLLFLÄCHIG mit
   2K-Epoxid benetzen, verschrauben (0,8 Nm). Die Epoxid-Fügung ist Teil des
   Dichtheitskonzepts (Spec §4) — nicht weglassen.

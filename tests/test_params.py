@@ -30,3 +30,18 @@ def test_aussenmasse_und_hash():
     h1 = PRM.params_hash()
     h2 = PRM.params_hash(PRM.Params(H_RAISE=30.0))
     assert len(h1) == 8 and h1 != h2
+
+def test_validate_defaults_ok():
+    PRM.validate()                                    # Defaults müssen sauber sein
+
+def test_validate_faengt_messkampagnen_brecher():
+    for kaputt in (PRM.Params(W_TOP_FRONT=40.0, W_TOP_REAR=40.0,
+                              W_TOP_LEFT=40.0, W_TOP_RIGHT=40.0),
+                   PRM.Params(REC_GUSSET_D=6.0),
+                   PRM.Params(VENT_Z=24.0),
+                   PRM.Params(GLUE_GAP=1.0)):
+        try:
+            PRM.validate(kaputt)
+            assert False, "erwartete ValueError"
+        except ValueError:
+            pass

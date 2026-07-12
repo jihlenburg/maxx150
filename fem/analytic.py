@@ -54,7 +54,7 @@ def joint_checks(p: PRM.Params, f_inplane: float) -> dict:
     tau = f_inplane / a_lap
     sig_lang, sig_kurz = PRM.allowables(p)
     tau_zul = 0.5 * sig_kurz                     # Schub ~ 0.5 * sigma (v. Mises)
-    # Lochleibung der M4-Schraube im ASA (Kurzzeitfall):
+    # Lochleibung der M5-Schraube im ASA (Kurzzeitfall):
     lochleibung = f_inplane / (p.JOINT_BOLT_D * lap_h)
     lochleibung_zul = sig_kurz
     return {

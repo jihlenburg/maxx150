@@ -3,7 +3,7 @@ from fem import analytic as A
 
 
 def test_haubenfreigang_default_kein_ueberlapp():
-    # Default: Haube ragt 130 mm über den Ausschnitt, Kante erst bei 250 mm
+    # Default: Haube ragt 179 mm (MaxxFan-Maßblatt) über den Ausschnitt, Kante erst bei 250 mm
     assert A.hood_clearance() == float("inf")
 
 

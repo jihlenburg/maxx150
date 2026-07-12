@@ -139,3 +139,36 @@ def params_hash(p: Params = P) -> str:
     """8-Zeichen-Hash über alle Parameter (verknüpft Report <-> Druckdateien)."""
     blob = repr(sorted(asdict(p).items())).encode()
     return hashlib.sha256(blob).hexdigest()[:8]
+
+
+def validate(p: Params = P) -> None:
+    """Konsistenz-Ungleichungen (Spec §5: abbrechen statt defekte Artefakte).
+    Empirisch belegte Brecher aus dem Final-Review: W_TOP<42 öffnet Kammerring 2
+    zur Außenwand, REC_GUSSET_D>DECK_T-2 durchstößt die Kammerdecke."""
+    import math
+    fehler = []
+    w_min = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
+    if p.CHAMBERS:
+        aussenwand = w_min - (p.INNER_WALL + 2 * p.CHAMBER_W + p.CHAMBER_RIB)
+        if aussenwand < 2.4:
+            fehler.append(f"Außenwand hinter Kammerring 2 nur {aussenwand:.1f} mm (< 2.4): "
+                          f"W_TOP erhöhen oder CHAMBER_W/INNER_WALL senken")
+        deck_rest = p.DECK_T - p.REC_GUSSET_D
+        if deck_rest < 2.0:
+            fehler.append(f"Deckplatten-Rest über Kammern nur {deck_rest:.1f} mm (< 2.0): "
+                          f"DECK_T an REC_GUSSET_D anpassen (Messkampagne 4!)")
+        kammerdecke = (p.H_RAISE - p.GLUE_GAP) - p.DECK_T
+        apex = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * p.CHAMBER_W / 2
+        if apex > kammerdecke - 1.0:
+            fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht Kammerdecke {kammerdecke:.1f} mm")
+        if not (apex + p.VENT_D / 2 + 0.5 <= p.VENT_Z <= kammerdecke - p.VENT_D / 2 - 0.5):
+            fehler.append(f"VENT_Z={p.VENT_Z} außerhalb des Kammer-z-Bands "
+                          f"({apex + p.VENT_D/2 + 0.5:.1f}..{kammerdecke - p.VENT_D/2 - 0.5:.1f})")
+    if p.JOINT_BOLT_OFF + p.JOINT_CB_D / 2 > w_min - 2.4:
+        fehler.append("M5-Kopfsenkung erreicht die Außenwand: JOINT_BOLT_OFF/W_TOP prüfen")
+    if p.GLUE_GAP < 2.0:
+        fehler.append("GLUE_GAP < 2 mm: Thermik-Elastikfuge und Noppen-Fixierflächen brauchen >= 2")
+    if p.NOPPLE_SPACING < 3 * p.NOPPLE_R:
+        fehler.append("NOPPLE_SPACING < 3*NOPPLE_R: Noppen überlappen")
+    if fehler:
+        raise ValueError("Parameter-Validierung fehlgeschlagen:\n- " + "\n- ".join(fehler))

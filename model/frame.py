@@ -117,6 +117,7 @@ def _nopple_positions(p):
 
 
 def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
+    PRM.validate(p)
     L, W = PRM.outer_dims(p)
     h = top_z(p)
     x0 = -(p.CUTOUT_W / 2 + p.W_TOP_FRONT)

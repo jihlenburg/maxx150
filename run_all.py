@@ -11,6 +11,7 @@ from pathlib import Path
 sys.stdout.reconfigure(line_buffering=True)
 
 import params as PRM
+PRM.validate()
 from export.export import export_all
 from fem.joint_check import run_joint_submodel
 from fem.loadcases import CASES
