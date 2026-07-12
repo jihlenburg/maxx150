@@ -87,7 +87,13 @@ Parametern und schreibt sie in die Montagenotiz.
 - **Innenwand:** 10–12 mm massiv als Schraubgrund für die seitliche Verschraubung aus dem
   Einbaukragen (Kernlochbohrung vor Ort nach realer Schraubposition).
 - **Außenwand:** geschlossen, unten gefast für die Sika-Kehlnaht zum Dach.
-- **Innenleben:** Rippenstruktur (Rippen 1,6 mm, Raster parametrisch) statt Vollmaterial.
+- **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
+  Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 45°-Chevron
+  (stützenfrei in Druckorientierung), Ø4-Entpulverungsbohrungen je Zelle zur Innenseite
+  (für MJF/SLS; hinter dem Lüfterkragen verdeckt). Stoß-, Eck- und Schraubzonen bleiben
+  massiv. Damit ist die Festigkeit geometrie-definiert (druckprofil-unabhängig); die FEM
+  rechnet auf der echten Kammergeometrie mit vollem E-Modul (INFILL_FACTOR = 1,0).
+  [Entscheidung mit User 2026-07-12, ersetzt Slicer-Infill-Ansatz]
 - **Unterseite:** Klebespalt-Noppen (2,5 mm) für definierte Elastikfugen-Dicke + umlaufende
   Kleberille für die Carloflex-Raupe.
 

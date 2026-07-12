@@ -1627,7 +1627,7 @@ def test_montagenotiz_inhalt():
     h = PRM.params_hash()
     text = Path(f"out/test_export/montagenotiz_{h}.md").read_text()
     for muss in ("140", "Carloflex", "Deckfläche nach unten", "Tempern",
-                 "4 Perimeter", "Gyroid", "Dichtheit", "2K-Epoxid"):
+                 "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"
 ```
 
@@ -1663,7 +1663,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Material: ASA weiß; Orientierung: **Deckfläche nach unten** (Schichten parallel
   zum Dach; bei MJF/SLS beliebig). Brücken in Gusset-Freistellung/Muttertaschen sind
   beabsichtigt und unkritisch.
-- Mindestens **4 Perimeter**, ~40 % **Gyroid**-Infill, 0,4er Düse.
+- Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
+  übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
+  Porenschluss), 0,4er Düse.
 - Nach dem Druck **Tempern** (ASA: 80 °C, 4 h) für Maßstabilität bei Dachhitze.
 
 ## Fügen
@@ -1832,6 +1834,79 @@ Expected: alle Tests PASS (Laufzeit ~10-20 min inkl. FEM-Grobnetzläufe).
 - [ ] **Step 5: Abschluss-Checkpoint** — Gesamtergebnis melden (Report-Auszug,
 Dateiliste), Commit-Freigabe erfragen.
 Vorschlag: `feat: Gesamtpipeline run_all.py mit Verifikations-Gate und Regression`
+
+---
+
+### Task 14: Rippenkammern (Rework build_frame — User-Entscheidung 2026-07-12)
+
+Ersetzt die Slicer-Infill-Struktur durch **geschlossene Rippenkammern**: Festigkeit wird
+geometrie-definiert, FEM rechnet auf echter Geometrie mit vollem E-Modul, Montagenotiz
+verlangt künftig 100 % Infill (Kammern übernehmen die Gewichtsreduktion).
+
+**Files:**
+- Modify: `params.py` (Kammer-Parameter + INFILL_FACTOR 0.5 → 1.0)
+- Modify: `model/frame.py` (Kammer-Cuts + `chamber_cell_count(p)`)
+- Modify: `model/dfm.py` (`_allowed_bridge_area`: Vent-Bohrungs-Zone ergänzen)
+- Modify: `tests/test_frame.py` (Volumenband, neuer Kammertest)
+
+**Interfaces:**
+- `build_frame(p)` Signatur/Koordinaten UNVERÄNDERT (alle Konsumenten bleiben kompatibel)
+- Neu: `chamber_cell_count(p) -> int` (für DFM-Vent-Allowance)
+
+**Parameter (in params.py ergänzen, Kommentare sinngemäß):**
+```python
+    # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
+    CHAMBERS: bool = True
+    DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
+    BOTTOM_T: float = 4.0      # Bodenplatte: enthält Kleberille (Tiefe 2)
+    INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
+    CHAMBER_W: float = 15.0    # radiale Kammerbreite (2 konzentrische Ringe)
+    CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
+    CELL_L: float = 45.0       # Zellenteilung entlang der Seite
+    CELL_RIB: float = 3.0      # Quersteg zwischen Zellen
+    SOLID_CORNER: float = 45.0 # massiv ab Eck-Außenkante
+    SOLID_JOINT_HALF: float = 40.0  # massiv um Seitenmitte (deckt Lap + M5)
+    CHEVRON_DEG: float = 47.0  # Kammerboden-Zelt; >45° mit Reserve (DFM-Kante)
+    VENT_D: float = 4.0        # Entpulverungsbohrung je Zelle
+    VENT_Z: float = 17.0       # Bohrungshöhe (weit weg von Schraubzone)
+```
+
+**Geometrie (install-Koordinaten, Deckfläche z=25):**
+- Kammerring 1: r 208–223, Ring 2: r 227–242 (Innenwand 8, Steg 4, Außenwand 8).
+- Kammerprofil (radialer Querschnitt): flache Decke z = 25−DECK_T = 20; senkrechte Wände;
+  Boden als Zelt (∧, Apex mittig): an den Wänden z = BOTTOM_T, Apex z = BOTTOM_T +
+  tan(CHEVRON_DEG)·CHAMBER_W/2 ≈ 12,0. In Druckorientierung (kopfüber) ist der Zeltboden
+  die Kammer-„Decke" mit 47°-Flanken → stützenfrei, kein neuer DFM-Beitrag.
+- Zellen je Seite zwischen den massiven Zonen (Ecken: SOLID_CORNER ab Außenkante;
+  Stöße: ±SOLID_JOINT_HALF um die Seitenmitte), Raster CELL_L mit CELL_RIB.
+- Vents: je Zelle Ø VENT_D horizontal von der Innenfläche (r=200) bei z=VENT_Z in Ring 1,
+  plus Durchgang Ring 1→Ring 2 durch den Steg. Dadurch sind ALLE Kammern belüftet →
+  das Solid bleibt topologisch EINE geschlossene Shell (kein eingeschlossener Hohlraum) —
+  der bestehende Test `len(Shells)==1 && isClosed` erzwingt damit korrekt verbundene Vents.
+- Implementierung: Profil-Polygon in (r,z) → Part.Face → Extrusion entlang der Seite,
+  pro Seite um k·90° rotiert; Cut-Reihenfolge in build_frame: Grundring → Freistellung →
+  **Kammern** → Rille → Fase → Noppen; nach jeder Boolean-Gruppe removeSplitter + isValid-Guard.
+
+**DFM:** `_allowed_bridge_area` um Vent-Zone erweitern:
+`vent = chamber_cell_count(p) * 2 * (math.pi/2) * (p.VENT_D/2) * max(p.INNER_WALL, p.CHAMBER_RIB)`
+(obere Halbzylinder der horizontalen Ø4-Kanäle; Ø4 ist brückenfrei druckbar).
+
+**Tests (tests/test_frame.py):**
+- `test_volumen_plausibel`: Band neu `1.55e6 < v < 1.95e6`
+- Neu `test_kammern_wirken`:
+```python
+def test_kammern_wirken():
+    import params as PRM
+    from model.frame import build_frame
+    v_solid = build_frame(PRM.Params(CHAMBERS=False)).Volume
+    v_cham = build_frame().Volume
+    assert 2.5e5 < (v_solid - v_cham) < 5.0e5, f"Kammervolumen {v_solid - v_cham:.0f}"
+```
+- Alle übrigen Tests (Öffnung R5.5-Probe, BBox, Deckfläche, 1 geschlossene Shell,
+  Segmente, DFM) müssen UNVERÄNDERT grün bleiben. Volle Suite: 29 Tests.
+
+**Steps:** RED (neue/angepasste frame-Tests) → Implementierung → GREEN →
+volle Suite → Checkpoint (Commit nach Freigaberegel).
 
 ---
 
