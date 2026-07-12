@@ -1677,8 +1677,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 ## Dichtheit
 - Beide Kleber-Ringe (untere Rille, Belluna-Ringklebenut) laufen GESCHLOSSEN über
   alle vier Stöße — nicht an Stößen absetzen.
-- Optional, empfohlen: Außenflächen mit 2K-PU oder Epoxid versiegeln
-  (Porenschluss + UV-Schutz).
+- PFLICHT: Außenflächen mit 2K-PU oder Epoxid versiegeln (Porenschluss + UV).
+- Lüfter-Verschraubung mit Feder-/Sicherungselementen montieren; nach der ersten
+  Hitzeperiode nachziehen; Nähte jährlich sichtprüfen (Relaxation/Zyklik).
 - Wassertest nach Einbau: erst drucklos fluten (Gießkanne, 10 min, Innenkontrolle),
   dann Hochdruck nur aus ISO-20653-9K-Abstand auf den Sockelbereich — nie direkt
   auf die Lüfterhaube (Belluna ist IPX4).
@@ -1913,6 +1914,11 @@ volle Suite → Checkpoint (Commit nach Freigaberegel).
 
 ## Verifikation nach Planabschluss (Spec §7 Freigabe-Workflow)
 
+0. VOR jeder ASA-Bestellung (DA-Review 2026-07-12): Messkampagne Punkte 4, 5 und 7
+   (Gussets, Klips-Positionen, Kantenabstand/-höhe) eintragen → Pipeline-Rerun;
+   danach EIN Segment als PLA-Billigdruck zur physischen Passform-/Freigangprobe.
+   Solange EDGE_DIST/EDGE_H Schätzwerte sind, kennzeichnet der Report den
+   Haubenfreigang als OFFEN (kein PASS-by-inf).
 1. `bin/fc run_all.py` → Gesamt-PASS
 2. `out/report_<hash>.md` dem User zeigen
 3. `out/frame_<hash>.step` in der FreeCAD-GUI öffnen: Sichtkontrolle Deckfläche,

@@ -118,8 +118,8 @@ nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt
 unteren Kleberille, geschlossen über die Stöße; (3) Ringklebenut der Belluna-Platte auf der
 Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
 2K-Epoxid-Verklebung der Fügeflächen (M5 = Verpressung der Klebung, nicht Dichtung).
-FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; optional 2K-PU/Epoxid-Versiegelung
-(zugleich UV-Schutz). Validierung praktisch (Flutungstest, dann Hochdruck aus
+FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; 2K-PU/Epoxid-Versiegelung der
+Außenflächen ist PFLICHT (Porenschluss + UV; DA-Review 2026-07-12). Validierung praktisch (Flutungstest, dann Hochdruck aus
 ISO-20653-9K-Abstand am verbauten Sockel); eine normative IP6K9K-Zertifizierung wäre
 Prüfstandssache. Systemgrenze: der Belluna selbst ist nur IPX4 — Ziel ist die dichte
 Dachdurchdringung, nicht ein dichter Lüfter.
@@ -172,7 +172,8 @@ statt fehlerhafte Artefakte zu exportieren.
 
 **Materialabminderung ASA (Kern des Nachweises):** Basis 40 MPa / E ≈ 2000 MPa (23 °C).
 Faktoren: Temperatur 85 °C ≈ 0,35 · Z-Schichthaftung ≈ 0,6 · Kriechen (Dauerlast) ≈ 0,4.
-→ zulässig ≈ **5 MPa dauerhaft**, ≈ **10 MPa kurzzeitig** (Böe, Schlagloch). Drucklage so, dass
+→ zulässig **3,36 MPa dauerhaft**, **8,40 MPa kurzzeitig** (Böe, Schlagloch; exakte Kettenwerte,
+von Plan/Code so verwendet). Drucklage so, dass
 Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 
 **Bestehenskriterien (Pipeline-Gate, automatisch):**
@@ -241,7 +242,10 @@ jede Messung ersetzt einen Default.
 | Thermodehnung reißt Klebfuge | 2–3 mm Elastikfuge erzwungen (Noppen), MS-Polymer ≥ 20 % Bewegungsaufnahme, LF5 |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
-| UV-Versprödung | ASA (UV-stabilisiert), weiß; optional Lack |
+| UV-Versprödung | ASA (UV-stabilisiert), weiß; Versiegelung Pflicht (s. §3) |
+| Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
+| Klemmkraft-Relaxation ASA bei 85 °C (Dichtungsverlust/Losrütteln statt Bruch) | Montage mit Feder-/Sicherungselementen, Nachziehen nach erster Hitzeperiode (Montagenotiz); Coupon-Kriechversuch als dokumentierte Härtungsoption [DA-Review] |
+| Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |
 
 ## 11. Erfolgskriterien
 
