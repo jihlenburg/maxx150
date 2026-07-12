@@ -468,7 +468,7 @@ def rect_path_points(half_x, half_y, spacing):
     def line(p0, p1):
         dx, dy = p1[0] - p0[0], p1[1] - p0[1]
         length = math.hypot(dx, dy)
-        n = max(2, int(length / spacing) + 1)
+        n = max(2, math.ceil(length / spacing) + 1)   # ceil: sonst Abstand > spacing
         for i in range(n):
             t = i / (n - 1)
             pts.append((p0[0] + t * dx, p0[1] + t * dy))
@@ -533,10 +533,11 @@ def test_hauptmasse():
 
 def test_oeffnung_bleibt_400():
     s = _frame()
-    # Prüfkörper exakt in der Öffnung darf den Rahmen nicht schneiden:
-    import Part
+    # Prüfkörper in der Öffnung darf den Rahmen nicht schneiden. Die Öffnung
+    # hat R5-Ecken, daher gerundeter Prüfkörper (R5.5 > R5 bei 0.1 mm Inset):
     from FreeCAD import Vector
-    probe = Part.makeBox(399.8, 399.8, 40, Vector(-199.9, -199.9, -5))
+    from model import features as F
+    probe = F.rounded_box(399.8, 399.8, 40, 5.5, Vector(-199.9, -199.9, -5))
     assert s.common(probe).Volume < 1e-6
 
 def test_volumen_plausibel():
