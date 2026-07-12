@@ -187,7 +187,7 @@ Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 
 **Export:** STEP (gesamt + je Segment), STL + 3MF je Segment; Dateinamen mit Parameter-Hash.
 Auto-generierte Fertigungs-/Montagenotiz: Druckorientierung (liegend auf Deckfläche),
-≥4 Perimeter, ~40 % Gyroid, Tempern-Empfehlung, Schraubenliste, Carloflex-Bedarf (aus
+≥4 Perimeter, 100 % Infill (Kammern tragen die Gewichtsreduktion), Tempern-Empfehlung, Schraubenliste, Carloflex-Bedarf (aus
 Raupenlänge/-querschnitt berechnet), berechnete Wellenwahl (140 mm bei 35+28).
 
 **DFM als Code-Invarianten:** Überhänge ≤ 45° (stützenfrei), Mindestwand 2,4 mm, Rippen 1,6 mm,

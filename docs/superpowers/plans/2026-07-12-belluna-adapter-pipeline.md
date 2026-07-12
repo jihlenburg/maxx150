@@ -1966,3 +1966,12 @@ volle Suite → Checkpoint (Commit nach Freigaberegel).
 5. **GLUE_GAP = 3,0 mm** (oberes Ende des Spec-Bereichs 2–3 mm) — aus der Thermik-Analytik.
 6. **Stoßnachweis:** Mini-FEM-Submodell + Analytik statt Schnittkraft-Übertrag aus dem
    Globalmodell (CalculiX-Kontaktmodell wäre unverhältnismäßig).
+7. **LF5-Verformungscheck:** analytisch (Fugenauslastung) statt zusätzlichem FEM-Thermolauf.
+8. **Kriterium 3 (Klebfugen-Schub):** über tragende Rillenfläche gerechnet statt über
+   FEM-Reaktionskräfte — konservativ, da Noppen/Kehlnaht unberücksichtigt.
+9. **Wandstärken-Stichproben (§7):** ersetzt durch den validate(p)-Ungleichungs-Katalog
+   (Final-Review-Fix) — prüft die Kopplungen exakt statt stichprobenhaft.
+10. **run_all-Smoke (§7 Punkt 5):** abgedeckt durch FEM-Regressionstest + dokumentierten
+    Produktionslauf statt eigenem Leer-Smoke-Test.
+11. **Slicer-Infill-Bezüge in Abweichung 2:** durch Task 14 (Rippenkammern, 100 % Infill)
+    überholt — siehe Spec §4.
