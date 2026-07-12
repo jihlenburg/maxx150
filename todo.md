@@ -60,8 +60,8 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       task-15-report.md (Abschnitt „Review-Nachbesserung").
 
 ## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
-- [ ] Montagenotiz: ASA-Pflichtbedingungen (geschlossener Bauraum >=45 °C, Bett 100-110 °C,
-      PEI+Brim 10 mm, Draft-Shield, Abkühlen im Bauraum, Tempern) — SOFORT nach Fix-Agent
+- [x] Montagenotiz: Verzugs-Pflichtbedingungen — erledigt (15bd068), seit Task 19 auf
+      Bambu-ASA-CF-Profil aktualisiert (Bett 80-100 °C, Kammer 45-60 °C)
 - [x] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
       (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
       — Task 17: params.py::CORNER_CHAMBERS (Default AUS)/CORNER_ANGLE_MARGIN=18°;

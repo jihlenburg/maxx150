@@ -250,7 +250,7 @@ jede Messung ersetzt einen Default.
 | Entscheidung | Wahl | Alternativen (verworfen) |
 |---|---|---|
 | Pipeline | A: vollparametrisch, headless FreeCAD + CalculiX | B: GUI+Spreadsheet (nicht reproduzierbar) · C: CadQuery-Stack (Werkzeugvorgabe FreeCAD) |
-| Material | ASA weiß | PETG (Tg zu nah an 85 °C) · PA12 (Kriechen, UV) · PC (Kosten; bleibt Eskalationsstufe) |
+| Material | ASA weiß → seit Task 19: **Bambu ASA-CF** (gedruckte XY+Z-Daten) | PETG (Tg) · PA12 (Kriechen/UV) · CR3D FibCR20 (Datenlage) · PC |
 | Befestigung | Kleben + seitliche Schrauben | nur Kleben (keine Redundanz) · Klemmen (Kriechen der Klemmstelle) |
 | Segmentierung | 4 identische L-Ecksegmente, Stoß in Seitenmitte | Monolith (kein Bauraum) · 8 Teile (mehr Fugen; bleibt Parameter-Option) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | — wird per Messkampagne Punkt 7 verifiziert |
@@ -260,12 +260,12 @@ jede Messung ersetzt einen Default.
 
 | Risiko | Gegenmaßnahme |
 |---|---|
-| Kriechen ASA unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 5 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen (Druck, nicht Zug); FEM LF3 |
-| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,6 im Nachweis; Tempern empfohlen |
+| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 5,44 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen (Druck, nicht Zug); FEM LF3 |
+| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,8 (GEMESSEN, Bambu-TDS Z/XY=0,88); Tempern Pflicht lt. Montagenotiz |
 | Thermodehnung reißt Klebfuge | 2–3 mm Elastikfuge erzwungen (Noppen), MS-Polymer ≥ 20 % Bewegungsaufnahme, LF5 |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
-| UV-Versprödung | ASA (UV-stabilisiert), weiß; Versiegelung Pflicht (s. §3) |
+| UV-Versprödung | ASA-CF (UV-stabilisiert lt. TDS); Versiegelung Pflicht (s. §3) |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |
