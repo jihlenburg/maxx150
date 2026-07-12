@@ -1488,12 +1488,25 @@ FAKE_OK = {"vm_max_MPa": 1.0, "defl_max_mm": 0.1, "defl_top_mm": 0.05,
 FAKE_BAD = dict(FAKE_OK, vm_max_MPa=99.0, PASS=False)
 
 
-def test_report_pass(tmp="out/test_report_ok.md"):
+def test_report_pass_mit_vorbehalt(tmp="out/test_report_ok.md"):
+    # Defaults: EDGE_DIST/EDGE_H sind Schätzwerte -> Freigang OFFEN,
+    # Gesamtergebnis "PASS mit Vorbehalt" (DA-Review 2026-07-12)
     ok = write_report({"LF1_wind": FAKE_OK}, FAKE_OK, PRM.P, tmp)
     assert ok is True
     text = Path(tmp).read_text()
-    assert "PASS" in text and PRM.params_hash() in text
+    assert "PASS mit Vorbehalt" in text and PRM.params_hash() in text
+    assert "OFFEN" in text and "Messkampagne 7" in text
     assert "140" in text                      # Wellenwahl im Report
+
+def test_report_pass_gemessen(tmp="out/test_report_meas.md"):
+    # Mit gemessener Kante (Überlapp real, Freigang reicht): echtes PASS
+    p = PRM.Params(HOOD_TIP_REACH=300.0, EDGE_DIST=200.0, EDGE_H=40.0)
+    # clearance = 28 + 30 - 40 = 18 >= 5
+    ok = write_report({"LF1_wind": FAKE_OK}, FAKE_OK, p, tmp)
+    assert ok is True
+    text = Path(tmp).read_text()
+    assert "18.0 mm" in text
+    assert "Vorbehalt" not in text
 
 def test_report_fail(tmp="out/test_report_bad.md"):
     ok = write_report({"LF1_wind": FAKE_BAD}, FAKE_OK, PRM.P, tmp)
@@ -1544,11 +1557,20 @@ def write_report(fem_results: dict, joint_result: dict,
     lines.append("")
     lines.append("## Analytische Nachweise")
     clr = A.hood_clearance(p)
-    clr_ok = clr >= p.CLEAR_MIN
-    ok &= clr_ok
-    clr_txt = "kein horizontaler Überlapp" if clr == float("inf") else f"{clr:.1f} mm"
-    lines.append(f"- Haubenfreigang über Dachkante: {clr_txt} "
-                 f"(≥ {p.CLEAR_MIN} mm) → {'PASS' if clr_ok else 'FAIL'}")
+    vorbehalt = False
+    if clr == float("inf"):
+        # DA-Review 2026-07-12: inf entsteht nur aus SCHÄTZWERTEN
+        # (EDGE_DIST/EDGE_H, Messkampagne 7) und darf kein stilles PASS sein.
+        vorbehalt = True
+        lines.append(f"- Haubenfreigang über Dachkante: **OFFEN** — kein Überlapp "
+                     f"laut Schätzwerten (EDGE_DIST={p.EDGE_DIST:.0f}, "
+                     f"EDGE_H={p.EDGE_H:.0f}); vor Druckfreigabe messen "
+                     f"(Messkampagne 7)")
+    else:
+        clr_ok = clr >= p.CLEAR_MIN
+        ok &= clr_ok
+        lines.append(f"- Haubenfreigang über Dachkante: {clr:.1f} mm "
+                     f"(≥ {p.CLEAR_MIN} mm) → {'PASS' if clr_ok else 'FAIL'}")
     u = A.glue_shear_utilization(p)
     u_ok = u < 1.0
     ok &= u_ok
@@ -1569,7 +1591,13 @@ def write_report(fem_results: dict, joint_result: dict,
                  f"{sc['F_erf_N']:.0f} N erforderlich → {'PASS' if sc['PASS'] else 'FAIL'}")
 
     lines.append("")
-    lines.append(f"# Gesamtergebnis: {'**PASS**' if ok else '**FAIL**'}")
+    if not ok:
+        lines.append("# Gesamtergebnis: **FAIL**")
+    elif vorbehalt:
+        lines.append("# Gesamtergebnis: **PASS mit Vorbehalt** "
+                     "(Haubenfreigang ungemessen — Messkampagne 7 vor Druck!)")
+    else:
+        lines.append("# Gesamtergebnis: **PASS**")
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines))
