@@ -61,7 +61,8 @@ class Params:
     SF_WIND: float = 2.0
     G_VERT: float = 4.0          # Schlechtweg vertikal
     G_LAT: float = 2.0           # Schlechtweg quer
-    CLAMP_FORCE: float = 2400.0  # 4 x 600 N aus 0,7 Nm (Anleitung), konservativ
+    CLAMP_FORCE: float = 2400.0  # KONSERVATIVE HÜLLKURVE: real keine harte Klemmung
+                                 # (nur Zierblende von unten, User 2026-07-12); deckt Montagefälle
     SNOW_LOAD: float = 200.0     # N auf Grundfläche
     T_MIN: float = -20.0
     T_MAX: float = 85.0

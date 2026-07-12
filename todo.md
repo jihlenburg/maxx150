@@ -31,5 +31,6 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 - [ ] M7: write_report-Guard gegen leeres fem_results
 - [ ] Ledger 42: write_report -> (ok, vorbehalt) statt Text-Matching im Banner
 - [ ] Ledger 2/3/4/6/9/12/15/32/34/36/37: Kleinkram laut Ledger-Triage
-- [ ] Optionaler Abmagerungs-Sweep (Wandstärken runter mit FEM-Gate; LF3/Klemmung ist
-      der Treiber mit 63 % Auslastung) — User-Entscheid nach Messkampagne
+- [ ] Optionaler Abmagerungs-Sweep (Wandstärken runter mit FEM-Gate). LF3 ist zwar mit
+      63 % der rechnerisch engste Fall, aber eine bewusste Hüllkurve — real gibt es keine
+      harte Klemmung (nur Zierblende unten, User 2026-07-12) → mehr Spielraum als es aussieht

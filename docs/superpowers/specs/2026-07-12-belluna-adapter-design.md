@@ -78,6 +78,10 @@ Parametern und schreibt sie in die Montagenotiz.
 6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
    verklebt (Ringklebenut); zusätzlich seitliche Verschraubung Kragen → Adapter-Innenwand
    (Adapter übernimmt die Holzrahmen-Rolle der Anleitung). Keine Verschraubung von oben.
+   **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
+   Lüfter geklebt + Kragen formschlüssig im Schacht, von unten nur die Zierblende.
+   LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle); die mechanische
+   Redundanz trägt allein die seitliche Verschraubung + Formschluss.
 7. **Dichtheit:** definierte Elastikkleber-Schichtdicke 2–3 mm (Thermodehnung), Sika-Kehlnaht außen.
 
 ## 4. Bauteilgeometrie
@@ -166,7 +170,7 @@ statt fehlerhafte Artefakte zu exportieren.
 |---|---|---|
 | LF1 | Fahrtwind | 200 km/h → q ≈ 1,85 kPa; Haube offen (zulässig lt. Anleitung), Worst Case MaxxFan Deluxe: A = 0,408 m × (0,236 + 0,028) m ≈ 0,108 m² (Maßblatt), cd ≈ 1,2 → ~240 N horizontal, ×2 Sicherheit = **480 N** am Hebelarm der Haubenhöhe (Kippmoment auf Deckfläche) |
 | LF2 | Schlechtweg | quasistatisch ±4 g vert. / ±2 g quer auf 6,5 kg → ±255 N / ±130 N |
-| LF3 | Klemmung/Montage | Vorspannung Innenrahmen-Verschraubung (aus 0,7 Nm Anzugsmoment lt. Anleitung ≈ 400–600 N je Schraube, konservativ 600 N × 4) + Anzug der Seitenschrauben; Schraubenauszug/Flächenpressung Innenwand |
+| LF3 | Klemmung/Montage | Vorspannung Innenrahmen-Verschraubung (aus 0,7 Nm Anzugsmoment lt. Anleitung ≈ 400–600 N je Schraube, konservativ 600 N × 4) + Anzug der Seitenschrauben; Schraubenauszug/Flächenpressung Innenwand. **Konservative Hüllkurve: real keine harte Klemmung (s. §3.6)** |
 | LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |
 | LF5 | Thermik | ΔT −20…+85 °C, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch) + Verformungscheck (FEM) |
 
@@ -244,7 +248,7 @@ jede Messung ersetzt einen Default.
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
 | UV-Versprödung | ASA (UV-stabilisiert), weiß; Versiegelung Pflicht (s. §3) |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
-| Klemmkraft-Relaxation ASA bei 85 °C (Dichtungsverlust/Losrütteln statt Bruch) | Montage mit Feder-/Sicherungselementen, Nachziehen nach erster Hitzeperiode (Montagenotiz); Coupon-Kriechversuch als dokumentierte Härtungsoption [DA-Review] |
+| Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |
 
 ## 11. Erfolgskriterien
