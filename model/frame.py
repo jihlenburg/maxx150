@@ -20,12 +20,63 @@ def _rot(shape, k):
     return s
 
 
+def _corner_keepout(p: PRM.Params) -> float:
+    """Bandkoordinate (u, gemessen wie in _chamber_cell_centers), ab der das
+    Zellraster wegen des Eck-Sektors (Task 17, CORNER_CHAMBERS) keinen Platz
+    mehr hat -- Review-Critical-Fix: der frühere validate()-Check verglich
+    fälschlich den ÄUSSERSTEN Sektorpunkt (r_out2) mit der Bandgrenze. Das
+    ist der UNKRITISCHE Punkt.
+
+    Herleitung: der Ecksektor ist ein echter Kreissektor um das Eckzentrum
+    (off, off) mit off = CUTOUT_W/2 - CUTOUT_R (siehe _corner_chamber_cuts).
+    Für Punkte auf seinem margin-Rand (Polarwinkel = CORNER_ANGLE_MARGIN
+    relativ zum Eckzentrum, der dem geraden Zellband am nächsten liegende
+    Sektorrand) gilt in globalen (X,Y)-Koordinaten -- die für die kanonische
+    REAR-Seite (k=0) IDENTISCH mit den Kammer-Koordinaten (r, u) sind --:
+        X = off + r'*cos(margin),  Y = off + r'*sin(margin)
+    mit r' = radialer Abstand vom Eckzentrum. Eliminiert man r', folgt
+        Y(X) = off + tan(margin) * (X - off)
+    d. h. Y WÄCHST MONOTON MIT X. Der kritische (kleinste Y bei einem X im
+    Zellband liegenden) Punkt liegt deshalb am kleinsten relevanten X, das
+    ist der INNENRADIUS von Ring 1 (r_in1 = CUTOUT_W/2 + INNER_WALL) -- NICHT
+    am Außenradius r_out2 (die alte, widerlegte Annahme). Ring 2 liegt bei
+    noch größerem X (r_in2 > r_in1) und damit noch größerem Y -- eine
+    einzige Klemme auf Basis von r_in1 deckt also BEIDE Ringe ab.
+
+    corner_keepout = off + tan(margin)*(r_in1 - off) - CORNER_GAP
+    (Defaults: 195 + 13*tan(18°) - 3 = 196.22 mm) ist die größte Bandkoor-
+    dinate (Zellreichweite = Zentrum + CELL_L/2), bis zu der das gerade
+    Zellraster überhaupt reichen darf.
+
+    WICHTIG (empirisch verifiziert, siehe _chamber_cell_centers): dieser Wert
+    wird als POST-HOC-FILTER auf die bereits fertig zentrierten Zellen
+    angewendet, NICHT als Ersatz für band_end in der Zentrierungsformel --
+    ein direktes band_end = min(band_end, corner_keepout) VOR der
+    Margin-Berechnung würde bei Defaults die Zentrierung neu verteilen und
+    ALLE Zellzentren verschieben (getestet: letzte Zelle wandert von
+    Reichweite 193 auf 188.6, siehe Diff-Skript im Fix-Report) -- das würde
+    den unveränderlichen Default-Volumen-Anker brechen, obwohl das
+    natürliche (unveränderte) Default-Raster den Keepout ohnehin schon
+    einhält (193 < 196.22). Ein Filter NACH der Zentrierung dagegen lässt
+    Defaults exakt unverändert (kein Zentrum verletzt den Keepout, nichts
+    wird gefiltert) und entfernt bei kleinerem CELL_L (Regressionsfund:
+    CELL_L=53 überschnitt den Sektor vorher um 516.3 mm³, siehe Fix-Report)
+    gezielt nur die tatsächlich kollidierenden äußersten Zellen.
+
+    Nur relevant, wenn p.CORNER_CHAMBERS -- sonst existiert kein Sektor und
+    der Aufrufer wendet den Filter gar nicht erst an."""
+    off = p.CUTOUT_W / 2 - p.CUTOUT_R
+    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
+    return off + math.tan(math.radians(p.CORNER_ANGLE_MARGIN)) * (r_in1 - off) - p.CORNER_GAP
+
+
 def _chamber_cell_centers(p: PRM.Params, limit_w: float):
     """u-Positionen (entlang einer Seite, Ursprung = Seitenmitte/Stoß) der
     Kammerzellen EINER Seiten-HALBSEITE (u > 0, also nur +u ODER nur -u,
     je nachdem welche Nachbargrenze der Aufrufer übergibt -- siehe
     _side_neighbor_bounds). Zellenraster CELL_L/CELL_RIB, zentriert im Band
-    zwischen SOLID_JOINT_HALF und SOLID_CORNER.
+    zwischen SOLID_JOINT_HALF und SOLID_CORNER (bzw. der Eck-Keepout-Grenze,
+    siehe unten).
 
     limit_w ist NICHT die W_TOP-Breite dieser Seite selbst, sondern die
     W_TOP-Breite der SENKRECHTEN Nachbarseite, die an diesem Ende physisch
@@ -39,7 +90,20 @@ def _chamber_cell_centers(p: PRM.Params, limit_w: float):
     Phantom-Slots jenseits des tatsaechlichen Rahmenrandes, siehe
     tests/test_asymmetrie.py). Bei symmetrischen Defaults (alle W_TOP=50)
     ist limit_w für jede Halbseite ohnehin 50 -> identisches Raster,
-    identischer chamber_slot_count (Regressionsanker)."""
+    identischer chamber_slot_count (Regressionsanker).
+
+    Eck-Keepout-Filter (Task 17, Review-Critical-Fix): wenn CORNER_CHAMBERS
+    aktiv ist, wird NACH der (unveränderten) Zentrierung jede Zelle verworfen,
+    deren Reichweite (Zentrum + CELL_L/2) über _corner_keepout(p) hinausreicht
+    -- der Ecksektor reicht sonst (insbesondere bei kleinem CELL_L, das den
+    Zellraster-Rand näher an die physische Bandgrenze band_end schiebt) in
+    den Sektor hinein, siehe _corner_keepout-Docstring für die vollständige
+    Herleitung samt Regressionsbeleg UND die Begründung, warum ein Filter
+    NACH statt eine Ersetzung VOR der Zentrierung nötig ist (Erhalt des
+    Default-Rasters). Bei Defaults bleibt der Filter wirkungslos:
+    corner_keepout=196.22 > tatsächliche Reichweite der letzten Zelle = 193
+    (siehe test_eckkammern_default_anker_unveraendert) -- deshalb identisches
+    Raster, identisches Default-Volumen."""
     side_half = p.CUTOUT_W / 2 + limit_w
     band_start = p.SOLID_JOINT_HALF
     band_end = side_half - p.SOLID_CORNER
@@ -52,6 +116,9 @@ def _chamber_cell_centers(p: PRM.Params, limit_w: float):
     for i in range(n):
         u0 = band_start + margin + i * step
         centers.append(u0 + p.CELL_L / 2)
+    if p.CORNER_CHAMBERS:
+        keepout = _corner_keepout(p)
+        centers = [c for c in centers if c + p.CELL_L / 2 <= keepout]
     return centers
 
 
@@ -191,20 +258,32 @@ def _corner_chamber_cuts(p: PRM.Params):
     um 45°) und eine reine Rotation um den Ursprung Position UND Orientierung
     gemeinsam korrekt mitdreht.
 
-    Winkelgrenzen-Nachweis / Kollisionsfreiheit Ecke <-> gerade Zellen
-    (Defaults, Margin 18°): die geraden Zellen einer an dieses Eck
-    angrenzenden Seite enden bei band_end = (CUTOUT_W/2 + W_Nachbar) -
-    SOLID_CORNER (siehe _chamber_cell_centers) -- bei Default-W_TOP=50 also
-    205 mm. Der äußerste Kavitätspunkt des Ecksektors ist r=r_out2_rel=47
-    beim Randwinkel margin=18° (der Sektorrand, der der jeweiligen Seite am
-    nächsten liegt): lokal y = 47*sin(18°) = 14.53, global (entlang der
-    Bandrichtung) = off + 14.53 = 195 + 14.53 = 209.53 mm. Das liegt 4.53 mm
-    ÜBER der 205er-Grenze zzgl. der geforderten 3 mm Luft (208 mm) -> der
-    Sektor reicht bei Default-Margin NICHT in die geraden Zellbänder hinein
-    (209.53 >= 208). PRM.validate() prüft dieselbe Ungleichung konservativ
-    mit dem GRÖSSTEN vorkommenden W_TOP (worst case für JEDE der 4 Ecken).
-    Restwand zur Außenkontur an der 45°-Diagonale bleibt bei Defaults massiv
-    genug (siehe Report, Skript-Probe: ~26 mm).
+    Kollisionsfreiheit Ecke <-> gerade Zellen (Review-Critical-Fix, Task 17):
+    FRÜHERE (WIDERLEGTE) Fassung dieses Docstrings behauptete, der
+    kritischste (der geraden Bandgrenze am nächsten liegende) Kavitätspunkt
+    des Ecksektors sei der ÄUSSERSTE Ringpunkt r=r_out2_rel=47 beim
+    Randwinkel margin -- das ist FALSCH: entlang des margin-Strahls
+    y(x) = off + tan(margin)*(x-off) (x, y global, siehe _corner_keepout)
+    WÄCHST y monoton mit x, der kritische (kleinste y bei im Zellband
+    liegendem x) Punkt liegt deshalb am INNENRADIUS r_in1 (Ring 1), nicht am
+    Außenradius. Die alte Ungleichung (sektor_extreme=209.5 >= band_end+3=208)
+    verglich damit den UNKRITISCHEN Punkt und validierte einen nicht
+    existierenden Sicherheitsabstand -- empirisch widerlegt: bei CELL_L=53
+    (Defaults sonst unverändert) überschnitt die reale, per _chamber_cell_
+    centers platzierte letzte Ring-1-Zelle den Ecksektor um 516.3 mm³,
+    obwohl PRM.validate() PASS meldete (isValid() blieb sogar True, siehe
+    Fix-Report -- ein Boolean-Cut mit überlappenden Werkzeugen bleibt
+    topologisch gültig, entfernt aber zu viel Material).
+
+    Fix: _chamber_cell_centers filtert das Zellraster selbst gegen
+    _corner_keepout(p) (siehe dortiger Docstring für die vollständige
+    Herleitung des korrekten, r_in1-basierten kritischen Punkts) -- das
+    Raster kann sich damit unabhängig von CELL_L nicht mehr in den
+    Ecksektor hinein erstrecken. PRM.validate() prüft nur noch eine
+    Kohärenzbedingung (corner_keepout > SOLID_JOINT_HALF, d. h. überhaupt
+    Platz für mindestens eine Zelle) statt der widerlegten geometrischen
+    Ungleichung. Restwand zur Außenkontur an der 45°-Diagonale bleibt bei
+    Defaults massiv genug (siehe Report, Skript-Probe: ~26 mm).
 
     Vents je Ecke (2 Stück, entlang derselben 45°-Diagonale wie oben, damit
     z=VENT_Z-Bohrungen exakt durch die dünnste Wandrichtung laufen):

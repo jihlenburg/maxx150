@@ -159,3 +159,46 @@ todo.md). Ausgangsstand: d348e91, 60/60 Tests grün.
   Margin-Abstand zu den geraden Zellbändern) klar von den geraden
   Kammerzellen abgesetzt.
 - Vollständiger Nachweis: `.superpowers/sdd/task-17-report.md`.
+
+## 2026-07-12 — Task 17 Review-Critical-Fix: falscher Referenzradius in validate()
+
+Ausgangsstand: `80c6fbb`, 66/66 grün. Befund: die `validate()`-Kollisions-
+ungleichung verglich den Sektor-Außenradius (`r_out2`) mit der Zellband-
+grenze — der kritische Punkt liegt aber am Innenradius `r_in1` (entlang
+des margin-Strahls `y(x)=off+tan(margin)*(x-off)` wächst `y` monoton mit
+`x`). Vor jeder Code-Änderung per Skript reproduziert:
+`Params(CORNER_CHAMBERS=True, CELL_L=53.0)` — `validate()` PASS,
+`build_frame().isValid()` `True` (1 Shell), aber reale Überschneidung
+letzte-Ring1-Zelle/Ecksektor = **516.2968692898736 mm³** (Boolean-Probe).
+
+- model/frame.py: neue Funktion `_corner_keepout(p)` (`off +
+  tan(radians(CORNER_ANGLE_MARGIN))*(r_in1-off) - CORNER_GAP`, Defaults
+  196.223956 mm). `_chamber_cell_centers` wendet sie als **Filter NACH**
+  der bestehenden Zentrierung an. Wichtig: ein direktes `band_end =
+  min(band_end, corner_keepout)` VOR der Margin-Berechnung wurde erst
+  probiert und dann verworfen, weil es bei Defaults ALLE Zellzentren
+  verschoben hätte (letzte Zelle 193→188.6 mm, numerisch nachgerechnet) —
+  das hätte den unveränderlichen Default-Volumen-Anker gebrochen, obwohl
+  das natürliche Raster den Keepout ohnehin schon einhält.
+- params.py: neuer Parameter `CORNER_GAP: float = 3.0`. `validate()`:
+  die widerlegte `sektor_extreme`-Ungleichung entfernt, ersetzt durch
+  Kohärenzprüfung `corner_keepout > SOLID_JOINT_HALF` + `CORNER_GAP >=
+  1.0`.
+- Docstrings korrigiert (`model/frame.py::_corner_chamber_cuts` §
+  „Kollisionsfreiheit", `params.py::validate`): r_in1 statt r_out2,
+  Herleitung y(x) monoton in x. Klarstellung zum alten Minor-Fund („Brief
+  widerspricht Zahlenbeispiel", Report §10): der Fehlbezug betraf sowohl
+  Richtung als auch Referenzradius.
+- 2 neue Tests `tests/test_eckkammern.py` (jetzt 8 statt 6):
+  Regressionsprobe (`CELL_L=53`: gefiltertes Raster `[66.5,122.5]` statt
+  `[66.5,122.5,178.5]`, Summen-Overlap aller Zell- vs. Sektor-Kavitäten
+  < 1e-6 mm³, `build_frame` weiter valide) + exakter P_ECK-Volumen-/Delta-
+  /Keepout-Anker.
+- Anker bitidentisch: `build_frame(PRM.P).Volume`=1736006.070242394 mm³,
+  `build_frame(P_ECK).Volume`=1694758.489540970 mm³, Delta=41247.580701424
+  mm³ — alle Diffs 0.0. `params_hash` ändert sich zwangsläufig durch das
+  neue Feld: `P`=`da0d8553` (vorher `eccafbc1`), `P_ECK`=`d1eee427`
+  (vorher `177d6901`).
+- Volle Suite: `timeout 700 bin/fc tests/run_tests.py` → **68 bestanden,
+  0 fehlgeschlagen**.
+- Vollständiger Nachweis: `.superpowers/sdd/task-17-report.md` §11.

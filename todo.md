@@ -60,6 +60,19 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       (Volumen-Anker 1736006.070242394 mm³ bitidentisch), params_hash ändert sich
       zwangsläufig durch die 2 neuen Felder (eccafbc1 statt vorher). 66/66 Tests grün.
       Details: .superpowers/sdd/task-17-report.md.
+- [x] Review-Critical-Fix auf obigem Task-17-Eintrag: validate() verglich fälschlich
+      den UNKRITISCHEN Sektor-Außenradius (r_out2) statt des kritischen Innenradius
+      (r_in1, entlang des margin-Strahls y(x)=off+tan(margin)*(x-off) wächst y
+      monoton mit x) -- empirisch belegt: CORNER_CHAMBERS=True+CELL_L=53 überschnitt
+      real um 516.3 mm³, obwohl validate() PASS meldete und isValid() True blieb
+      (Boolean-Cut mit überlappenden Werkzeugen bleibt topologisch gültig). Fix:
+      model/frame.py::_corner_keepout(p) + Filter (NACH der Zentrierung, NICHT als
+      band_end-Ersatz VOR ihr -- sonst hätte sich bei Defaults die ganze Zentrierung
+      verschoben und den Volumen-Anker gebrochen) in _chamber_cell_centers; neuer
+      Parameter CORNER_GAP=3.0; validate() prüft nur noch Kohärenz (Platz für
+      mind. 1 Zelle). Anker bitidentisch (P 1736006.07, P_ECK 1694758.49, Delta
+      41247.58 mm³), corner_keepout(P_ECK)=196.22 mm. 2 neue Regressionstests
+      (68/68 Tests grün). Details: .superpowers/sdd/task-17-report.md §11.
 - [ ] DFM-Warp-Metrik: größten zusammenhängenden Massivquerschnitt je Segment berechnen
       und in Montagenotiz/Report ausweisen (Schwelle diskutieren)
 - [ ] ASA-GF als Herstellbarkeits-Empfehlung dokumentieren (Verzug + CTE, Spec §3.5)
