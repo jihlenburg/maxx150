@@ -1,0 +1,22 @@
+{
+  "_hinweis": "Vorlage fuer die Messkampagne (siehe Session-Messprotokoll, docs/superpowers/specs/2026-07-12-belluna-adapter-design.md §8, Skill maxx150-messkampagne). Feldnamen = Protokollnummern. null = noch nicht gemessen -- fliesst NICHT in scripts/messkampagne.py ein, der params.py-Default bleibt stehen. Aufruf: python3 scripts/messkampagne.py messwerte.json [--target params.py] [--dry-run]",
+  "B1a": 212.0,
+  "B1b": 34.0,
+  "B2": 54.0,
+  "B3": 34.5,
+  "B4": 29.0,
+  "A1c": 49.0,
+  "A1d": 51.0,
+  "A1e": 48.5,
+  "A1f": 50.5,
+  "A2a": null,
+  "A2b": null,
+  "A2c": null,
+  "A3a": null,
+  "A3b": null,
+  "A3c": null,
+  "A4a": 2.4,
+  "A4b": 15.5,
+  "A5a": null,
+  "A5b": null
+}

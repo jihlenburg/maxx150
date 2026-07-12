@@ -61,8 +61,11 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 - [ ] Elastische Bettung statt starrer Noppen-Fixierung in der FEM (Federelemente/
       weiche Zwischenschicht ~E_Sika): realistischere Lagerung würde die Konzentration
       an den Noppenfüßen deutlich senken (aktuell konservatives Artefakt)
-- [ ] Heatmap-Workflow (fem_heatmap.py + render_heat.py, Session-Scratchpad) als
+- [x] Heatmap-Workflow (fem_heatmap.py + render_heat.py, Session-Scratchpad) als
       fem/heatmap.py in die Pipeline übernehmen (PLY je LF + Hotspot-JSON im Report)
+      — Task 18: fem/heatmap.py (heatmap_all/classify/cmap/write_ply/hotspots),
+      scripts/heatmap_run.py + scripts/heatmap.sh, render/blender_heatmap.py,
+      tests/test_tools_heatmap.py.
 
 ## Allgemeine Follow-ups (Priorität nach Bedarf)
 - [ ] M1/Ledger 23/30/33: Formel-/Helfer-Duplikate konsolidieren (lap_height, min_band,
