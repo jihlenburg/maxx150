@@ -1,3 +1,5 @@
+from dataclasses import FrozenInstanceError
+
 import params as PRM
 
 
@@ -45,3 +47,14 @@ def test_validate_faengt_messkampagnen_brecher():
             assert False, "erwartete ValueError"
         except ValueError:
             pass
+
+def test_params_frozen():
+    # Ledger 3: Params ist ein frozen dataclass -- Zuweisung nach der
+    # Konstruktion muss verlässlich scheitern (verhindert stille
+    # Parameter-Drift zur Laufzeit).
+    p = PRM.Params()
+    try:
+        p.H_RAISE = 99.0
+        assert False, "erwartete FrozenInstanceError"
+    except FrozenInstanceError:
+        pass

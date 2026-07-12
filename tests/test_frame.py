@@ -37,11 +37,23 @@ def test_volumen_plausibel():
     assert 1.55e6 < v < 1.95e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
+    """Schwelle aus Parametern statt hart 60000 (Ledger 10, Task-4-Review:
+    60000 lag nur 0.4 % unter dem Istwert -- fragil bei Parameteränderung).
+    Formel: Außenfläche (L*W, unrund) minus Öffnungsfläche minus
+    Freistellungsring (Gusset-Freistellung, in dfm._allowed_bridge_area
+    identisch als rec_ring berechnet), konservativ mit 0.9 multipliziert
+    (deckt Eckenrundungen/Rille/Fase/Kammer-Randeinflüsse ab)."""
     s = _frame()
     zt = top_z()
     top_area = sum(f.Area for f in s.Faces
                    if abs(f.CenterOfMass.z - zt) < 1e-4)
-    assert top_area > 60000, "zu wenig plane Klebefläche oben"
+    p = PRM.P
+    L, W = PRM.outer_dims(p)
+    oeffnungsflaeche = p.CUTOUT_W ** 2
+    freistellungsring = (p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
+    schwelle = (L * W - oeffnungsflaeche - freistellungsring) * 0.9
+    assert top_area > schwelle, \
+        f"zu wenig plane Klebefläche oben ({top_area:.0f} <= {schwelle:.0f})"
 
 def test_kammern_wirken():
     """Rippenkammern (Task 14) müssen substanziellen Materialanteil entfernen,

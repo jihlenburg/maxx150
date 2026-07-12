@@ -20,16 +20,20 @@ def _rot(shape, k):
     return s
 
 
-def _chamber_cell_centers(p: PRM.Params):
+def _chamber_cell_centers(p: PRM.Params, side_w: float):
     """u-Positionen (entlang einer Seite, Ursprung = Seitenmitte/Stoß) der
     Kammerzellen EINER Seitenhälfte (u > 0). Zellenraster CELL_L/CELL_RIB,
     zentriert im Band zwischen SOLID_JOINT_HALF und SOLID_CORNER (gemessen
-    ab der -- konservativ über die schmalste Deckflächenbreite angenäherten --
-    Außenkante). Identisches Raster für beide Kammerringe (dieselbe
-    Seitenparameter-Herleitung), damit Ring 1 und Ring 2 dieselbe Zellenzahl
+    ab der Außenkante DIESER Seite: side_w = deren eigene W_TOP-Breite).
+    Ledger 21/22: vormals global min(W_TOP) für alle vier Seiten -- jetzt
+    seitenspezifisch, damit schmale und breite Seiten ihr eigenes,
+    unabhängiges Zellenraster erhalten (siehe test_asymmetrie.py). Bei
+    symmetrischen Defaults (alle W_TOP gleich) ist side_w == der frühere
+    globale min() -> identisches Raster, identischer chamber_slot_count
+    (Regressionsanker). Identisches Raster für beide Kammerringe EINER Seite
+    (dieselbe side_w-Herleitung), damit Ring 1 und Ring 2 dieselbe Zellenzahl
     erhalten (siehe Brief: sonst Vent-Fehlanbindung -> zusätzliche Shell)."""
-    band_ref = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
-    side_half = p.CUTOUT_W / 2 + band_ref
+    side_half = p.CUTOUT_W / 2 + side_w
     band_start = p.SOLID_JOINT_HALF
     band_end = side_half - p.SOLID_CORNER
     band_len = band_end - band_start
@@ -44,14 +48,22 @@ def _chamber_cell_centers(p: PRM.Params):
     return centers
 
 
+# Kanonik k -> Seite (siehe _chamber_cuts-Docstring für die Herleitung):
+# k=0 REAR, k=1 RIGHT, k=2 FRONT, k=3 LEFT.
+def _side_w_by_k(p: PRM.Params):
+    return (p.W_TOP_REAR, p.W_TOP_RIGHT, p.W_TOP_FRONT, p.W_TOP_LEFT)
+
+
 def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
-    """Anzahl der Kammer-SLOTS (u-Positionen) über alle 4 Seiten. Ein Slot
-    enthält ZWEI Einzelkammern (Ring 1 + Ring 2) und 2 Vent-Kanäle —
-    Einzelkammern gesamt = 2 x Slots. Für die DFM-Vent-Allowance."""
+    """Anzahl der Kammer-SLOTS (u-Positionen) über ALLE 4 Seiten, SUMME je
+    Seite (Ledger 21/22: nicht mehr 4x2xn, weil jede Seite jetzt ihr eigenes
+    Zellenraster hat -- eine schmale Seite kann weniger Slots liefern als
+    eine breite). Ein Slot enthält ZWEI Einzelkammern (Ring 1 + Ring 2) und
+    2 Vent-Kanäle -- Einzelkammern gesamt = 2 x Slots. Für die
+    DFM-Vent-Allowance."""
     if not p.CHAMBERS:
         return 0
-    half = _chamber_cell_centers(p)
-    return 4 * 2 * len(half)          # 4 Seiten * (Band rechts + Band links vom Stoß)
+    return sum(2 * len(_chamber_cell_centers(p, w)) for w in _side_w_by_k(p))
 
 
 def _chamber_profile_face(r_in, r_out, apex_z, y0, p):
@@ -75,7 +87,23 @@ def _chamber_cavity(r_in, r_out, apex_z, y0, length, p):
 
 def _chamber_cuts(p: PRM.Params):
     """Alle Kammer-Hohlräume + Vent-Bohrungen (kanonische +x-Seite, dann je
-    90 Grad rotiert für die 3 übrigen Seiten). Cut-Werkzeuge, kein Fuse."""
+    90 Grad rotiert für die 3 übrigen Seiten). Cut-Werkzeuge, kein Fuse.
+
+    Kanonik k<->Seite (hergeleitet aus build_frame, NICHT angenommen):
+    x0 = -(CUTOUT_W/2 + W_TOP_FRONT), x0+L = CUTOUT_W/2 + W_TOP_REAR ->
+    die -x-Bandbreite ist W_TOP_FRONT, die +x-Bandbreite ist W_TOP_REAR:
+    +x-Seite = REAR. _rot() dreht um +90*k Grad um +z (Part.Shape.rotate,
+    Rechte-Hand-Regel): +x -> +y bei k=1. y0 = -(CUTOUT_W/2 + W_TOP_LEFT),
+    y0+W = CUTOUT_W/2 + W_TOP_RIGHT -> die +y-Bandbreite ist W_TOP_RIGHT:
+    +y-Seite = RIGHT. Also:
+      k=0 (0°):   +x  = REAR   (W_TOP_REAR)
+      k=1 (90°):  +y  = RIGHT  (W_TOP_RIGHT)
+      k=2 (180°): -x  = FRONT  (W_TOP_FRONT)
+      k=3 (270°): -y  = LEFT   (W_TOP_LEFT)
+    Die radiale Kammertiefe (r_in1..r_out2) ist bewusst NICHT seitenspezifisch
+    (feste Größen aus INNER_WALL/CHAMBER_W/CHAMBER_RIB) -- nur die Zellenzahl/
+    -länge je Seite (_chamber_cell_centers) hängt von DEREN W_TOP ab
+    (Ledger 21/22)."""
     if not p.CHAMBERS:
         return []
     r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
@@ -83,11 +111,12 @@ def _chamber_cuts(p: PRM.Params):
     r_in2 = r_out1 + p.CHAMBER_RIB
     r_out2 = r_in2 + p.CHAMBER_W
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
-    half = _chamber_cell_centers(p)
-    centers = half + [-c for c in half]
+    side_w = _side_w_by_k(p)
 
     tools = []
     for k in range(4):
+        half = _chamber_cell_centers(p, side_w[k])
+        centers = half + [-c for c in half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
@@ -164,9 +193,32 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     if fase_edges:
         body = body.makeChamfer(p.CHAMFER_OUT, fase_edges)
 
-    # Klebespalt-Noppen (definierte Elastikfugen-Dicke)
-    nops = [Part.makeCylinder(p.NOPPLE_R, p.GLUE_GAP, Vector(x, y, -p.GLUE_GAP))
-            for x, y in _nopple_positions(p)]
+    # Klebespalt-Noppen (definierte Elastikfugen-Dicke) + Übergangskegel am
+    # Fuß (Heatmap 2026-07-12: ALLE LF-Hotspots sitzen am Noppenfuß des
+    # äußeren Rings, r~238, z~-0.8 -- billigster Hebel gegen die einzige
+    # echte Kerbzone). Der Kegel füllt z in [-NOPPLE_FILLET, 0]: radius
+    # NOPPLE_R bei z=-NOPPLE_FILLET (deckungsgleich mit dem Zylinder, der
+    # dort ohnehin schon Material hat -- reiner Fuse-Zusatz nach außen) bis
+    # radius NOPPLE_R+NOPPLE_FILLET bei z=0 (Übergang in die Bodenfläche) --
+    # weitet sich zum Körper. Kegelflanke NOPPLE_FILLET/NOPPLE_FILLET = 45°
+    # -> in Druckorientierung (kopfüber) selbsttragend, DFM unverändert.
+    # ACHTUNG (Task 15, live gefunden über test_loadcases.test_face_selektoren):
+    # der Kegel teilt die vormals durchgehende Zylindermantelfläche bei
+    # z=-NOPPLE_FILLET in zwei Flächen. fem/loadcases.py::nopple_faces nahm
+    # bislang JEDE Fläche mit CenterOfMass nahe z=-GLUE_GAP (reiner
+    # Toleranzfilter, tol=1.0) -- die neue, kürzere untere Zylinder-Restfläche
+    # (CoM jetzt näher an -GLUE_GAP als die alte volle Mantelfläche) wäre
+    # damit fälschlich als Noppen-Stirnfläche in die FEM-Randbedingung
+    # gerutscht. Fix dort: Plane+Normalen-Filter (wie top_faces) statt
+    # reiner CoM-Toleranz -- selektiert wieder exakt dieselben Stirnflächen
+    # wie vor dem Kegel.
+    nops = []
+    for x, y in _nopple_positions(p):
+        nops.append(Part.makeCylinder(p.NOPPLE_R, p.GLUE_GAP, Vector(x, y, -p.GLUE_GAP)))
+        if p.NOPPLE_FILLET > 0:
+            nops.append(Part.makeCone(p.NOPPLE_R + p.NOPPLE_FILLET, p.NOPPLE_R,
+                                      p.NOPPLE_FILLET, Vector(x, y, 0),
+                                      Vector(0, 0, -1)))
     body = body.fuse(nops)
     body = body.removeSplitter()
     if not body.isValid():

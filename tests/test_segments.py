@@ -24,6 +24,10 @@ def test_bbox_druckservice():
             f"Segment {bb.XLength:.0f}x{bb.YLength:.0f} zu groß"
 
 def test_identische_segmente_bei_symmetrie():
+    # Voraussetzung: SYMMETRISCHE W_TOP-Defaults (PRM.P). Bei asymmetrischen
+    # W_TOP-Breiten sind unterschiedliche Segmentvolumina korrekt und
+    # ERWARTET (siehe tests/test_asymmetrie.py, das diesen Test bewusst
+    # NICHT wiederholt -- Finalreview I3).
     vols = sorted(s.Volume for s in _segs())
     assert (vols[-1] - vols[0]) / vols[-1] < 0.002   # W_TOP alle gleich -> identisch
 

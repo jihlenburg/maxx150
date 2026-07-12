@@ -38,4 +38,6 @@ def test_klebfugen_schub_aus_last():
 def test_seitenschrauben_auszug():
     r = A.side_screw_pullout(PRM.P)
     assert r["F_zul_N"] > 150.0            # je Schraube, dauerfest
+    # Sollwert statt nur Schwelle (Ledger 15, Task-5-Review): pi*4.2*12*0.5*3.36 = 266.0
+    assert abs(r["F_zul_N"] - 266.0) < 5.0
     assert r["PASS"]

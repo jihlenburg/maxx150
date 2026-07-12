@@ -10,6 +10,11 @@ from dataclasses import dataclass, asdict
 
 @dataclass(frozen=True)
 class Params:
+    # --- Meta: Geometrie-Revision. Erhöhen bei geometrie-wirksamen CODE-
+    # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
+    # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
+    # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
+    GEOM_REV: int = 2
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung, Messkampagne 6)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -41,6 +46,8 @@ class Params:
     GROOVE_D: float = 2.0
     NOPPLE_R: float = 4.0
     NOPPLE_SPACING: float = 60.0
+    NOPPLE_FILLET: float = 1.5   # Kerbentschärfung am Zylinderansatz (Übergangskegel,
+                                  # Heatmap 2026-07-12: alle LF-Hotspots am Noppenfuß)
     CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Sika-Kehle)
     # --- Segmentierung ---
     N_SEGMENTS: int = 4          # nur 4 unterstützt (Quadranten)
@@ -169,7 +176,10 @@ def validate(p: Params = P) -> None:
         fehler.append("M5-Kopfsenkung erreicht die Außenwand: JOINT_BOLT_OFF/W_TOP prüfen")
     if p.GLUE_GAP < 2.0:
         fehler.append("GLUE_GAP < 2 mm: Thermik-Elastikfuge und Noppen-Fixierflächen brauchen >= 2")
-    if p.NOPPLE_SPACING < 3 * p.NOPPLE_R:
-        fehler.append("NOPPLE_SPACING < 3*NOPPLE_R: Noppen überlappen")
+    if p.NOPPLE_FILLET < 0:
+        fehler.append("NOPPLE_FILLET < 0: Übergangskegel-Höhe unzulässig negativ")
+    if p.NOPPLE_SPACING < 3 * p.NOPPLE_R + 2 * p.NOPPLE_FILLET:
+        fehler.append("NOPPLE_SPACING < 3*NOPPLE_R + 2*NOPPLE_FILLET: "
+                       "Noppen (inkl. Übergangskegel-Fuß) überlappen")
     if fehler:
         raise ValueError("Parameter-Validierung fehlgeschlagen:\n- " + "\n- ".join(fehler))

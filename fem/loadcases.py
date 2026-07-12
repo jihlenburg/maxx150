@@ -11,14 +11,6 @@ import params as PRM
 from model.frame import top_z
 
 
-def _planar_faces(shape, z_target, tol=1.0):
-    out = []
-    for i, f in enumerate(shape.Faces):
-        if abs(f.CenterOfMass.z - z_target) < tol:
-            out.append((i, f))
-    return out
-
-
 def top_faces(shape, p):
     """Exakte Selektion der Deckfläche: planar, Normale ~ +z, |z - top_z| <
     0.01. Kein Fallback -- nach removeSplitter existiert genau eine
@@ -37,9 +29,25 @@ def top_faces(shape, p):
 
 
 def nopple_faces(shape, p):
-    """Exakte Selektion der Noppenflächen bei z = -GLUE_GAP."""
-    faces = _planar_faces(shape, -p.GLUE_GAP)
-    return tuple(f"Face{i+1}" for i, _ in faces)
+    """Exakte Selektion der Noppenflächen bei z = -GLUE_GAP: NUR die ebene,
+    nach -z gerichtete Stirnfläche jeder Noppe -- nicht ihre Zylinder-/
+    Kegelmantelfläche (Task 15: der Übergangskegel am Noppenfuß teilt die
+    vormals durchgehende Zylindermantelfläche in eine kurze untere
+    Restfläche + die neue Kegelflanke; deren CoM liegt näher an
+    z=-GLUE_GAP als die volle, ungeteilte Mantelfläche vorher -- ein reiner
+    CoM-Toleranzfilter [wie zuvor via _planar_faces] würde sie ab jetzt
+    fälschlich mit einsammeln, siehe tests/test_loadcases.py::
+    test_face_selektoren). Analog zu top_faces(): Plane + Normale ~ -z."""
+    out = []
+    for i, f in enumerate(shape.Faces):
+        if not isinstance(f.Surface, Part.Plane):
+            continue
+        n = f.normalAt(0, 0)
+        if abs(n.x) > 1e-3 or abs(n.y) > 1e-3 or abs(n.z + 1.0) > 1e-3:
+            continue
+        if abs(f.CenterOfMass.z - (-p.GLUE_GAP)) < 0.01:
+            out.append(i)
+    return tuple(f"Face{i+1}" for i in out)
 
 
 def outer_wall_faces(shape, p, sign):
