@@ -30,7 +30,20 @@ def _allowed_bridge_area(p):
        obere Halbzylinder-Fläche je Kanal, Wandstärke konservativ mit
        max(INNER_WALL, CHAMBER_RIB) angesetzt -- Ø4 ist ohnehin brückenfrei
        druckbar, die Kammerböden selbst (47°-Chevron) tragen sich über die
-       Flankenneigung, brauchen also keinen eigenen Term hier."""
+       Flankenneigung, brauchen also keinen eigenen Term hier.
+    6. Eck-Vents der Eckkammern (Task 17, nur wenn CORNER_CHAMBERS): 4 Ecken
+       x 2 radiale Ø VENT_D-Kanäle entlang der 45°-Diagonale (analog Zone 5,
+       siehe model/frame.py::_corner_chamber_cuts) = 8 Kanäle gesamt, obere
+       Halbzylinder-Fläche je Kanal, Wandstärke wieder konservativ mit
+       max(INNER_WALL, CHAMBER_RIB) angesetzt. Zusätzlicher Faktor 2
+       gegenüber der Zone-5-Formel: die Eck-Kanäle liegen DIAGONAL (45° zu
+       beiden Druck-Kippachsen) statt achsparallel -- die projizierte
+       Überhangfläche in Druckorientierung (kopfüber, 180°-Kippung um x)
+       fällt für eine diagonale Bohrung ungünstiger aus als für eine rein
+       x-/y-achsparallele; konservativ verdoppelt statt exakt hergeleitet
+       (die Chevron-Sektorböden selbst brauchen weiterhin keinen eigenen
+       Term -- gleiches Argument wie Zone 5: >45° in JEDER Radialebene des
+       Sektors, siehe _corner_chamber_cuts-Docstring)."""
     rec_ring = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2)
     cb = 4 * math.pi * (p.JOINT_CB_D / 2) ** 2
     nut = 4 * 2 * math.sqrt(3) * (p.JOINT_NUT_AF / 2) ** 2
@@ -38,7 +51,11 @@ def _allowed_bridge_area(p):
                 * (p.W_TOP_FRONT + p.W_TOP_REAR + p.W_TOP_LEFT + p.W_TOP_RIGHT))
     vent = (chamber_slot_count(p) * 2 * (math.pi / 2) * (p.VENT_D / 2)
             * max(p.INNER_WALL, p.CHAMBER_RIB))
-    return rec_ring + cb + nut + lap_step + vent
+    eck_vent = 0.0
+    if p.CORNER_CHAMBERS:
+        eck_vent = (8 * (math.pi / 2) * (p.VENT_D / 2)
+                    * max(p.INNER_WALL, p.CHAMBER_RIB) * 2)
+    return rec_ring + cb + nut + lap_step + vent + eck_vent
 
 
 def _facet_points(facet):

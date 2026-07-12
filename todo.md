@@ -47,8 +47,19 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
 ## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
 - [ ] Montagenotiz: ASA-Pflichtbedingungen (geschlossener Bauraum >=45 °C, Bett 100-110 °C,
       PEI+Brim 10 mm, Draft-Shield, Abkühlen im Bauraum, Tempern) — SOFORT nach Fix-Agent
-- [ ] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
+- [x] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
       (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
+      — Task 17: params.py::CORNER_CHAMBERS (Default AUS)/CORNER_ANGLE_MARGIN=18°;
+      model/frame.py::_corner_chamber_cuts (90°-Rotationssektor je Ecke, Ring1 r13-28/
+      Ring2 r32-47 relativ zum Eckzentrum (CUTOUT_W/2-CUTOUT_R, dito), Part.Face.revolve
+      um den Ursprung + _rot auf alle 4 Ecken, 2 Diagonal-Vents je Ecke); DFM Zone 6
+      (model/dfm.py, 8 Eck-Vents); PRM.validate() prüft CORNER_CHAMBERS->CHAMBERS-
+      Voraussetzung + Winkelmargin-Kollisionsungleichung (sektor_extreme >= band_end+3,
+      bei Defaults 209.5 >= 208, PASS). Volumendelta EIN-Variante 41247.6 mm³, Restwand
+      an der Diagonale 25.8 mm. Default (CORNER_CHAMBERS=False) geometrisch unverändert
+      (Volumen-Anker 1736006.070242394 mm³ bitidentisch), params_hash ändert sich
+      zwangsläufig durch die 2 neuen Felder (eccafbc1 statt vorher). 66/66 Tests grün.
+      Details: .superpowers/sdd/task-17-report.md.
 - [ ] DFM-Warp-Metrik: größten zusammenhängenden Massivquerschnitt je Segment berechnen
       und in Montagenotiz/Report ausweisen (Schwelle diskutieren)
 - [ ] ASA-GF als Herstellbarkeits-Empfehlung dokumentieren (Verzug + CTE, Spec §3.5)

@@ -109,3 +109,53 @@ SOLID_CORNER bzw. erzeugt Phantom-Slots jenseits des Rahmenrandes.
   hinterlegt.
 - Vollständiger Nachweis: `.superpowers/sdd/task-15-report.md`
   (Abschnitt „Review-Nachbesserung: Achsen-Fehlbezug").
+
+## 2026-07-12 — Task 17: Eckkammern (parametrisierbar, Default AUS)
+
+Quelle: `.superpowers/sdd/task-17-brief.md` (Herstellbarkeits-Paket,
+todo.md). Ausgangsstand: d348e91, 60/60 Tests grün.
+
+- params.py: `CORNER_CHAMBERS: bool = False` (Default AUS, verifizierter
+  Stand bleibt geometrisch unverändert), `CORNER_ANGLE_MARGIN: float = 18.0`
+  (Grad Randabstand des 90°-Sektors je Seite). validate(p): neuer Block
+  `if p.CORNER_CHAMBERS` — (a) CHAMBERS-Voraussetzung, (b)
+  0<CORNER_ANGLE_MARGIN<45, (c) Kollisions-Ungleichung Ecksektor <-> gerade
+  Zellbänder (`sektor_extreme = off + r_out2_rel*sin(radians(margin))` muss
+  >= größter vorkommender `band_end + 3mm` sein; bei Defaults 209.524 >= 208,
+  PASS).
+- model/frame.py: `_ring_radii(p)` als DRY-Helfer aus `_chamber_cuts`
+  extrahiert (auch von der neuen Funktion genutzt). Neue
+  `_corner_chamber_cuts(p)`: kanonisches Pentagon-Profil (identisch
+  `_chamber_profile_face`) in der Ebene y=0 gebaut, um CORNER_ANGLE_MARGIN
+  vorrotiert, `Part.Face.revolve(Ursprung, (0,0,1), 90-2*margin)` -> Solid,
+  danach auf das Eckzentrum (CUTOUT_W/2-CUTOUT_R, dito) verschoben, dann per
+  `_rot(shape,k)` (Rotation um den GLOBALEN Ursprung) auf alle 4 Ecken
+  verteilt — KEINE Spiegelung nötig (kanonischer Sektor liegt symmetrisch
+  zur 45°-Diagonale). Je Ecke 2 Diagonal-Vents (analog den Seiten-Vents).
+  `_chamber_cuts` hängt die Eckkammer-Werkzeuge an dieselbe tools-Liste an
+  (ein gemeinsamer cut()+removeSplitter() in build_frame, wie im Brief
+  gefordert).
+- model/dfm.py: `_allowed_bridge_area` Zone 6 (8 Eck-Vents, Formel wie
+  Brief, Faktor 2 zusätzlich wegen diagonaler statt achsparalleler Kanäle,
+  nur wenn CORNER_CHAMBERS) — dokumentiert, warum die Chevron-Sektorböden
+  selbst keinen eigenen Term brauchen (>45° in jeder Radialebene, wie
+  Zone 5).
+- Geometrie-Beleg (Skript-Probe, siehe Report): Default-Volumen unverändert
+  1736006.070242394 mm³ (Symmetrie-Anker aus Task-15-Ledger, bitidentisch).
+  EIN-Variante (P_ECK = CORNER_CHAMBERS=True): Volumen 1694758.49 mm³,
+  Delta 41247.58 mm³ (Band 2.5e4..7e4 laut Brief). Restwand an der
+  45°-Diagonale zur Außenkontur: 25.81 mm (Brief-Schätzung „≈26mm"
+  bestätigt). params_hash(P)=`eccafbc1` (ändert sich zwangsläufig durch die
+  2 neuen Felder, GEOM_REV bleibt 2), params_hash(P_ECK)=`177d6901`.
+- Neue Tests `tests/test_eckkammern.py` (6): Frame valide+1 Shell, Volumen-
+  delta-Band, Segmente valide+überschneidungsfrei, DFM-Gate, validate()
+  wirft ValueError ohne CHAMBERS, Default-Anker (Volumen + Hash-Diff-Nach-
+  weis). Alle 6 grün; volle Suite 66/66 grün, 0 fehlgeschlagen.
+- Rendering-Beleg: Wegwerf-Skripte (render/make_views_stl.py kann
+  params.P nicht per Parameter überschreiben) bauen P_ECK, schneiden bei
+  z=14 horizontal (wie render/make_views_stl.py::ZCUT) und rendern eine
+  Top-Down-Orthoansicht: `out/render/task17_eck/v_schnitt_horizontal.png`
+  — zeigt alle 4 Eck-Sektoren (Ring 1 + Ring 2, mit sichtbarem
+  Margin-Abstand zu den geraden Zellbändern) klar von den geraden
+  Kammerzellen abgesetzt.
+- Vollständiger Nachweis: `.superpowers/sdd/task-17-report.md`.

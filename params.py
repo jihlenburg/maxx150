@@ -99,6 +99,10 @@ class Params:
     CHEVRON_DEG: float = 47.0  # Kammerboden-Zelt; >45° mit Reserve (DFM-Kante)
     VENT_D: float = 4.0        # Druckausgleichsbohrung je Zelle (FDM; SLS verworfen)
     VENT_Z: float = 17.0       # Bohrungshöhe (weit weg von Schraubzone)
+    # --- Eckkammern (optional; Herstellbarkeit: entlastet die vier massiven
+    # Eckblöcke, Haupt-Schrumpfspannungs-Reservoirs -- Task 17) ---
+    CORNER_CHAMBERS: bool = False   # Default AUS: verifizierter Stand unverändert
+    CORNER_ANGLE_MARGIN: float = 18.0  # Grad Randabstand des 90°-Sektors je Seite
     # --- FEM-Steuerung ---
     MESH_MM: float = 10.0        # Produktionsnetz
     MESH_MM_TEST: float = 20.0   # Grobnetz für Tests
@@ -181,5 +185,41 @@ def validate(p: Params = P) -> None:
     if p.NOPPLE_SPACING < 3 * p.NOPPLE_R + 2 * p.NOPPLE_FILLET:
         fehler.append("NOPPLE_SPACING < 3*NOPPLE_R + 2*NOPPLE_FILLET: "
                        "Noppen (inkl. Übergangskegel-Fuß) überlappen")
+    if p.CORNER_CHAMBERS:
+        if not p.CHAMBERS:
+            fehler.append("Eckkammern setzen CHAMBERS voraus (CORNER_CHAMBERS ohne CHAMBERS)")
+        elif not (0 < p.CORNER_ANGLE_MARGIN < 45):
+            fehler.append(f"CORNER_ANGLE_MARGIN={p.CORNER_ANGLE_MARGIN} außerhalb (0, 45): "
+                          f"Sektorwinkel (90 - 2*Margin) muss positiv bleiben")
+        else:
+            # Eckkammern (Task 17): Kollisionsfreiheit Ecksektor <-> gerade
+            # Zellbänder (model/frame.py::_corner_chamber_cuts, vollständige
+            # Herleitung im dortigen Docstring). Eckzentrum-Offset =
+            # CUTOUT_W/2 - CUTOUT_R (Mittelpunkt des Öffnungs-Eckradius); die
+            # r_in1..r_out2-Formel ist hier ABSICHTLICH aus model/frame.py::
+            # _ring_radii dupliziert (params.py darf model/ nicht importieren,
+            # gleiches Muster wie apex/kammerdecke oben). Äußerster
+            # Kavitätspunkt des Ecksektors: r=r_out2 relativ zum Eckzentrum,
+            # beim Randwinkel CORNER_ANGLE_MARGIN (der dem angrenzenden
+            # geraden Band nächstgelegene Sektorrand):
+            #   sektor_extreme = off + r_out2_rel * sin(radians(margin))
+            # (Zahlenbeispiel Defaults: 195 + 47*sin(18°) = 209.53). Muss um
+            # mindestens 3 mm über der größten vorkommenden Bandgrenze
+            # band_end = (CUTOUT_W/2 + W_Nachbar) - SOLID_CORNER liegen
+            # (band_end wächst monoton mit der Nachbar-W_TOP-Breite -> der
+            # GRÖSSTE W_TOP-Wert ist der ungünstigste Fall für JEDE der 4
+            # Ecken/8 Bandanschlüsse, konservativ mit einer einzigen
+            # Ungleichung geprüft statt aller 8 Einzelfälle).
+            off = p.CUTOUT_W / 2 - p.CUTOUT_R
+            r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
+            r_out2 = r_in1 + 2 * p.CHAMBER_W + p.CHAMBER_RIB
+            sektor_extreme = off + (r_out2 - off) * math.sin(math.radians(p.CORNER_ANGLE_MARGIN))
+            w_max = max(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
+            band_end_worst = (p.CUTOUT_W / 2 + w_max) - p.SOLID_CORNER
+            if sektor_extreme < band_end_worst + 3.0:
+                fehler.append(
+                    f"Eckkammer-Sektor (Margin {p.CORNER_ANGLE_MARGIN}°) reicht nur bis "
+                    f"{sektor_extreme:.1f} mm, zu nah an der geraden Zellbandgrenze "
+                    f"{band_end_worst:.1f} mm (+3 mm Luft nötig): CORNER_ANGLE_MARGIN erhöhen")
     if fehler:
         raise ValueError("Parameter-Validierung fehlgeschlagen:\n- " + "\n- ".join(fehler))

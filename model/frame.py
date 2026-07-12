@@ -139,6 +139,115 @@ def _chamber_cavity(r_in, r_out, apex_z, y0, length, p):
     return face.extrude(Vector(0, length, 0))
 
 
+def _ring_radii(p: PRM.Params):
+    """Radiale Grenzen der beiden konzentrischen Kammerringe, gemessen von
+    der globalen Mittelachse (identisch für alle 4 geraden Seiten UND
+    Grundlage der Eckkammer-Radien, siehe _corner_chamber_cuts)."""
+    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
+    r_out1 = r_in1 + p.CHAMBER_W
+    r_in2 = r_out1 + p.CHAMBER_RIB
+    r_out2 = r_in2 + p.CHAMBER_W
+    return r_in1, r_out1, r_in2, r_out2
+
+
+def _corner_chamber_cuts(p: PRM.Params):
+    """Eckkammern (Task 17, optional CORNER_CHAMBERS): 90°-Rotationsfort-
+    setzung der Seiten-Kammerringe um die vier massiven Eckblöcke.
+
+    Eckzentrum (kanonisch die (+,+)-Ecke, x>0/y>0): (off, off) mit
+    off = CUTOUT_W/2 - CUTOUT_R -- Mittelpunkt des R{CUTOUT_R}-Eckradius der
+    Öffnung. Herleitung der Ring-Radien relativ zu diesem Zentrum: die
+    radial versetzte Kontur eines gerundeten Rechtecks (Eckradius R, Zentrum
+    C) ist bei Offset d WIEDER ein gerundetes Rechteck mit Eckradius R+d und
+    UNVERÄNDERTEM Zentrum C (Standardeigenschaft von Parallelkurven an
+    Kreisbögen -- der Bogenmittelpunkt bleibt beim Offsetten fix). Die
+    Kammerring-Innen-/Außenradien der geraden Seiten (_ring_radii, gemessen
+    von der globalen Mittelachse) sind exakt Offsets der Öffnungskante
+    (r=CUTOUT_W/2, Eckradius CUTOUT_R) -- am Eck liegen sie deshalb bei
+    (r_in1..r_out2) - off vom Eckzentrum entfernt (Defaults: 13/28/32/47,
+    siehe Brief).
+
+    Profil: IDENTISCHES (r,z)-Pentagon wie _chamber_profile_face (gleiche
+    Decke/Boden/Chevron-Apex), gebaut in der lokalen Ebene y=0 (enthält die
+    z-Achse durch den Ursprung, Winkel 0). Vor dem Revolve um
+    CORNER_ANGLE_MARGIN Grad um (0,0,1) vorrotiert, dann um
+    (90 - 2*CORNER_ANGLE_MARGIN) Grad weiter um dieselbe Achse (0,0,1) DURCH
+    DEN URSPRUNG revolvt (Part.Face.revolve) -- der kanonische Sektor deckt
+    damit die Winkel [margin, 90-margin] ab, symmetrisch zur 45°-Diagonale.
+    Erst NACH dem Revolve auf das Eckzentrum (off, off) verschieben: ein
+    Revolve um eine Achse durch den Ursprung hängt nur von (r, Winkel, z) ab,
+    nicht von der absoluten Lage -- Verschieben nach dem Revolve ist
+    äquivalent zu (und einfacher als) das Profil vorher zu verschieben und
+    um eine Achse durch das Eckzentrum zu revolven.
+
+    Die 4 Ecken entstehen NICHT durch vier separate Konstruktionen, sondern
+    durch _rot(shape, k) (Rotation um den GLOBALEN URSPRUNG, Rechte-Hand-
+    Regel (x,y) -> (-y,x) je 90°-Schritt, exakt wie in _chamber_cuts): das
+    bildet den bei (off, off) liegenden, zur Diagonale symmetrischen Sektor
+    SAMT Orientierung korrekt auf die anderen 3 Ecken ab
+    ((off,off) -> (-off,off) -> (-off,-off) -> (off,-off)) -- KEINE
+    Spiegelung nötig, weil der kanonische Sektor bereits symmetrisch zur
+    Diagonale liegt (Winkelbereich [margin, 90-margin] ist spiegelsymmetrisch
+    um 45°) und eine reine Rotation um den Ursprung Position UND Orientierung
+    gemeinsam korrekt mitdreht.
+
+    Winkelgrenzen-Nachweis / Kollisionsfreiheit Ecke <-> gerade Zellen
+    (Defaults, Margin 18°): die geraden Zellen einer an dieses Eck
+    angrenzenden Seite enden bei band_end = (CUTOUT_W/2 + W_Nachbar) -
+    SOLID_CORNER (siehe _chamber_cell_centers) -- bei Default-W_TOP=50 also
+    205 mm. Der äußerste Kavitätspunkt des Ecksektors ist r=r_out2_rel=47
+    beim Randwinkel margin=18° (der Sektorrand, der der jeweiligen Seite am
+    nächsten liegt): lokal y = 47*sin(18°) = 14.53, global (entlang der
+    Bandrichtung) = off + 14.53 = 195 + 14.53 = 209.53 mm. Das liegt 4.53 mm
+    ÜBER der 205er-Grenze zzgl. der geforderten 3 mm Luft (208 mm) -> der
+    Sektor reicht bei Default-Margin NICHT in die geraden Zellbänder hinein
+    (209.53 >= 208). PRM.validate() prüft dieselbe Ungleichung konservativ
+    mit dem GRÖSSTEN vorkommenden W_TOP (worst case für JEDE der 4 Ecken).
+    Restwand zur Außenkontur an der 45°-Diagonale bleibt bei Defaults massiv
+    genug (siehe Report, Skript-Probe: ~26 mm).
+
+    Vents je Ecke (2 Stück, entlang derselben 45°-Diagonale wie oben, damit
+    z=VENT_Z-Bohrungen exakt durch die dünnste Wandrichtung laufen):
+    (a) vom Öffnungs-Eckradius (r=CUTOUT_R-1, 1 mm im Material der
+        Öffnungsrundung) durch INNER_WALL in Ring 1 (Länge INNER_WALL+2,
+        analog Vent 1 der geraden Zellen);
+    (b) vom Ring-1-Außenrand (r=r_out1_rel-1) durch den Steg CHAMBER_RIB in
+        Ring 2 (Länge CHAMBER_RIB+2, analog Vent 2 der geraden Zellen).
+    Damit hängen auch die Eckkammern an der Außenluft -- der bestehende
+    "genau 1 geschlossene Shell"-Test erzwingt die Anbindung automatisch
+    mit."""
+    if not p.CORNER_CHAMBERS:
+        return []
+    off = p.CUTOUT_W / 2 - p.CUTOUT_R
+    r_in1, r_out1, r_in2, r_out2 = _ring_radii(p)
+    apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
+    margin = p.CORNER_ANGLE_MARGIN
+    sweep = 90 - 2 * margin
+    if sweep <= 0:
+        raise RuntimeError("frame: CORNER_ANGLE_MARGIN >= 45 lässt keinen Eck-Sektor übrig "
+                           "(PRM.validate sollte das vorher abfangen)")
+
+    tools = []
+    cr_out1 = r_out1 - off
+    for r_in, r_out in ((r_in1 - off, cr_out1), (r_in2 - off, r_out2 - off)):
+        face = _chamber_profile_face(r_in, r_out, apex_z, 0.0, p)
+        face.rotate(Vector(0, 0, 0), Vector(0, 0, 1), margin)
+        solid = face.revolve(Vector(0, 0, 0), Vector(0, 0, 1), sweep)
+        solid.translate(Vector(off, off, 0))
+        for k in range(4):
+            tools.append(_rot(solid, k))
+
+    # Vents entlang der 45°-Diagonale (kanonische (+,+)-Ecke, dann _rot):
+    diag = Vector(math.cos(math.radians(45)), math.sin(math.radians(45)), 0)
+    for r0, length in ((p.CUTOUT_R - 1, p.INNER_WALL + 2),
+                       (cr_out1 - 1, p.CHAMBER_RIB + 2)):
+        base = Vector(off + r0 * diag.x, off + r0 * diag.y, p.VENT_Z)
+        vent = Part.makeCylinder(p.VENT_D / 2, length, base, diag)
+        for k in range(4):
+            tools.append(_rot(vent, k))
+    return tools
+
+
 def _chamber_cuts(p: PRM.Params):
     """Alle Kammer-Hohlräume + Vent-Bohrungen (kanonische +x-Seite, dann je
     90 Grad rotiert für die 3 übrigen Seiten). Cut-Werkzeuge, kein Fuse.
@@ -163,13 +272,15 @@ def _chamber_cuts(p: PRM.Params):
     Herleitung samt Rotations-Nachweis). +u-Hälfte und -u-Hälfte werden daher
     UNABHÄNGIG mit ihrer jeweiligen Nachbargrenze berechnet -- KEINE
     pauschale Spiegelung derselben Liste mehr, da beide Hälften bei
-    asymmetrischen W_TOP unterschiedlich groß sein können."""
+    asymmetrischen W_TOP unterschiedlich groß sein können.
+
+    Hängt zusätzlich (nur wenn p.CORNER_CHAMBERS) die Eckkammer-Werkzeuge
+    aus _corner_chamber_cuts an dieselbe Liste an (Task 17) -- build_frame
+    cuttet damit Seiten- UND Eckkammern in EINEM Boolean-Aufruf, VOR dem
+    gemeinsamen removeSplitter()."""
     if not p.CHAMBERS:
         return []
-    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
-    r_out1 = r_in1 + p.CHAMBER_W
-    r_in2 = r_out1 + p.CHAMBER_RIB
-    r_out2 = r_in2 + p.CHAMBER_W
+    r_in1, r_out1, r_in2, r_out2 = _ring_radii(p)
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = _side_neighbor_bounds(p)
 
@@ -194,6 +305,7 @@ def _chamber_cuts(p: PRM.Params):
                                    Vector(1, 0, 0))
             tools.append(_rot(v1, k))
             tools.append(_rot(v2, k))
+    tools += _corner_chamber_cuts(p)
     return tools
 
 
