@@ -7,7 +7,15 @@ from fem import analytic as A
 
 
 def write_report(fem_results: dict, joint_result: dict,
-                 p: PRM.Params, out_path: str) -> bool:
+                 p: PRM.Params, out_path: str) -> tuple[bool, bool]:
+    """Schreibt den Verifikationsreport nach out_path und liefert (ok,
+    vorbehalt) (Ledger 42: strukturierte Rückgabe statt "Vorbehalt"-Text-
+    Matching im Reporttext durch Konsumenten wie run_all.py). M7: leeres
+    fem_results (kein Lastfall) ist ein Aufrufer-Fehler, kein stiller
+    Report -- wirft ValueError statt eine leere/irreführende Lastfall-
+    Tabelle zu schreiben."""
+    if not fem_results:
+        raise ValueError("write_report: fem_results ist leer -- kein Lastfall zur Verifikation")
     lines = ["# Verifikationsreport Belluna-Adapterrahmen", ""]
     lines.append(f"Parameterstand: `{PRM.params_hash(p)}` · "
                  f"H_RAISE {p.H_RAISE} mm · Wandstärke effektiv "
@@ -21,8 +29,13 @@ def write_report(fem_results: dict, joint_result: dict,
     lines.append("|---|---|---|---|---|")
     for name, r in sorted(fem_results.items()):
         ok &= r["PASS"]
+        # defl_top_is_fallback (fem/run_fem.py, M3/Ledger 32): fehlen echte
+        # Deckflächen-Knoten (Submodell-Fall), weicht defl_top auf defl_max
+        # aus -- im Report als "(Fallback)" kenntlich machen statt einen
+        # unechten Deckflächenwert stillschweigend als solchen auszugeben.
+        fallback = " (Fallback)" if r.get("defl_top_is_fallback", False) else ""
         lines.append(f"| {name} | {r['vm_max_MPa']:.2f} | {r['allowable_MPa']:.2f} "
-                     f"| {r['defl_top_mm']:.3f} (≤ {p.DEFL_TOP_MAX}) "
+                     f"| {r['defl_top_mm']:.3f}{fallback} (≤ {p.DEFL_TOP_MAX}) "
                      f"| {'PASS' if r['PASS'] else 'FAIL'} |")
 
     lines.append("")
@@ -78,5 +91,5 @@ def write_report(fem_results: dict, joint_result: dict,
         lines.append("# Gesamtergebnis: **PASS**")
     out = Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines))
-    return bool(ok)
+    out.write_text("\n".join(lines), encoding="utf-8")
+    return bool(ok), vorbehalt

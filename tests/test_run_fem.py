@@ -14,3 +14,5 @@ def test_lf4_schnee_grobnetz():
     assert r["vm_max_MPa"] < 5.0, f"200 N Schnee erzeugen {r['vm_max_MPa']} MPa?!"
     assert r["defl_max_mm"] < 0.2
     assert r["PASS"] is True
+    # Voller Rahmen hat echte Deckflächen-Knoten -> kein Fallback (M3/Ledger 32)
+    assert r["defl_top_is_fallback"] is False

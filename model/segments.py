@@ -17,12 +17,6 @@ from model.frame import build_frame, top_z
 BIG = 2000.0
 
 
-def _rot(shape, k):
-    s = shape.copy()
-    s.rotate(Vector(0, 0, 0), Vector(0, 0, 1), 90 * k)
-    return s
-
-
 def _bolt_cuts(p):
     """Bohrung + Kopfsenkung (oben) + Muttertasche (unten) für alle 4 Stöße.
     Wird VOR der Zerlegung vom Rahmen abgezogen -> beide Stoßpartner erhalten
@@ -37,7 +31,7 @@ def _bolt_cuts(p):
                                Vector(x, y, h - p.JOINT_CB_T))
         nut = F.hex_prism(p.JOINT_NUT_AF, p.JOINT_NUT_T + 1, (x, y), -1)
         for c in (bolt, cb, nut):
-            cuts.append(_rot(c, k))
+            cuts.append(F.rotz(c, k))
     return cuts
 
 
@@ -72,9 +66,9 @@ def _one_segment(frame, p, k):
     # Überschneidung mit lap_add des Nachbarn um TOL_JOINT statt Luftspalt):
     lap_cut = Part.makeBox(p.LAP_L, BIG, lap_h - z_lap0,
                            Vector(0, p.CUTOUT_W / 2 - 5, z_lap0))
-    seg = frame.common(_rot(core, k))
-    seg = seg.fuse(frame.common(_rot(lap_add, k)))
-    seg = seg.cut(_rot(lap_cut, k))
+    seg = frame.common(F.rotz(core, k))
+    seg = seg.fuse(frame.common(F.rotz(lap_add, k)))
+    seg = seg.cut(F.rotz(lap_cut, k))
     seg = seg.removeSplitter()
     if not seg.isValid():
         raise RuntimeError(f"Segment {k}: ungültiger Körper")

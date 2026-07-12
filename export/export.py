@@ -30,7 +30,7 @@ def _m5_bolt_length(p: PRM.Params) -> int:
 
 def _montagenotiz(p: PRM.Params, h: str) -> str:
     L, W = PRM.outer_dims(p)
-    groove_len = 4 * (p.CUTOUT_W + 2 * p.GROOVE_OFF + p.GROOVE_W)
+    groove_len = PRM.groove_centerline_len(p)      # M1/Ledger 23/30/33
     bead_ml = groove_len * p.GROOVE_W * (p.GLUE_GAP + p.GROOVE_D) / 1000.0
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
@@ -79,18 +79,28 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 """
 
 
-def export_all(p: PRM.Params = PRM.P, out_dir: str = "out") -> list:
+def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
+               frame=None, segments=None) -> list:
+    """frame/segments optional vorgefertigt übergeben (Finalreview I2/M4):
+    baut nur, was NICHT übergeben wurde -- run_all.py hat frame/segments für
+    FEM/DFM-Gate ohnehin schon gebaut und reicht sie durch (spart ~20-30 s
+    je Produktionslauf, keine doppelten build_frame/build_segments-Booleans
+    mehr). Rückwärtskompatibel: ohne Argumente identisches Verhalten wie
+    zuvor (bestehende Aufrufer/Tests unverändert grün)."""
     h = PRM.params_hash(p)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     files = []
 
-    frame = build_frame(p)
+    if frame is None:
+        frame = build_frame(p)
     fp = out / f"frame_{h}.step"
     frame.exportStep(str(fp))
     files.append(fp)
 
-    for k, seg in enumerate(build_segments(p)):
+    if segments is None:
+        segments = build_segments(p)
+    for k, seg in enumerate(segments):
         sp = out / f"seg{k}_{h}.step"
         seg.exportStep(str(sp))
         files.append(sp)
@@ -100,6 +110,6 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out") -> list:
             files.append(mp)
 
     note = out / f"montagenotiz_{h}.md"
-    note.write_text(_montagenotiz(p, h))
+    note.write_text(_montagenotiz(p, h), encoding="utf-8")
     files.append(note)
     return files

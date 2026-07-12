@@ -8,12 +8,11 @@ from FreeCAD import Vector
 import params as PRM
 from fem.loadcases import Case
 from fem.run_fem import run_case
-from model.frame import top_z
 
 
 def _lap_shape(p):
-    band = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
-    lap_h = top_z(p) / 2
+    band = PRM.min_band(p)
+    lap_h = PRM.lap_height(p)          # == top_z(p)/2, M1/Ledger 23/30/33
     return Part.makeBox(p.LAP_L, band, lap_h)
 
 
@@ -30,7 +29,7 @@ def run_joint_submodel(p: PRM.Params = PRM.P, f_inplane: float = None,
     def _loads(shape, _p):
         # Schub auf der Oberseite der Lappe (Kontaktfläche zum Partner)
         top = tuple(f"Face{i+1}" for i, fa in enumerate(shape.Faces)
-                    if abs(fa.CenterOfMass.z - top_z(_p) / 2) < 1e-6)
+                    if abs(fa.CenterOfMass.z - PRM.lap_height(_p)) < 1e-6)
         return [(top, Vector(1, 0, 0), f)]
 
     case = Case("Stoss", "kurz", _fixed, _loads)

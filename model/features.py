@@ -22,6 +22,17 @@ def rounded_box(l, w, h, r, origin=Vector(0, 0, 0)):
     return box
 
 
+def rotz(shape, k):
+    """Rotiert eine Kopie von shape um k*90 Grad um die z-Achse durch den
+    Ursprung (Seiten-/Quadranten-/Ecken-Trick: dieselbe Konstruktion wird
+    für alle vier Seiten/Ecken wiederverwendet). Konsolidierter Ersatz für
+    die vormals identischen lokalen _rot()-Kopien in model/frame.py und
+    model/segments.py (M1/Ledger 23/30/33)."""
+    s = shape.copy()
+    s.rotate(Vector(0, 0, 0), Vector(0, 0, 1), 90 * k)
+    return s
+
+
 def ring(outer_l, outer_w, r_out, inner_l, inner_w, r_in, h):
     """Rechteckring, zentriert um (0,0), z von 0 bis h."""
     outer = rounded_box(outer_l, outer_w, h, r_out,

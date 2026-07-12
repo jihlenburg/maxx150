@@ -4,16 +4,9 @@ import tempfile
 
 import FreeCAD
 
-BUNDLE_BIN = "/Applications/FreeCAD.app/Contents/Resources/bin"
-
-
-def _ensure_binary_paths():
-    g = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Fem/Gmsh")
-    if not g.GetString("gmshBinaryPath"):
-        g.SetString("gmshBinaryPath", BUNDLE_BIN + "/gmsh")
-    c = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Mod/Fem/Ccx")
-    if not c.GetString("ccxBinaryPath"):
-        c.SetString("ccxBinaryPath", BUNDLE_BIN + "/ccx")
+# M1/Ledger 23/30/33: keine eigene Kopie mehr -- importiert aus fem.run_fem
+# (dort inkl. FREECAD_BUNDLE-Env-Override, siehe fem/run_fem.py).
+from fem.run_fem import _ensure_binary_paths
 
 
 def _proxy_module(obj):
@@ -60,37 +53,38 @@ def test_cantilever_durch_gmsh_und_ccx():
 
     _ensure_binary_paths()
     doc = setup()
+    try:
+        mesh = _find_gmsh_mesh(doc)
+        assert mesh is not None, (
+            "Beispiel liefert kein Gmsh-Mesh-Objekt. Vorhandene Objekte: "
+            f"{[o.Name for o in doc.Objects]}"
+        )
+        err = GmshTools(mesh).create_mesh()
+        assert not err, f"Gmsh-Fehler: {err}"
 
-    mesh = _find_gmsh_mesh(doc)
-    assert mesh is not None, (
-        "Beispiel liefert kein Gmsh-Mesh-Objekt. Vorhandene Objekte: "
-        f"{[o.Name for o in doc.Objects]}"
-    )
-    err = GmshTools(mesh).create_mesh()
-    assert not err, f"Gmsh-Fehler: {err}"
+        analysis = doc.getObject("Analysis")
+        assert analysis is not None, (
+            f"kein Analysis-Objekt. Vorhandene Objekte: {[o.Name for o in doc.Objects]}"
+        )
+        solver = _find_ccx_solver(doc)
+        assert solver is not None, (
+            "kein CalculiX-ccxtools-Solver gefunden. Vorhandene Objekte: "
+            f"{[o.Name for o in doc.Objects]}"
+        )
 
-    analysis = doc.getObject("Analysis")
-    assert analysis is not None, (
-        f"kein Analysis-Objekt. Vorhandene Objekte: {[o.Name for o in doc.Objects]}"
-    )
-    solver = _find_ccx_solver(doc)
-    assert solver is not None, (
-        "kein CalculiX-ccxtools-Solver gefunden. Vorhandene Objekte: "
-        f"{[o.Name for o in doc.Objects]}"
-    )
+        fea = ccxtools.FemToolsCcx(analysis, solver)
+        fea.update_objects()
+        fea.setup_working_dir(tempfile.mkdtemp(prefix="fc_smoke_"))
+        fea.setup_ccx()
+        msg = fea.check_prerequisites()
+        assert not msg, f"Voraussetzungen fehlen: {msg}"
+        fea.purge_results()
+        fea.run()
+        fea.load_results()
 
-    fea = ccxtools.FemToolsCcx(analysis, solver)
-    fea.update_objects()
-    fea.setup_working_dir(tempfile.mkdtemp(prefix="fc_smoke_"))
-    fea.setup_ccx()
-    msg = fea.check_prerequisites()
-    assert not msg, f"Voraussetzungen fehlen: {msg}"
-    fea.purge_results()
-    fea.run()
-    fea.load_results()
-
-    results = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
-    assert results, "kein Ergebnisobjekt geladen"
-    vm_max = max(results[0].vonMises)
-    assert vm_max > 0.0 and vm_max < 1e6, f"unplausibles vonMises-Maximum {vm_max}"
-    FreeCAD.closeDocument(doc.Name)
+        results = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
+        assert results, "kein Ergebnisobjekt geladen"
+        vm_max = max(results[0].vonMises)
+        assert vm_max > 0.0 and vm_max < 1e6, f"unplausibles vonMises-Maximum {vm_max}"
+    finally:
+        FreeCAD.closeDocument(doc.Name)

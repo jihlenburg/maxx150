@@ -12,14 +12,6 @@ def top_z(p: PRM.Params = PRM.P) -> float:
     return p.H_RAISE - p.GLUE_GAP
 
 
-def _rot(shape, k):
-    """Rotiert ein Werkzeug um k*90 Grad um die z-Achse (Seiten-/Quadrantentrick,
-    analog model/segments.py)."""
-    s = shape.copy()
-    s.rotate(Vector(0, 0, 0), Vector(0, 0, 1), 90 * k)
-    return s
-
-
 def _corner_keepout(p: PRM.Params) -> float:
     """Bandkoordinate (u, gemessen wie in _chamber_cell_centers), ab der das
     Zellraster wegen des Eck-Sektors (Task 17, CORNER_CHAMBERS) keinen Platz
@@ -248,7 +240,7 @@ def _corner_chamber_cuts(p: PRM.Params):
     um eine Achse durch das Eckzentrum zu revolven.
 
     Die 4 Ecken entstehen NICHT durch vier separate Konstruktionen, sondern
-    durch _rot(shape, k) (Rotation um den GLOBALEN URSPRUNG, Rechte-Hand-
+    durch F.rotz(shape, k) (Rotation um den GLOBALEN URSPRUNG, Rechte-Hand-
     Regel (x,y) -> (-y,x) je 90°-Schritt, exakt wie in _chamber_cuts): das
     bildet den bei (off, off) liegenden, zur Diagonale symmetrischen Sektor
     SAMT Orientierung korrekt auf die anderen 3 Ecken ab
@@ -314,16 +306,16 @@ def _corner_chamber_cuts(p: PRM.Params):
         solid = face.revolve(Vector(0, 0, 0), Vector(0, 0, 1), sweep)
         solid.translate(Vector(off, off, 0))
         for k in range(4):
-            tools.append(_rot(solid, k))
+            tools.append(F.rotz(solid, k))
 
-    # Vents entlang der 45°-Diagonale (kanonische (+,+)-Ecke, dann _rot):
+    # Vents entlang der 45°-Diagonale (kanonische (+,+)-Ecke, dann F.rotz):
     diag = Vector(math.cos(math.radians(45)), math.sin(math.radians(45)), 0)
     for r0, length in ((p.CUTOUT_R - 1, p.INNER_WALL + 2),
                        (cr_out1 - 1, p.CHAMBER_RIB + 2)):
         base = Vector(off + r0 * diag.x, off + r0 * diag.y, p.VENT_Z)
         vent = Part.makeCylinder(p.VENT_D / 2, length, base, diag)
         for k in range(4):
-            tools.append(_rot(vent, k))
+            tools.append(F.rotz(vent, k))
     return tools
 
 
@@ -334,7 +326,7 @@ def _chamber_cuts(p: PRM.Params):
     Kanonik k<->Seite (hergeleitet aus build_frame, NICHT angenommen):
     x0 = -(CUTOUT_W/2 + W_TOP_FRONT), x0+L = CUTOUT_W/2 + W_TOP_REAR ->
     die -x-Bandbreite ist W_TOP_FRONT, die +x-Bandbreite ist W_TOP_REAR:
-    +x-Seite = REAR. _rot() dreht um +90*k Grad um +z (Part.Shape.rotate,
+    +x-Seite = REAR. F.rotz() dreht um +90*k Grad um +z (Part.Shape.rotate,
     Rechte-Hand-Regel): +x -> +y bei k=1. y0 = -(CUTOUT_W/2 + W_TOP_LEFT),
     y0+W = CUTOUT_W/2 + W_TOP_RIGHT -> die +y-Bandbreite ist W_TOP_RIGHT:
     +y-Seite = RIGHT. Also:
@@ -373,7 +365,7 @@ def _chamber_cuts(p: PRM.Params):
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
                 cav = _chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p)
-                tools.append(_rot(cav, k))
+                tools.append(F.rotz(cav, k))
             # Vent 1: Innenfläche (Öffnungskante) -> Kammerring 1 (durch INNER_WALL)
             v1 = Part.makeCylinder(p.VENT_D / 2, p.INNER_WALL + 2,
                                    Vector(p.CUTOUT_W / 2 - 1, uc, p.VENT_Z),
@@ -382,8 +374,8 @@ def _chamber_cuts(p: PRM.Params):
             v2 = Part.makeCylinder(p.VENT_D / 2, p.CHAMBER_RIB + 2,
                                    Vector(r_out1 - 1, uc, p.VENT_Z),
                                    Vector(1, 0, 0))
-            tools.append(_rot(v1, k))
-            tools.append(_rot(v2, k))
+            tools.append(F.rotz(v1, k))
+            tools.append(F.rotz(v2, k))
     tools += _corner_chamber_cuts(p)
     return tools
 

@@ -27,7 +27,7 @@ def glue_shear_utilization(p: PRM.Params = PRM.P) -> float:
 def glue_load_shear(p: PRM.Params, f_inplane: float) -> dict:
     """Spec-Kriterium 3: lastinduzierter Schub in der unteren Klebfuge
     <= 0.1 N/mm² dauerhaft. Tragend nur die Rillenraupe (konservativ)."""
-    groove_len = 4 * (p.CUTOUT_W + 2 * p.GROOVE_OFF + p.GROOVE_W)
+    groove_len = PRM.groove_centerline_len(p)
     a_bond = groove_len * p.GROOVE_W
     tau = f_inplane / a_bond
     return {"tau_MPa": tau, "tau_zul_MPa": 0.1, "PASS": tau <= 0.1}
@@ -48,11 +48,11 @@ def side_screw_pullout(p: PRM.Params) -> dict:
 def joint_checks(p: PRM.Params, f_inplane: float) -> dict:
     """Konservativer Stoßnachweis: die volle horizontale Last geht durch
     EINEN Stoß (real verteilt sie sich auf vier)."""
-    lap_h = (p.H_RAISE - p.GLUE_GAP) / 2
-    band = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
+    lap_h = PRM.lap_height(p)
+    band = PRM.min_band(p)
     a_lap = p.LAP_L * band                       # Scherfläche der Überlappung
     tau = f_inplane / a_lap
-    sig_lang, sig_kurz = PRM.allowables(p)
+    _, sig_kurz = PRM.allowables(p)               # sig_lang (dauerhaft) ungenutzt hier
     tau_zul = 0.5 * sig_kurz                     # Schub ~ 0.5 * sigma (v. Mises)
     # Lochleibung der M5-Schraube im ASA (Kurzzeitfall):
     lochleibung = f_inplane / (p.JOINT_BOLT_D * lap_h)

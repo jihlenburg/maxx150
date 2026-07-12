@@ -1,5 +1,6 @@
 """Skriptierter CalculiX-Lauf für einen Lastfall (Muster aus Task-2-Smoke,
 tests/test_toolchain.py: Binärpfade, Gmsh+ccxtools-Sequenz)."""
+import os
 import tempfile
 
 import FreeCAD
@@ -13,7 +14,10 @@ import params as PRM
 from fem.material import fem_material_dict
 from model.frame import top_z
 
-BUNDLE_BIN = "/Applications/FreeCAD.app/Contents/Resources/bin"
+# FREECAD_BUNDLE ueberschreibt den Bundle-Wurzelpfad (Default: Standard-
+# macOS-Installation) -- M5/Ledger 2/4/12/37, Task 16.
+BUNDLE_BIN = os.environ.get("FREECAD_BUNDLE", "/Applications/FreeCAD.app") + \
+    "/Contents/Resources/bin"
 
 
 def _ensure_binary_paths():
@@ -95,10 +99,28 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
         if msg:
             raise RuntimeError(f"FEM-Voraussetzungen: {msg}")
         fea.purge_results()
-        fea.run()
+        # femtools.ccxtools.FemToolsCcx.run() liefert True bei Erfolg, False
+        # bei jedem Fehlerpfad (fehlende Voraussetzungen, .inp-Schreibfehler,
+        # ccx-Binary nicht gefunden, ccx-Exitcode != 0 -- siehe
+        # femtools/ccxtools.py::run() im FreeCAD-Bundle). Ohne diesen Check
+        # lief die Pipeline bei einem stillen ccx-Fehlschlag einfach weiter
+        # und stolperte erst weiter unten über einen IndexError auf der
+        # (dann leeren) Ergebnisliste -- M3/Ledger 5/32, Diagnose-Härtung.
+        rc = fea.run()
+        if rc is not True:
+            raise RuntimeError(
+                f"CalculiX-Lauf ({case.name}) schlug fehl (fea.run() lieferte "
+                f"{rc!r} statt True) -- ccx-Arbeitsverzeichnis: {fea.working_dir}"
+            )
         fea.load_results()
 
-        res = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")][0]
+        results = [o for o in doc.Objects if o.isDerivedFrom("Fem::FemResultObject")]
+        if not results:
+            raise RuntimeError(
+                f"run_case ({case.name}): kein FEM-Ergebnisobjekt geladen trotz "
+                f"fea.run()==True -- ccx-Arbeitsverzeichnis: {fea.working_dir}"
+            )
+        res = results[0]
         vm_max = max(res.vonMises)
         defl = [v.Length for v in res.DisplacementVectors]
         defl_max = max(defl)
@@ -116,12 +138,22 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
         top_defl = [v.Length for v, n in zip(res.DisplacementVectors,
                                              res.NodeNumbers)
                     if abs(nodes[n].z - zt) < 0.5]
+        # Submodell-Fall (z. B. fem/joint_check.py: die Lappen-Geometrie hat
+        # gar keine Fläche bei top_z(p) des GESAMTrahmens) findet keine
+        # Deckflächen-Knoten -- defl_top faellt dann auf defl_max zurueck,
+        # was semantisch etwas anderes ist (Maximalverformung irgendwo im
+        # Bauteil, nicht die Dichtheits-relevante Deckflaechenverformung).
+        # Flag macht diesen Fallback fuer Report-Konsumenten sichtbar statt
+        # ihn stillschweigend als echten Deckflaechenwert auszugeben (M3,
+        # Ledger 32: "defl_top-Fallback semantisch irreführend im Submodell").
+        defl_top_is_fallback = not top_defl
         defl_top = max(top_defl) if top_defl else defl_max
         allow = case.allowable(p)
         return {
             "vm_max_MPa": vm_max,
             "defl_max_mm": defl_max,
             "defl_top_mm": defl_top,
+            "defl_top_is_fallback": defl_top_is_fallback,
             "allowable_MPa": allow,
             "PASS": vm_max <= allow and defl_top <= p.DEFL_TOP_MAX,
         }

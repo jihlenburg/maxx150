@@ -27,6 +27,7 @@ import Part
 
 import params as PRM
 from model import dfm
+from model import features as F
 from model import frame
 from model.frame import build_frame
 from model.segments import build_segments
@@ -130,7 +131,7 @@ def _side_cavities_only(p):
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
                 cav = frame._chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p)
-                tools.append(frame._rot(cav, k))
+                tools.append(F.rotz(cav, k))
     return tools
 
 
@@ -193,3 +194,45 @@ def test_eckkammern_p_eck_volumen_exakt_unveraendert():
     assert abs(delta - 41247.580701424) < 1.0, f"Delta driftete: {delta:.3f} mm³"
     keepout = frame._corner_keepout(P_ECK)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"
+
+
+def test_eckkammern_werkzeugzahl_konsistent_zu_slot_count_cell_l_53(p=None):
+    """Task-17-Re-Review Minor 2 (-> Task 16): explizite Konsistenzprüfung
+    der GESAMTEN _chamber_cuts-Werkzeugliste gegen chamber_slot_count, INKL.
+    der fixen Eck-Werkzeuge -- bisherige Tests prüften nur Volumen/Kollision,
+    nicht die WerkzeugANZAHL selbst (die z. B. bei einer künftigen Änderung
+    an der Vent-Zahl je Slot oder je Ecke still auseinanderdriften könnte,
+    ohne dass Volumen-/Kollisionstests das zwingend auffangen).
+
+    Je Slot (u-Position, siehe frame._chamber_cuts) entstehen GENAU 4
+    Werkzeuge: 2 Kammer-Kavitäten (Ring 1 + Ring 2) + 2 Vent-Bohrungen
+    (Innenwand->Ring1, Ring1->Ring2). Bei CORNER_CHAMBERS=True kommen GENAU
+    16 fixe Eck-Werkzeuge hinzu (frame._corner_chamber_cuts: 2 Ring-Profile x
+    4 Ecken = 8 Sektor-Kavitäten + 2 Diagonal-Vent-Positionen x 4 Ecken = 8
+    Vents), UNABHÄNGIG von CELL_L/Slot-Zahl -- deshalb testet dieser Test
+    explizit mit CELL_L=53 (Reviewer-Regressionsrezept, siehe
+    test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53 oben), wo
+    der Keepout-Filter das Zellraster bereits sichtbar verändert (3 Zellen
+    -> 2 Zellen je Halbseite an der REAR-Seite): die Formel muss auch dann
+    exakt aufgehen, nicht nur bei unveränderten Defaults."""
+    p = p or PRM.Params(CORNER_CHAMBERS=True, CELL_L=53.0)
+    PRM.validate(p)
+    tools = frame._chamber_cuts(p)
+    slots = frame.chamber_slot_count(p)
+    assert len(tools) == 4 * slots + 16, (
+        f"{len(tools)} Werkzeuge != 4*{slots} (Slot-Kavitäten+Vents) + "
+        f"16 (fixe Eck-Werkzeuge)"
+    )
+
+
+def test_eckkammern_werkzeugzahl_konsistent_ohne_eckkammern():
+    """Gegenprobe zur Formel oben mit CORNER_CHAMBERS=False (Default): der
+    Eck-Term muss auf 0 zurückfallen (_corner_chamber_cuts liefert []),
+    NICHT einfach die 16 fixen Eck-Werkzeuge weglassen, weil CELL_L o. Ä.
+    sich ändert -- prüft, dass die Formel wirklich an CORNER_CHAMBERS hängt
+    und nicht zufällig bei den Default-Zahlen aufgeht."""
+    p = PRM.Params(CORNER_CHAMBERS=False)
+    tools = frame._chamber_cuts(p)
+    slots = frame.chamber_slot_count(p)
+    assert len(tools) == 4 * slots
+    assert frame._corner_chamber_cuts(p) == []

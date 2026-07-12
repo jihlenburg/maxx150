@@ -202,3 +202,71 @@ letzte-Ring1-Zelle/Ecksektor = **516.2968692898736 mm³** (Boolean-Probe).
 - Volle Suite: `timeout 700 bin/fc tests/run_tests.py` → **68 bestanden,
   0 fehlgeschlagen**.
 - Vollständiger Nachweis: `.superpowers/sdd/task-17-report.md` §11.
+
+## 2026-07-12 — Task 16: Gate-Härtung + Konsolidierung (Abschluss Vor-Messkampagnen-Paket)
+
+Ausgangsstand: `ff14e9a`, 68/68 grün, `params_hash` `da0d8553`. Quelle:
+`.superpowers/sdd/task-16-brief.md` (7 Blöcke, Reihenfolge 6→4→1→2→3→5→7).
+Reine Härtung/Refaktorierung + 2 neue Features (Manifest, DFM-Gate) — keine
+Params-Feldänderung, Hash bleibt zwangsläufig unverändert.
+
+- Block 6 (Kleinkram): `FREECAD_BUNDLE`-Env-Override in `bin/fc` +
+  `fem/run_fem.py`; `scripts/{render,heatmap}.sh` → `set -euo pipefail` +
+  `BLENDER_BIN=${BLENDER_BIN:-$(command -v blender)}`; `encoding="utf-8"`
+  in report/export/messkampagne; `params.RHO_AIR=1.2` statt Magic Number;
+  `test_toolchain.py` try/finally um `closeDocument`; `fem/analytic.py`
+  ungenutztes `sig_lang` entfernt; `test_export.py` alle 3 Tests
+  Reihenfolge-unabhängig.
+- Block 4: `fem/run_fem.py::run_case` wirft `RuntimeError` statt
+  `IndexError` bei leerer Ergebnisliste (inkl. ccx-Arbeitsverzeichnis) und
+  prüft `fea.run()` explizit (`rc is not True` — reale FreeCAD-1.1.1-API
+  liefert Bool, nicht den im Brief unterstellten Fehlstring, im Quellcode
+  von `femtools/ccxtools.py` verifiziert). Neues Feld
+  `defl_top_is_fallback` (True im Submodell ohne echte Deckflächen-Knoten);
+  `fem/report.py` druckt „(Fallback)" dahinter.
+- Block 1 (Ledger 42 + M7): `write_report(...) -> tuple[bool, bool]`
+  (ok, vorbehalt) statt Text-Matching; `run_all.py` gated direkt darauf,
+  kein Grep im Reporttext mehr; leeres `fem_results` → `ValueError`.
+  `tests/test_report.py`: 5 Tests (3 umgestellt + 2 neu).
+- Block 2 (Finalreview I1): neu `export/manifest.py::append_manifest`
+  hängt SHA256-Manifest + Git-Commit + GEOM_REV an den Report;
+  `run_all.py` ruft es nach `export_all` mit `git rev-parse HEAD` auf.
+  `tests/test_manifest.py` (3 neu).
+- Block 3 (Finalreview I2 + M4): `export/export.py::export_all(p, out_dir,
+  frame=None, segments=None)` — rückwärtskompatibel. `run_all.py` baut
+  `frame`+`segments` je einmal, DFM-Gate je Segment (`overhang_area` gegen
+  `allowed*1.2+200`) VOR den FEM-Läufen (fail-fast) und VOR dem Export
+  (Exit 1 bei Verletzung), reicht beide Shapes an `export_all` durch.
+- Block 5 (heikelster Block, M1/Ledger 23/30/33): `params.py` neu
+  `min_band`/`lap_height`/`groove_centerline_len`; Verbraucher
+  `fem/analytic.py` (joint_checks, glue_load_shear), `fem/joint_check.py`,
+  `export/export.py` umgestellt; `validate()` nutzt `min_band` selbst.
+  `model/dfm.py` BEWUSST NICHT angefasst (Brief listet es, aber die dortige
+  Summenformel ist der Ledger-21/22-Fix aus Task 15 — ein `min_band` dort
+  wäre eine Regression, dokumentiert statt blind befolgt).
+  `model/features.py::rotz(shape, k)` ersetzt die identischen `_rot()`-
+  Kopien in `frame.py`/`segments.py` (Wrapper entfernt, `test_eckkammern.py`
+  mitgezogen). `test_toolchain.py` importiert `_ensure_binary_paths` jetzt
+  aus `fem.run_fem`. Anker bitidentisch geprüft: `frame.Volume`
+  1736006.070242394, `dfm_allowed` 36788.23334770628, τ 0.384, Lochleibung
+  6.98, `wind_force` 480.0 — alle 0 Diff.
+- Block 7 (Task-17-Re-Review Minor 2): 2 neue Tests in
+  `test_eckkammern.py` — explizite Werkzeugzahl-Konsistenz
+  `len(_chamber_cuts) == 4*chamber_slot_count + 16` bei
+  `CORNER_CHAMBERS=True, CELL_L=53` + Gegenprobe ohne Eckkammern.
+- Volle Suite ZWEIMAL grün: **75 bestanden, 0 fehlgeschlagen** (68 + 7 neu:
+  3 Manifest, 2 Report, 2 Eckkammern). Zweiter Lauf nach einer kosmetischen
+  Manifest-Formatkorrektur, identisches Ergebnis.
+- Produktionslauf `bin/fc run_all.py` (Hintergrund+Poll): DFM-Gate-Zeilen
+  im Log (alle 4 Segmente PASS, 8909/44346 mm² Überhang), Manifest im
+  Report (14 Dateien, 64-hex-SHA256 je Datei, Git-Commit, GEOM_REV=2),
+  FEM-Istwerte 0.81/0.43/2.25/0.19/3.37 MPa (≤0.02 MPa Netz-Rauschen vs.
+  Task-15-Referenz 0.79/0.43/2.24/0.19/3.37) — PASS mit Vorbehalt wie
+  erwartet. Hash bleibt `da0d8553` (Brief-Erwartung „eccafbc1" war bereits
+  vor Task 16 überholt, siehe task-17-report.md Zeile 373f. — nicht
+  Task-16-Ursache). Laufzeit Gesamtpipeline 127 s (alt 129 s, verrauscht
+  durch FEM-Nichtdeterminismus) — isolierte `export_all`-Messung zeigt den
+  echten M4-Effekt sauber: 3.86 s (Neubau) → 0.43 s (durchgereicht),
+  **~3.4 s gespart** — deutlich weniger als die im Brief geschätzten
+  „20-30 s", ehrlich als Diskrepanz dokumentiert statt schöngerechnet.
+- Vollständiger Nachweis: `.superpowers/sdd/task-16-report.md`.

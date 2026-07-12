@@ -28,14 +28,16 @@ def test_export_erzeugt_alle_dateien():
     assert f"montagenotiz_{h}.md" in names
 
 def test_step_reimport_volumen():
+    _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
     s = Part.Shape()
     s.read(f"out/test_export/seg0_{h}.step")
     assert s.Volume > 1e5
 
 def test_montagenotiz_inhalt():
+    _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
-    text = Path(f"out/test_export/montagenotiz_{h}.md").read_text()
+    text = Path(f"out/test_export/montagenotiz_{h}.md").read_text(encoding="utf-8")
     for muss in ("140", "Carloflex", "Deckfläche nach unten", "Tempern",
                  "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid",
                  "PFLICHT gegen Verzug", "beheizter Bauraum", "Brim",

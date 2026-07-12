@@ -116,6 +116,10 @@ P = Params()
 # Vierkantwellen laut Anleitung: (Länge, Wandstärke min, max)
 SHAFT_TABLE = ((120.0, 27.0, 47.0), (140.0, 48.0, 67.0), (160.0, 68.0, 80.0))
 
+# Luftdichte (kg/m^3, 15 °C/1013 hPa) -- Modul-Konstante statt Magic Number
+# in wind_force (Finalreview-Minor Task 1).
+RHO_AIR = 1.2
+
 
 def effective_wall(p: Params = P) -> float:
     """Einbauwandstärke aus Lüftersicht: Dach + Adapter (inkl. Klebefuge)."""
@@ -136,10 +140,40 @@ def outer_dims(p: Params = P):
             p.CUTOUT_W + p.W_TOP_LEFT + p.W_TOP_RIGHT)
 
 
+def min_band(p: Params = P) -> float:
+    """Schmalste Deckflächenbreite über alle vier Seiten (M1/Ledger 23/30/33:
+    konsolidierter Ersatz für die früher mehrfach kopierte
+    min(W_TOP_FRONT, W_TOP_REAR, W_TOP_LEFT, W_TOP_RIGHT) -- konservative
+    Bandbreite für Stoß-/Überlappungsnachweise, die absichtlich NICHT die
+    seitenspezifische Breite ausnutzen: die volle Stoßlast wird konservativ
+    durch die schmalste Seite angesetzt). NICHT verwenden für die
+    DFM-Brückenflächen-Formel (model/dfm.py::_allowed_bridge_area) -- die
+    nutzt seit Ledger 21/22 bewusst die Summe aller vier W_TOP statt eines
+    globalen Minimums (seitenspezifische Zellraster, siehe dortiger
+    Docstring); ein min_band(p) dort wäre eine Regression."""
+    return min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
+
+
+def lap_height(p: Params = P) -> float:
+    """Höhe der halben Stoß-Überlappung (= halbe Körperhöhe bis zur
+    Deckfläche, (H_RAISE-GLUE_GAP)/2 bzw. äquivalent model.frame.top_z(p)/2
+    -- M1/Ledger 23/30/33: konsolidiert die früher an mehreren Stellen
+    wiederholte Formel in fem/analytic.py und fem/joint_check.py)."""
+    return (p.H_RAISE - p.GLUE_GAP) / 2
+
+
+def groove_centerline_len(p: Params = P) -> float:
+    """Umfangslänge der unteren Kleberille (4 Seiten, konservativ mit der
+    AUSSENkante der Rille statt der echten Mittellinie gerechnet -- M1/
+    Ledger 23/30/33: konsolidiert die früher doppelt kopierte Formel in
+    fem/analytic.py::glue_load_shear und export/export.py::_montagenotiz)."""
+    return 4 * (p.CUTOUT_W + 2 * p.GROOVE_OFF + p.GROOVE_W)
+
+
 def wind_force(p: Params = P) -> float:
     """Horizontale Auslegungswindlast inkl. Sicherheitsfaktor (N)."""
     v = p.V_DESIGN_KMH / 3.6
-    q = 0.5 * 1.2 * v * v            # Staudruck, rho_Luft 1.2 kg/m^3
+    q = 0.5 * RHO_AIR * v * v        # Staudruck
     return q * p.A_HOOD * p.CD_HOOD * p.SF_WIND
 
 
@@ -161,7 +195,7 @@ def validate(p: Params = P) -> None:
     zur Außenwand, REC_GUSSET_D>DECK_T-2 durchstößt die Kammerdecke."""
     import math
     fehler = []
-    w_min = min(p.W_TOP_FRONT, p.W_TOP_REAR, p.W_TOP_LEFT, p.W_TOP_RIGHT)
+    w_min = min_band(p)                # M1/Ledger 23/30/33: eigener Helper statt Inline-min()
     if p.CHAMBERS:
         aussenwand = w_min - (p.INNER_WALL + 2 * p.CHAMBER_W + p.CHAMBER_RIB)
         if aussenwand < 2.4:

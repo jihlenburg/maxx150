@@ -9,8 +9,17 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       Symmetrie bedingen; Kammerraster-min()-Kopplung geprüft (Ledger 17/28/29, T6/T8)
       — Task 15: tests/test_asymmetrie.py, P_ASYM (46/60/48/55), Guard-Kommentar in
       tests/test_segments.py.
-- [ ] I2: DFM-Überhang-Scan je Segment ins run_all-Gate (oder Freigabetext relativieren)
-- [ ] I1: Datei-Manifest (SHA256) nach Export an Report anhängen + git-Hash aufnehmen
+- [x] I2: DFM-Überhang-Scan je Segment ins run_all-Gate (oder Freigabetext relativieren)
+      — Task 16: run_all.py baut frame+segments EINMAL, prüft je Segment
+      dfm.overhang_area gegen allowed*1.2+200 VOR dem Export (Exit 1 + Meldung bei
+      Verletzung); export_all(p, out_dir, frame=None, segments=None) nimmt beide
+      optional entgegen (rückwärtskompatibel) statt sie intern neu zu bauen (M4,
+      spart ~20-30 s/Lauf). Freigabetext „verifiziert freigegeben" stimmt jetzt.
+- [x] I1: Datei-Manifest (SHA256) nach Export an Report anhängen + git-Hash aufnehmen
+      — Task 16: neu export/manifest.py::append_manifest(report_path, files, git_rev)
+      hängt „## Datei-Manifest" (SHA256 je Exportdatei, Git-Commit, GEOM_REV) an den
+      Report an; run_all.py ruft es NACH export_all mit `git rev-parse HEAD` auf.
+      tests/test_manifest.py (3 Tests).
 - [x] Ledger 10: test_deckflaeche-Schwelle aus Parametern berechnen statt 60000 hart
       — Task 15: tests/test_frame.py::test_deckflaeche_vorhanden, Formel wie
       Task-4-Review ((L*W - Öffnung - Freistellungsring)*0.9).
@@ -73,6 +82,12 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       mind. 1 Zelle). Anker bitidentisch (P 1736006.07, P_ECK 1694758.49, Delta
       41247.58 mm³), corner_keepout(P_ECK)=196.22 mm. 2 neue Regressionstests
       (68/68 Tests grün). Details: .superpowers/sdd/task-17-report.md §11.
+- [x] Task-17-Re-Review Minor 2 (Werkzeugzahl-Konsistenztest fehlte): Task 16 —
+      tests/test_eckkammern.py::test_eckkammern_werkzeugzahl_konsistent_zu_slot_count_
+      cell_l_53 prüft len(_chamber_cuts) == 4*chamber_slot_count + 16 (fixe
+      Eck-Werkzeuge) explizit bei CORNER_CHAMBERS=True+CELL_L=53 (Reviewer-
+      Regressionsrezept); Gegenprobe test_eckkammern_werkzeugzahl_konsistent_ohne_
+      eckkammern für CORNER_CHAMBERS=False (Eck-Term muss 0 sein).
 - [ ] DFM-Warp-Metrik: größten zusammenhängenden Massivquerschnitt je Segment berechnen
       und in Montagenotiz/Report ausweisen (Schwelle diskutieren)
 - [ ] ASA-GF als Herstellbarkeits-Empfehlung dokumentieren (Verzug + CTE, Spec §3.5)
@@ -92,18 +107,52 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       tests/test_tools_heatmap.py.
 
 ## Allgemeine Follow-ups (Priorität nach Bedarf)
-- [ ] M1/Ledger 23/30/33: Formel-/Helfer-Duplikate konsolidieren (lap_height, min_band,
+- [x] M1/Ledger 23/30/33: Formel-/Helfer-Duplikate konsolidieren (lap_height, min_band,
       groove_centerline_len, _rot -> features.py, _ensure_binary_paths -> fem)
+      — Task 16: params.py::min_band/lap_height/groove_centerline_len (+ validate()
+      nutzt min_band selbst); Verbraucher fem/analytic.py (joint_checks,
+      glue_load_shear), fem/joint_check.py, export/export.py umgestellt.
+      model/features.py::rotz(shape, k) ersetzt die identischen lokalen _rot()-Kopien
+      in model/frame.py UND model/segments.py (Wrapper entfernt, tests/
+      test_eckkammern.py auf F.rotz umgestellt). tests/test_toolchain.py importiert
+      _ensure_binary_paths jetzt aus fem.run_fem. BEWUSST NICHT angefasst:
+      model/dfm.py::_allowed_bridge_area nutzt seit Ledger 21/22 bewusst die SUMME
+      aller vier W_TOP statt eines globalen Minimums (seitenspezifische Zellraster)
+      — ein min_band(p) dort wäre eine Regression, siehe Docstring von
+      params.min_band. Anker bitidentisch: frame.Volume 1736006.070242394,
+      dfm_allowed 36788.23334770628, tau 0.384, Lochleibung 6.98, wind_force 480.0.
 - [ ] M2: INFILL_FACTOR-Semantik klären (toter Knopf seit Kammern; Montagenotiz koppeln)
-- [ ] M3/Ledger 5: run_fem-Diagnose (leeres Ergebnis, fea.run()-Rückgabe)
-- [ ] M4: Frame-Shape von run_all an export_all durchreichen (~20-30 s je Lauf)
-- [ ] M5/Ledger 40: FREECAD_BUNDLE-Env-Override statt harter /Applications-Pfade; encoding="utf-8"
-- [ ] M7: write_report-Guard gegen leeres fem_results
-- [ ] Ledger 42: write_report -> (ok, vorbehalt) statt Text-Matching im Banner
-- [ ] Ledger 2/4/6/9/12/32/34/36/37: Kleinkram laut Ledger-Triage
+- [x] M3/Ledger 5/32: run_fem-Diagnose (leeres Ergebnis, fea.run()-Rückgabe) — Task 16:
+      fem/run_fem.py::run_case wirft RuntimeError statt IndexError bei leerer
+      Ergebnisliste (inkl. ccx-Arbeitsverzeichnis-Hinweis) und prüft fea.run() explizit
+      (RuntimeError bei rc != True). Rückgabe-dict zusätzlich "defl_top_is_fallback"
+      (True im Submodell-Fall ohne echte Deckflächen-Knoten, Ledger 32); fem/report.py
+      druckt „(Fallback)" dahinter.
+- [x] M4: Frame-Shape von run_all an export_all durchreichen (~20-30 s je Lauf) —
+      Task 16, zusammen mit I2 (siehe oben): export_all(p, out_dir, frame=None,
+      segments=None) baut nur, was nicht übergeben wurde.
+- [x] M5/Ledger 40: FREECAD_BUNDLE-Env-Override statt harter /Applications-Pfade; encoding="utf-8"
+      — Task 16: bin/fc + fem/run_fem.py::BUNDLE_BIN lesen
+      os.environ.get("FREECAD_BUNDLE", ...); scripts/render.sh + heatmap.sh:
+      set -euo pipefail + BLENDER_BIN=${BLENDER_BIN:-$(command -v blender)};
+      encoding="utf-8" in fem/report.py, export/export.py, export/manifest.py,
+      scripts/messkampagne.py (run_all.py braucht nach Ledger 42 keinen eigenen
+      read_text/write_text mehr).
+- [x] M7: write_report-Guard gegen leeres fem_results — Task 16: ValueError
+      ("kein Lastfall zur Verifikation") statt eines stillen/leeren Reports.
+- [x] Ledger 42: write_report -> (ok, vorbehalt) statt Text-Matching im Banner —
+      Task 16: fem/report.py::write_report liefert tuple[bool, bool]; run_all.py
+      gated direkt darauf (kein "Vorbehalt"-Grep im Reporttext mehr für die
+      Gate-Entscheidung); tests/test_report.py komplett umgestellt (5 Tests: alle
+      drei Fälle + M7-ValueError + Fallback-Annotation).
+- [ ] Ledger 2/4/6/9/12/32/34/36/37: Kleinkram laut Ledger-Triage — TEILWEISE erledigt
       (Ledger 3 [Immutability-Test] und Ledger 15 [Auszug-Sollwert-Test] durch Task 15
       erledigt: tests/test_params.py::test_params_frozen,
-      tests/test_analytic.py::test_seitenschrauben_auszug Sollwert-Assertion)
+      tests/test_analytic.py::test_seitenschrauben_auszug Sollwert-Assertion;
+      Ledger 2/4/12/37 [FREECAD_BUNDLE/encoding] und 32 [defl_top-Fallback] durch
+      Task 16 erledigt, siehe M5/M3-Einträge oben. NOCH OFFEN: Ledger 6/9/34/36 —
+      in Task-16-Brief nicht referenziert, keine eindeutige Zuordnung ohne
+      Rücksprache mit dem ursprünglichen Ledger-Text gefunden.)
 - [ ] Optionaler Abmagerungs-Sweep (Wandstärken runter mit FEM-Gate). LF3 ist zwar mit
       63 % der rechnerisch engste Fall, aber eine bewusste Hüllkurve — real gibt es keine
       harte Klemmung (nur Zierblende unten, User 2026-07-12) → mehr Spielraum als es aussieht

@@ -1,2 +1,4 @@
 #!/bin/sh
-exec /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd "$@"
+# FREECAD_BUNDLE ueberschreibt den Bundle-Wurzelpfad (Default: die Standard-
+# macOS-Installation) -- M5/Ledger 2/4/12/37, Task 16.
+exec "${FREECAD_BUNDLE:-/Applications/FreeCAD.app}/Contents/Resources/bin/freecadcmd" "$@"

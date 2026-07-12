@@ -112,7 +112,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     messwerte_path = Path(args.messwerte)
-    messwerte = json.loads(messwerte_path.read_text())
+    messwerte = json.loads(messwerte_path.read_text(encoding="utf-8"))
     mapping = compute_mapping(messwerte)
     if not mapping:
         print("Keine verwertbaren Messwerte in", messwerte_path, "-- nichts zu tun.")
@@ -122,7 +122,7 @@ def main(argv=None) -> int:
     if not target.exists():
         print(f"FEHLER: Zieldatei {target} existiert nicht.", file=sys.stderr)
         return 1
-    text = target.read_text()
+    text = target.read_text(encoding="utf-8")
     new_text, changes = patch_params_text(text, mapping)
 
     if not changes:
@@ -144,7 +144,7 @@ def main(argv=None) -> int:
 
     backup = target.with_name(target.name + ".bak")
     shutil.copy2(target, backup)
-    target.write_text(new_text)
+    target.write_text(new_text, encoding="utf-8")
     print(f"\nBackup: {backup}")
     print(f"Geschrieben: {target}")
     print("\nDanach PFLICHT: bin/fc tests/run_tests.py && bin/fc run_all.py (Hintergrund!)")
