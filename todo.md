@@ -21,6 +21,16 @@ Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen
       und in Montagenotiz/Report ausweisen (Schwelle diskutieren)
 - [ ] ASA-GF als Herstellbarkeits-Empfehlung dokumentieren (Verzug + CTE, Spec §3.5)
 
+## Erkenntnisse aus der Heatmap-Analyse (2026-07-12, alle 4 LF auf 10-mm-Netz)
+- [ ] Noppenfuß-Radius/Fase (r1-2) am Zylinderansatz: ALLE Top-Hotspots aller Lastfälle
+      sitzen an den Noppenfüßen des äußeren Rings (r~238, z~-0.8) — billigster Hebel
+      gegen die einzige echte Kerbzone des Bauteils
+- [ ] Elastische Bettung statt starrer Noppen-Fixierung in der FEM (Federelemente/
+      weiche Zwischenschicht ~E_Sika): realistischere Lagerung würde die Konzentration
+      an den Noppenfüßen deutlich senken (aktuell konservatives Artefakt)
+- [ ] Heatmap-Workflow (fem_heatmap.py + render_heat.py, Session-Scratchpad) als
+      fem/heatmap.py in die Pipeline übernehmen (PLY je LF + Hotspot-JSON im Report)
+
 ## Allgemeine Follow-ups (Priorität nach Bedarf)
 - [ ] M1/Ledger 23/30/33: Formel-/Helfer-Duplikate konsolidieren (lap_height, min_band,
       groove_centerline_len, _rot -> features.py, _ensure_binary_paths -> fem)
