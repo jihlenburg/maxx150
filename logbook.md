@@ -418,3 +418,42 @@ vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
   5 Alternativen), §4 Thermik, §6 Kette 45*0.5*0.5[*0.4]=11.25/4.50,
   §9/§10 nachgezogen; todo.md CTE-Punkt -> Würth/OEM-Anfrage (XY+Z+CTE).
 - Vollständiger Nachweis: .superpowers/sdd/task-21-report.md.
+
+## 2026-07-14 — Task 22: Belluna-Schnittstellen und Standard-ASA (GEOM_REV 5)
+
+- Belluna-Anleitung vollständig gegen das reale 3/2/3/2-Lochbild und den
+  Lieferumfang abgeglichen. Die 16 ST4.2x25 sind jetzt vollständig und ohne
+  Zusatzschrauben zugeordnet: 8x Belluna-Platte→Adapter und 8x
+  Adapter-Unterkragen→nachgerüsteter Holzrahmen. Die zwei Mittellöcher der
+  Platte an den Segmentstößen bleiben frei; PT4.0x12 und 0,7 Nm für das
+  Lüfter-Hauptelement bleiben unverändert.
+- X150-Dach: 35 mm Gesamtstärke, Bestand ohne tragenden Rahmen. Montage setzt
+  deshalb einen wasserfest verleimten, mit PU-Leim eingesetzten Holzrahmen im
+  XPS-Rand voraus (Breite mindestens 30 mm, Höhe = reale Kernstärke). Der
+  gedruckte Kragen wird nicht gegen XPS als Schraubgrund gerechnet.
+- Geometrie: Unterkragen mit acht seitenspezifischen Löchern bei ±140/±165,
+  2,5 mm axialer Kragenluft, volle 25-mm-Materialpfade unter den acht oberen
+  Schrauben, vier beschriftete statt vermeintlich identische Segmente. Die
+  freie Außenkante entwässert über eine supportfreie 47°-Fase; Kammerdecken
+  folgen der Fase. M5-Stoßschrauben radial auf 30 mm verschoben und
+  Kopftaschen auf 6 mm vertieft; Taschen nach Montage bündig mit Epoxid
+  versiegeln.
+- Materialkarte auf lokales, unverstärktes Standard-ASA umgestellt:
+  E=1726 MPa, Zug=40 MPa, rho=1070 kg/m³, HDT 96/86 °C. Wegen nur 1 K Abstand
+  zwischen HDT(1,82 MPa) und T_MAX=85 °C gilt weiß/hell als Voraussetzung;
+  Temperaturfaktor 0,35 und Z-Faktor 0,6 bleiben konservativ. CTE=90e-6/K
+  ist mangels Chargenwert eine Annahme. PC/ABS bleibt wegen schwarzer Farbe,
+  6 % Bruchdehnung und fehlender expliziter UV-Angabe nur Rückfalloption.
+- Thermik auf die reale, vollständig epoxid-/M5-gefügte 500-mm-Baugruppe
+  korrigiert: Elastikfugen-Auslastung 70 % (PASS), nicht mehr künstlich auf
+  eine Segmentlänge reduziert.
+- Export: STEP bleibt in Einbaulage; STL/3MF wird automatisch 180° gedreht
+  und mit der Deckfläche auf Z=0 gelegt. Ein Regressionstest prüft alle vier
+  STL-Boundingboxen und die Druckhöhe von 47 mm.
+- Volle Suite: **88 bestanden, 0 fehlgeschlagen**. Produktionslauf Hash
+  **ec28c9f3**: DFM 4x PASS (Segment 0: 2872/8351 mm², Segmente 1–3:
+  2859/8351 mm²); FEM LF1 0,75/8,40, LF2 0,37/8,40,
+  LF3 1,35/3,36, LF4 0,11/8,40 MPa, jeweils PASS. Gesamtstatus bewusst
+  **PASS mit Vorbehalt, keine Druckfreigabe**: A3a/reales Kragenmaß,
+  Ausschnittmaß nach Demontage, heller Farbton und ein ASA-Probedruck mit
+  Trocken-Fit bleiben physische Gates.

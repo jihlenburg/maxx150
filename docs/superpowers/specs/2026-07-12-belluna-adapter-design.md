@@ -70,52 +70,28 @@ Parametern und schreibt sie in die Montagenotiz.
    Kantenlänge (`SEG_MAX_BBOX`; Ist ~277 mm — die ursprünglich konservativen 250 mm
    wurden mit der Bauraum-Klärung angehoben, Bambu H2D 350 mm verfügbar; Drift-Fix
    2026-07-14); stützenfrei druckbar.
-5. **Material & Prozess (§3.5):** **Würth ASA GF15 (Art. 4954641201, Signalweiß RAL 9003,
-   Datenblatt Stand 05.03.2026)** im **FDM/FFF**-Verfahren als Default (User-Entscheidung
-   Task 21, 2026-07-13). Löst den bisherigen Bambu-ASA-CF-Default (Task 19/20) ab —
-   Begründung: ECHTES glasfaserverstärktes Compound (15 % GF, statt Carbonfaser) und
-   Beschaffungsargument. **ACHTUNG Datenlage** (Kern-Vorbehalt, DA-3-relevant): das
-   Würth-Blatt deklariert EXPLIZIT Halbzeug-Werte (Spritzguss-Probekörper), NICHT
-   gedruckte FDM-Probekörper — anders als Bambus TDS V1.0, das echte gedruckte XY+Z-Werte
-   lieferte. Halbzeug-Kennwerte: Zug 91,2 MPa, Bruchdehnung 8 %, E(100 %) 3520 MPa,
-   Biegemodul 3500 MPa (alle ASTM), Kerbschlag 88 J/m, Vicat 101 °C, HDT/B(0,45 MPa) 99 °C,
-   Dichte 1,1 g/cm³, Schrumpf 0,3 %, Düse 250–270 °C, max. Durchsatz 12 mm³/s, geschlossener
-   Bauraum + gehärtete Düse empfohlen (GF abrasiv). Druckwerte `E_BASE`/`SIGMA_BASE`
-   sind deshalb dokumentierte ANNAHMEN mit eigener Vorbehalts-Kette (params.py-Kommentar,
-   analog `CTE_ASA` seit Task 19) — NICHT die Halbzeug-Zugfestigkeit 91,2 MPa: `E_BASE`
-   3000 MPa (Abschlag ggü. Halbzeug-E 3520/Biegemodul 3500, da gedruckte FDM-Teile wegen
-   Schichthaftung/Porosität i. d. R. unter dem Spritzguss-Wert liegen), `SIGMA_BASE`
-   45 MPa (geschätzt aus gedruckten GF-ASA-Analoga, z. B. Phaetus ASA-GF10 TDS: 40–46 MPa
-   XY gedruckt — NICHT aus dem unrealistisch hohen Halbzeugwert). Diese DA-3-Bewertung ist
-   damit gegenüber Bambu ASA-CF (Task 19) formal SCHWÄCHER belegt (Halbzeug- statt
-   Druckwerte); die Materialwahl trägt das Argument über Faserart (GF statt CF, geringeres
-   Kriechen/UV-Alterungsrisiko) und Beschaffung, nicht über bessere Kennwert-Evidenz.
-   Signalweiß RAL 9003 ist zusätzlich ein konstruktives Argument: geringere
-   Solaraufheizung als schwarzes CF-Filament, senkt die reale Bauteiltemperatur unter
-   der 85-°C-Auslegungsgrenze. Hauptgrund für FDM/FFF unverändert: direkte
-   Klebefähigkeit mit MS-Polymer/Epoxid ohne Primer — tragend für das klebebasierte
-   Befestigungs- und Dichtkonzept. Pulververfahren (SLS/MJF-PA12) weiterhin verworfen:
-   Verklebung nur mit Primer/Plasma zuverlässig, Wasseraufnahme, stärkeres Kriechen.
-   Eskalationsstufe bei FEM-Engpass unverändert: ASA-GF (höherer Faseranteil) oder
-   PC-Blend (§6). Die Kammer-Vents (Ø4) dienen dem Druckausgleich der geschlossenen
-   Zellen (−20…+85 °C ≈ 35 % Innendruckhub), nicht der Entpulverung.
-   **Presets (params.py-Kommentar, kein Code-Pfad):** Bambu ASA-CF (TDS V1.0, seit
-   Task 21 NRND — vorheriger Default Task 19/20, TDS-Zahlen bleiben gültig/belegt),
-   Fiberon ASA-CF08 (8 % CF, KEIN TDS im Haus), CR3D FibCR20 (20 %-CF-FDM-Filament,
-   grobe Marktklassenwerte, unbelegt), Extrudr DuraPro ASA GF (GF-verstärkt, KEIN
-   TDS im Haus) und Standard-ASA (Projekt-Ur-Default, Task 1–18, belegt) bleiben als
-   Vergleichszeilen dokumentiert — vor einem Umstieg auf eine unbelegte Alternative
-   erst Datenblatt beschaffen (DA-3-Bruch/Gate-Muting-Gefahr).
-   **Offene Punkte:** (1) `E_BASE`/`SIGMA_BASE` sind Druckwert-ANNAHMEN aus der
-   Halbzeug-Lücke (s. o.) — ein gedrucktes TDS (XY+Z) würde sie durch Messwerte
-   ersetzen. (2) `CTE_ASA` = 60e-6 1/K bleibt unverändert eine konservative Obergrenze
-   (das Würth-Blatt nennt ebenfalls keinen CTE-Wert) — Herstelleranfrage folgt
-   (todo.md); ein belegter, niedrigerer Wert senkt die aktuelle Fugenauslastung
-   (~21 %) weiter. (3) `DERATE_Z` = 0,5 ist GESCHÄTZT (keine Z-Probekörper), strenger
-   als Bambus gemessene 0,8.
+5. **Material & Prozess (§3.5):** unverstärktes, weißes/helles **Standard-ASA**
+   aus lokaler FDM-Fertigung (User-Entscheidung 2026-07-14). Übernommene
+   Datenblattwerte: Dichte 1,07 g/cm³, E-Modul 1726 MPa, Zugfestigkeit 40 MPa,
+   Biegemodul 1814 MPa, Biegefestigkeit 62 MPa, Bruchdehnung 35 %, HDT
+   96 °C bei 0,45 MPa bzw. 86 °C bei 1,82 MPa, UV-beständig. Das Bauteil wird
+   ohne Faserfüllung und ohne gehärtete Düse vorausgesetzt. Drucklage ist
+   Deckfläche nach unten; 47°-Kammerdächer, 47°-Entwässerungsfase und Ø4-
+   Querkanäle sind supportfrei ausgelegt. Geschlossener, möglichst beheizter
+   Bauraum, Brim ≥10 mm und langsames Abkühlen sind Pflicht. Pauschales Tempern
+   ohne Fixierlehre ist wegen Verzug unzulässig.
+   **Offene Daten:** CTE fehlt und bleibt mit 90e-6 1/K konservativ angesetzt;
+   Z-Schichthaftung fehlt und wird mit Faktor 0,6 abgemindert. Die HDT-Marge
+   bei 1,82 MPa gegenüber T_MAX=85 °C beträgt nur 1 K; deshalb gilt der starke
+   Temperaturfaktor 0,35 und die Vorgabe weiß/hell. Verfügbares schwarzes
+   PC/ABS (ρ 1,09, E 1900 MPa, Zug 41 MPa, HDT 110/96 °C) bleibt Rückfalloption,
+   ist ohne UV-/CTE-Nachweis und wegen solarer Aufheizung aber nicht Default.
 6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
-   verklebt (Ringklebenut); zusätzlich seitliche Verschraubung Kragen → Adapter-Innenwand
-   (Adapter übernimmt die Holzrahmen-Rolle der Anleitung). Keine Verschraubung von oben.
+   verklebt (Ringklebenut). Zusätzlich werden die 16 beiliegenden Belluna-ST4.2×25
+   auf zwei Interfaces verteilt: 8 äußere Belluna-Seitenlöcher Platte→lokal massiver
+   Adapter und 8 Löcher Unterkragen→nachgerüsteter, PU-verklebter Holzrahmen im XPS.
+   Die zwei Belluna-Mittellöcher an den Segmentstößen bleiben frei. Keine Verschraubung
+   von oben durch eine Dichtfläche.
    **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
    Lüfter geklebt + Kragen formschlüssig im Schacht, von unten nur die Zierblende.
    LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle); die mechanische
@@ -127,17 +103,18 @@ Parametern und schreibt sie in die Montagenotiz.
 **Grundform:** rechteckige Plinthe, Höhe `H_RAISE` = 28 mm, Innenöffnung 400×400 mm mit R5-Ecken.
 
 **Querschnitt (umlaufend):**
-- **Deckfläche:** plane Klebefläche unter der Ringklebenut-Zone der Platte. Breite je Seite
+- **Deckfläche:** plane Klebefläche unter der Ringklebenut-Zone der Platte; außerhalb
+  des 450-mm-Flansches geht sie in eine 47°-Entwässerungsfase über. Breite je Seite
   einzeln parametrisierbar (`W_TOP_FRONT/REAR/LEFT/RIGHT`, Startwert 50 mm), da der
   Plattenflansch asymmetrisch ist. Innen liegender Bereich mit parametrischer **Freistellung**
   (Tiefe `REC_GUSSET`) für die Dreiecks-Gussets der Plattenunterseite.
-- **Innenwand:** 10–12 mm massiv als Schraubgrund für die seitliche Verschraubung aus dem
-  Einbaukragen (Kernlochbohrung vor Ort nach realer Schraubposition).
+- **Innenwand:** 8 mm umlaufend; an den acht gemessenen ±140/±165-mm-
+  Schraubpositionen werden die Kammern über den ganzen ST4.2×25-Pfad unterdrückt.
 - **Außenwand:** geschlossen, unten gefast für die Sika-Kehlnaht zum Dach.
 - **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
-  Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 45°-Chevron
-  (stützenfrei in Druckorientierung), Ø4-Entpulverungsbohrungen je Zelle zur Innenseite
-  (für MJF/SLS; hinter dem Lüfterkragen verdeckt). Stoß- und Schraubzonen bleiben
+  Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 47°-Chevron
+  (stützenfrei in Druckorientierung), horizontale Ø4-Druckausgleichsbohrungen je Zelle
+  zur Innenseite. Stoß- und Schraubzonen bleiben
   massiv. Eckkammern (90°-Rotationsfortsetzung der Kammerringe um die vier Eckblöcke,
   Task 17) sind seit 2026-07-12 Default EIN (`CORNER_CHAMBERS = True`, Task 20;
   Verzugs-/Gewichtsnutzen, FEM-verifiziert — abschaltbar, die AUS-Variante bleibt
@@ -145,18 +122,20 @@ Parametern und schreibt sie in die Montagenotiz.
   (druckprofil-unabhängig); die FEM rechnet auf der echten Kammergeometrie mit vollem
   E-Modul (INFILL_FACTOR = 1,0). [Entscheidung mit User 2026-07-12, ersetzt
   Slicer-Infill-Ansatz]
-- **Unterseite:** Klebespalt-Noppen (2,5 mm) für definierte Elastikfugen-Dicke + umlaufende
+- **Unterseite:** Klebespalt-Noppen (3 mm) für definierte Elastikfugen-Dicke + umlaufende
   Kleberille für die Carloflex-Raupe.
 
-**Segmentierung:** Standard **4 identische L-Ecksegmente** (Rotationssymmetrie → eine Druckdatei),
+**Segmentierung:** Standard **4 beschriftete L-Ecksegmente**,
 Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: Halbüberlappung
 (Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 1 Durchsteckschraube M5 je Stoß
-(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Segmentanzahl parametrisch.
+(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Unterstützt sind vier Segmente.
 
-**Thermik konstruktiv:** Würth ASA GF15 α ≈ 60 µm/(m·K), konservative Obergrenze, s. §3.5 —
-Datenblatt-Lücke, `CTE_ASA` unverändert seit Task 19 (Bambu ASA-CF hatte denselben Wert
-angesetzt) — vs. GFK ≈ 25 → auf 500 mm Kante bei ΔT 105 K (−20…+85 °C) ~1,84 mm
-Differenzdehnung (unverändert ggü. Task 19/20, da `CTE_ASA` nicht angetastet wurde).
+**Thermik konstruktiv:** Standard-ASA α = 90 µm/(m·K), konservative
+Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit Epoxid und M5 vollständig
+gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
+Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 2,11 mm
+Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 70 %
+Auslastung der 3-mm-Elastikfuge.
 Aufnahme ausschließlich durch die elastische Klebschicht
 (Bewegungsaufnahme MS-Polymer ≥ 20 % bei 2–3 mm Fuge) — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
@@ -219,13 +198,10 @@ statt fehlerhafte Artefakte zu exportieren.
 | LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |
 | LF5 | Thermik | ΔT −20…+85 °C, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch) + Verformungscheck (FEM) |
 
-**Materialabminderung Würth ASA GF15 (Kern des Nachweises, Task 21):** Basis 45 MPa / E ≈ 3000 MPa
-(beide Druckwert-ANNAHMEN aus der Halbzeug-Datenlücke, s. §3.5 — NICHT der Halbzeug-Zugwert
-91,2 MPa/E 3520). Faktoren: Temperatur 85 °C vs. Vicat 101/HDT-B(0,45 MPa) 99 °C ≈ 0,5 ·
-Z-Schichthaftung ≈ 0,5 (GESCHÄTZT — keine Z-Probekörper im Datenblatt, strenger als Bambus
-gemessene 0,8) · Kriechen (Dauerlast, keine Kriechdaten) ≈ 0,4 (unverändert konservativ).
-→ zulässig **4,50 MPa dauerhaft**, **11,25 MPa kurzzeitig** (Böe, Schlagloch; exakte Kettenwerte,
-von Plan/Code so verwendet; vorher Task 19/20 Bambu ASA-CF: 5,44/13,60 MPa). Drucklage so, dass
+**Materialabminderung Standard-ASA:** Basis 40 MPa / E 1726 MPa aus dem
+User-Datenblatt. Faktoren: Temperatur 0,35 · Z-Schichthaftung 0,6 (geschätzt,
+bis Coupon-Test) · Kriechen 0,4. → zulässig **3,36 MPa dauerhaft**,
+**8,40 MPa kurzzeitig**. Drucklage so, dass
 Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 
 **Bestehenskriterien (Pipeline-Gate, automatisch):**
@@ -279,23 +255,23 @@ jede Messung ersetzt einen Default.
 | Entscheidung | Wahl | Alternativen (verworfen) |
 |---|---|---|
 | Pipeline | A: vollparametrisch, headless FreeCAD + CalculiX | B: GUI+Spreadsheet (nicht reproduzierbar) · C: CadQuery-Stack (Werkzeugvorgabe FreeCAD) |
-| Material | ASA weiß → Task 19/20: Bambu ASA-CF (gedruckte XY+Z-Daten) → seit Task 21: **Würth ASA GF15** (echtes GF, Signalweiß RAL 9003; Halbzeug-Datenlage, Druckwerte ANNAHME) | Bambu ASA-CF (seit Task 21 NRND) · PETG (Tg) · PA12 (Kriechen/UV) · Fiberon ASA-CF08/CR3D FibCR20/Extrudr DuraPro ASA GF (kein TDS im Haus) · PC |
+| Material | **lokal verfügbares Standard-ASA weiß/hell** (User-Datenblatt 2026-07-14) | PC/ABS schwarz (thermisch besser, UV/CTE/Solar ungünstig bzw. offen) · GF/CF-ASA (lokal nicht nötig) |
 | Befestigung | Kleben + seitliche Schrauben | nur Kleben (keine Redundanz) · Klemmen (Kriechen der Klemmstelle) |
-| Segmentierung | 4 identische L-Ecksegmente, Stoß in Seitenmitte | Monolith (kein Bauraum) · 8 Teile (mehr Fugen; bleibt Parameter-Option) |
+| Segmentierung | 4 beschriftete L-Ecksegmente, Stoß in Seitenmitte | Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | — wird per Messkampagne Punkt 7 verifiziert |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Unterkragen (dupliziert Belluna-Einbaukragen, GEOM_REV 3) + 12 seitliche Ø4-Schrauben in den Ausschnittsrand + Kleber (User 2026-07-13) | nur Kleber (DA-Redundanzlücke am Dach-Interface) · exakt 10 Löcher wie Anleitung (nicht durch 4 teilbar → Segmente würden ungleich) · 8 Löcher (weniger Redundanz) |
+| Dach-Befestigung | Belluna-konform seitlich: 8× ST4.2×25 Platte→Adapter + 8× ST4.2×25 Adapter-Unterkragen→nachgerüsteter Holzrahmen; genau die 16 beiliegenden Schrauben, plus Kleber | von oben durch Dichtfläche (Belluna rät ab) · 12 erfundene Symmetrielöcher |
 
 ## 10. Risiken und Gegenmaßnahmen
 
 | Risiko | Gegenmaßnahme |
 |---|---|
-| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa (Würth ASA GF15, Task 21); Klemmpfad läuft primär über Dach+Adapter-Druckflächen (Druck, nicht Zug); FEM LF3 |
-| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,5 (GESCHÄTZT — kein Z-Datenpunkt im Würth-Blatt, strenger als Bambus gemessene 0,8); Tempern Pflicht lt. Montagenotiz |
+| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 3,36 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
+| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,6 bis Coupon-Test; kein pauschales Tempern ohne Fixierlehre |
 | Thermodehnung reißt Klebfuge | 2–3 mm Elastikfuge erzwungen (Noppen), MS-Polymer ≥ 20 % Bewegungsaufnahme, LF5 |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
-| UV-Versprödung | ASA-Basis (Werkstoffklasse materialklassisch UV-beständig; Würth-Blatt macht dazu keine eigene Aussage); Versiegelung Pflicht (s. §3) |
+| UV-Versprödung | Lokales ASA-Datenblatt nennt UV-Beständigkeit; Außenflächen dennoch gegen FDM-Porosität versiegeln |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |
@@ -304,6 +280,6 @@ jede Messung ersetzt einen Default.
 
 1. `run_all.py` läuft fehlerfrei durch: Modell → FEM (alle LF PASS) → Export → Report.
 2. Alle Tests grün, inkl. Segmente-≡-Monolith und DFM-Checks.
-3. Druckdateien: 4 identische Segmente, stützenfrei, Boundingbox ≤ 250 mm.
+3. Druckdateien: 4 beschriftete Segmente, stützenfrei, Boundingbox ≤ 300 mm.
 4. Physisch: Segmente fügen sich passgenau, Lüfter mit 140er-Welle montierbar, Haube öffnet
    kollisionsfrei über der Dachkante, dicht nach Regenfahrt.

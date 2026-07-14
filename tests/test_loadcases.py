@@ -22,9 +22,9 @@ def _face_by_name(shape, name):
 
 def test_materialkarte():
     m = fem_material_dict(PRM.P)
-    # Task 21 (Würth ASA GF15, Druckwert-ANNAHME): 3000 * INFILL 1.0 — Kammern,
-    # kein Slicer-Infill; NU unveraendert (keine Herstellerangabe)
-    assert m["YoungsModulus"] == "3000.0 MPa"
+    # Lokales unverstärktes ASA: Datenblatt-E 1726 MPa, geometrische Kammern,
+    # kein Slicer-Infill; NU weiterhin konservative Annahme.
+    assert m["YoungsModulus"] == "1726.0 MPa"
     assert m["PoissonRatio"] == "0.35"
 
 
@@ -39,15 +39,16 @@ def test_face_selektoren():
     for name in top:
         assert abs(_face_by_name(s, name).CenterOfMass.z - tz) < 1e-3
     top_area = sum(_face_by_name(s, name).Area for name in top)
-    # parametrisch statt hart 55-70e3 (das Band galt nur mit REC_GUSSET_D=3):
-    # Deckfläche = Außenrechteck - Öffnung - Freistellungsring (falls aktiv);
-    # kleinere Abzüge (Eckenrundung, 4 Kopfsenkungen) deckt die 0.9-Untergrenze
+    # Ebene Lastfläche endet an den vier Entwässerungsfasen.
     p = PRM.P
-    L, W = PRM.outer_dims(p)
+    flat_l = (PRM.drainage_start(p, p.W_TOP_REAR)
+              + PRM.drainage_start(p, p.W_TOP_FRONT))
+    flat_w = (PRM.drainage_start(p, p.W_TOP_RIGHT)
+              + PRM.drainage_start(p, p.W_TOP_LEFT))
     rec = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
            if p.REC_GUSSET_D > 0 else 0.0)
-    erwartet = L * W - p.CUTOUT_W ** 2 - rec
-    assert erwartet * 0.9 < top_area < erwartet * 1.01
+    erwartet = flat_l * flat_w - p.CUTOUT_W ** 2 - rec
+    assert erwartet * 0.98 < top_area < erwartet * 1.02
 
     # nopple_faces: alle exakt bei z = -GLUE_GAP.
     assert len(nop) >= 20

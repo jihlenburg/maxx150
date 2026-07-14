@@ -51,40 +51,64 @@ def test_volumen_plausibel():
     assert 1.75e6 < v < 2.2e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
-    """Schwelle aus Parametern statt hart 60000 (Ledger 10, Task-4-Review:
-    60000 lag nur 0.4 % unter dem Istwert -- fragil bei Parameteränderung).
-    Formel: Außenfläche (L*W, unrund) minus Öffnungsfläche minus
-    Freistellungsring (Gusset-Freistellung, in dfm._allowed_bridge_area
-    identisch als rec_ring berechnet), konservativ mit 0.9 multipliziert
-    (deckt Eckenrundungen/Rille/Fase/Kammer-Randeinflüsse ab)."""
+    """Ebene Belluna-Auflage bis zum Beginn der Entwässerungsfasen."""
     s = _frame()
     zt = top_z()
     top_area = sum(f.Area for f in s.Faces
                    if abs(f.CenterOfMass.z - zt) < 1e-4)
     p = PRM.P
-    L, W = PRM.outer_dims(p)
-    oeffnungsflaeche = p.CUTOUT_W ** 2
-    freistellungsring = (p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
-    schwelle = (L * W - oeffnungsflaeche - freistellungsring) * 0.9
-    assert top_area > schwelle, \
-        f"zu wenig plane Klebefläche oben ({top_area:.0f} <= {schwelle:.0f})"
+    flat_l = (PRM.drainage_start(p, p.W_TOP_REAR)
+              + PRM.drainage_start(p, p.W_TOP_FRONT))
+    flat_w = (PRM.drainage_start(p, p.W_TOP_RIGHT)
+              + PRM.drainage_start(p, p.W_TOP_LEFT))
+    erwartet = flat_l * flat_w - p.CUTOUT_W ** 2
+    assert erwartet * 0.98 < top_area < erwartet * 1.02, \
+        f"plane Auflage {top_area:.0f} weicht von {erwartet:.0f} mm² ab"
+
+def test_entwaesserungsfase_faellt_nach_aussen_und_bleibt_geschlossen():
+    """47°-Fase statt Wasserablage; Stichproben zugleich als Boolean-Wächter."""
+    import Part
+    from FreeCAD import Vector
+    s = _frame()
+    p = PRM.P
+    for x in (230.0, 238.0, 245.0, 249.0):
+        radius = 0.2
+        probe = Part.makeCylinder(radius, 80, Vector(x, 100, -30))
+        common = s.common(probe)
+        assert common.Volume > 0
+        # ZMax liegt wegen des Probenradius am inneren Rand x-radius.
+        erwartet = PRM.top_surface_z(p, x - radius, p.W_TOP_REAR)
+        assert abs(common.BoundBox.ZMax - erwartet) < 0.03
+    assert len(s.Shells) == 1 and s.Shells[0].isClosed()
+
+def test_obere_belluna_schraubpfade_sind_vollmaterial():
+    """ST4.2x25 darf an keiner der acht Positionen in eine Kammer laufen."""
+    import math
+    import Part
+    from FreeCAD import Vector
+    from model import features as F
+    from model import frame as MF
+    s = _frame()
+    p = PRM.P
+    r = 0.7
+    length = 24.5
+    voll = math.pi * r * r * length
+    for k, offsets in enumerate(MF._plate_screw_offsets_by_chamber_side(p)):
+        for offset in offsets:
+            probe = Part.makeCylinder(r, length,
+                                      Vector(p.CUTOUT_W / 2 + 0.25, offset, 15),
+                                      Vector(1, 0, 0))
+            material = s.common(F.rotz(probe, k)).Volume
+            assert material > voll * 0.98, \
+                f"Schraubpfad Seite {k}, Offset {offset} nicht massiv: {material:.1f}/{voll:.1f}"
 
 def test_kammern_wirken():
     """Rippenkammern (Task 14) müssen substanziellen Materialanteil entfernen,
-    aber nicht die Festigkeitsstruktur sprengen (Bandbreite laut Brief).
-
-    Task 20 (Eckkammern Default EIN): die Solid-Referenz braucht jetzt
-    explizit CORNER_CHAMBERS=False (CHAMBERS=False allein wirft seit dem
-    Flip ValueError -- Eckkammern setzen CHAMBERS voraus). Das Delta enthält
-    zusätzlich die Eckkammern. Rechnung (bin/fc-Probe, Task-20-Report):
-      v_solid   = 2127732.386711353 mm³ (ohne jede Kammer, unverändert)
-      v_default = 1694758.489540970 mm³ (EIN-Anker aus Task 17)
-      Delta     =  432973.897170383 mm³
-                = altes Seitenkammer-Delta 391726.316 + Eckkammern 41247.581
-    Band (3.0e5, 5.5e5) statt (2.5e5, 5.0e5): identische Bandbreite 2.5e5,
-    nur um das Eckkammer-Delta nach oben verschoben -- KEINE Aufweichung."""
+    aber die acht 25-mm-Schraubpfade als Vollmaterial stehen lassen.
+    GEOM_REV 5 entfernt deshalb weniger Volumen als der alte, überall
+    gekammerte Stand; 253 cm³ bleiben weiterhin substanziell."""
     import params as PRM
     from model.frame import build_frame
     v_solid = build_frame(PRM.Params(CHAMBERS=False, CORNER_CHAMBERS=False)).Volume
     v_cham = build_frame().Volume
-    assert 3.0e5 < (v_solid - v_cham) < 5.5e5, f"Kammervolumen {v_solid - v_cham:.0f}"
+    assert 2.2e5 < (v_solid - v_cham) < 4.5e5, f"Kammervolumen {v_solid - v_cham:.0f}"

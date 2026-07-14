@@ -10,16 +10,19 @@ def hood_clearance(p: PRM.Params = PRM.P) -> float:
     return p.H_RAISE + p.HOOD_UNDERSIDE_H - p.EDGE_H
 
 
-def _segment_length(p: PRM.Params) -> float:
+def _assembly_length(p: PRM.Params) -> float:
     L, W = PRM.outer_dims(p)
-    return max(L, W) / 2 + p.LAP_L        # längster Schenkel eines L-Segments
+    return max(L, W)
 
 
 def glue_shear_utilization(p: PRM.Params = PRM.P) -> float:
     """Auslastung der unteren Elastikfuge durch CTE-Differenz ASA<->GFK.
-    Bezugslänge ist das SEGMENT (Segmentierung entkoppelt die Gesamtlänge!)."""
+    Bezugslänge ist der vollständig epoxidverklebte und verschraubte Rahmen:
+    Die Drucksegmentierung stellt nach dem Fügen keine thermische Entkopplung
+    dar. Symmetrische Dehnung wird weiterhin je Rahmenende mit delta/2
+    angesetzt."""
     dT = max(p.T_MAX - p.T_CURE, p.T_CURE - p.T_MIN)
-    delta = (p.CTE_ASA - p.CTE_ROOF) * _segment_length(p) * dT   # mm gesamt
+    delta = (p.CTE_ASA - p.CTE_ROOF) * _assembly_length(p) * dT  # mm gesamt
     gamma = (delta / 2) / p.GLUE_GAP                             # Schubverzerrung je Ende
     return gamma / p.GLUE_SHEAR_CAP
 
@@ -34,10 +37,13 @@ def glue_load_shear(p: PRM.Params, f_inplane: float) -> dict:
 
 
 def side_screw_pullout(p: PRM.Params) -> dict:
-    """Spec-Kriterium 4: Auszugstragfähigkeit einer Seitenschraube (ST4.2)
-    in der Adapter-Innenwand. Gewindeeingriff = Bandbreite, konservativ nur
-    12 mm angesetzt; Scherfestigkeit = 0.5 * Dauerzulässigkeit."""
-    d, l_e = 4.2, 12.0
+    """Auszug einer Belluna-ST4.2x25 in der oberen Adapter-Innenwand.
+
+    Die Kammern werden an allen acht Schraubpositionen vollständig
+    unterdrückt. Vom nominellen 25-mm-Schraubpfad werden trotzdem nur 12 mm
+    Gewindeeingriff angesetzt; Scherfestigkeit = 0.5*Dauerzulässigkeit.
+    """
+    d, l_e = p.BOT_KRAGEN_SCREW_D, 12.0
     import math
     sig_lang, _ = PRM.allowables(p)
     f_zul = math.pi * d * l_e * 0.5 * sig_lang

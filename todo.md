@@ -89,9 +89,9 @@ SOFORT GEFIXT (Commit folgt):
 - [x] FEM-Tempdirs (mkdtemp) wurden nie geloescht -> shutil.rmtree im
       finally (run_fem + heatmap), Altbestand gepurgt.
 - [x] Spec-Drift Segment-Bbox (<=250 vs. Ist 277/Gate 300) -> Spec korrigiert.
-- [x] Montagenotiz: Substrat-VORBEHALT fuer die 12 Dachschrauben (GFK/XPS/
-      Holz in 10 mm Tiefe ungeprueft -> Probeschraube bei Demontage;
-      bis dahin Lagesicherung, nicht tragende Redundanz).
+- [x] Schraubsubstrat geklärt: X150-Dach 35 mm gesamt, Bestand ohne Holz;
+      Belluna-konformer Holzrahmen wird in den XPS-Rand eingesetzt. GEOM_REV 5
+      verwendet 8 seitliche ST4.2x25 am Dachinterface.
 
 BERECHTIGT, GROESSER — Roadmap (User entscheidet Priorität):
 - [ ] Release-Zustaende statt PASS/Vorbehalt-Binarität: MODEL_PASS /
@@ -116,38 +116,40 @@ BERECHTIGT, GROESSER — Roadmap (User entscheidet Priorität):
       einbinden; N_SEGMENTS!=4-Pseudoparameter entfernen oder implementieren.
 
 ZURUECKGEWIESEN / RELATIVIERT:
-- "identische Segmente vs. Asymmetrie widerspruechlich": Asymmetrie ist
-  dokumentierte Parameter-OPTION (Messkampagnen-Vorsorge, tests/
-  test_asymmetrie.py); Default ist symmetrisch-identisch. Kein Defekt.
+- "identische Segmente vs. Asymmetrie widerspruechlich": W_TOP-Asymmetrie
+  bleibt eine getestete Parameteroption. Seit GEOM_REV 5 sind die vier
+  Dateien wegen des Belluna-±140/±165-Lochbilds bewusst beschriftet; die
+  frühere Identitätsanforderung gilt nicht mehr.
 - "kein Report fuer dfc6857f": korrekt, aber Artefakt-, kein Code-Problem —
   Lauf nachgeholt (out/report_dfc6857f.md).
 
-## Unterkragen (GEOM_REV 3, 2026-07-13)
+## Interface-Redesign (GEOM_REV 5, 2026-07-14)
 
 - [x] Unterkragen implementiert (params BOT_KRAGEN_*, frame._bot_kragen_tools,
       Segmente-Lappen bis Kragenkante, DFM-Zone 7, Montagenotiz, 6 Tests grün,
-      validate()-Gates). 12 Löcher = 3 je Seite bei -140/+60/+140 (identische
-      Segmente; User-Entscheidung statt exakt 10 wie Anleitung).
-- [ ] Volle Suite + run_all nach B-Messwerten (ein Lauf für alles); FEM-Report
-      neu (Hash wechselt durch GEOM_REV 3 + BOT_KRAGEN-Felder).
-- [ ] fem/analytic: Auszugs-/Lochleibungs-Nachweis der 12 Dachschrauben
-      ergänzen (analog side_screw_pullout; nicht blockierend -- Schrauben sind
-      Redundanz ZUM Kleber, nicht alleinige Befestigung).
+      validate()-Gates). GEOM_REV 5: 8 Löcher an den äußeren Belluna-
+      Positionen ±140/±165 statt symmetriegetriebener 12er-Eigenkonstruktion.
+- [x] 16 beiliegende ST4.2x25 vollständig zugeordnet: 8 Platte→Adapter,
+      8 Adapter→Holzrahmen; zwei Belluna-Mittellöcher an Segmentstößen frei.
+- [x] Obere Schraubpfade über volle 25 mm als Vollmaterial modelliert und getestet.
+- [x] Kragen-Axialluft von 0,5 auf 2,5 mm erhöht; A3a/Kragen-Außenmaß bleibt
+      Mess-Gate vor Druck, nominale Belluna-400er-Schnittstelle bleibt unverändert.
+- [x] Frei bewitterte Außenkante mit supportfreier 47°-Entwässerungsfase;
+      Kammerdecken folgen der Fase und bleiben geschlossen.
+- [x] Thermik korrigiert: vollständig epoxid-/M5-gefügter 500-mm-Rahmen statt
+      vermeintlich entkoppelter 275-mm-Drucksegmente.
+- [x] M5-Stoßschraube radial auf 30 mm verschoben, Kopftasche 6 mm tief;
+      Kopftaschen nach Montage bündig versiegeln.
+- [x] Volle Suite + run_all mit Standard-ASA-Materialkarte; neuen Report/Export
+      erzeugen. STL/3MF-Export steht jetzt direkt druckorientiert mit der
+      Deckfläche auf Z=0; vier beschriftete Desktop-STLs abgelegt.
 
 ## Pflichtpaket VOR dem Messkampagnen-Re-Run
-- [ ] Würth/OEM nach gedruckten Kennwerten (XY+Z) und CTE fragen — würde
-      Annahmen durch Messwerte ersetzen (senkt Fugenauslastung von 21 % weiter
-      UND ersetzt die Druckwert-Annahmen `E_BASE`/`SIGMA_BASE`) — Task 21:
-      Würth ASA GF15 (Art. 4954641201) Datenblatt liefert nur HALBZEUG-Werte
-      (Spritzguss-Probekörper, Zug 91,2/E 3520/3500 MPa) — `E_BASE=3000.0`/
-      `SIGMA_BASE=45.0` sind DOKUMENTIERTE ANNAHMEN für die gedruckten
-      XY-Werte (abgeleitet aus GF-ASA-Analoga, s. params.py-Kommentar), keine
-      Messwerte. `DERATE_Z=0.5` ist ebenfalls GESCHÄTZT (kein Z-Probekörper
-      im Blatt, strenger als Bambus gemessene 0,8). `CTE_ASA=60e-6` bleibt
-      unverändert seit Task 19 eine konservative Obergrenze (auch das
-      Würth-Blatt nennt keinen CTE-Wert). Ein belegter, niedrigerer CTE-Wert
-      senkt `fem.analytic.glue_shear_utilization` unter die aktuellen ~21 %
-      weiter (Spec §3.5 „Offene Punkte").
+- [x] Lokales Standard-ASA: Datenblattwerte E=1726 MPa, Zug=40 MPa,
+      rho=1,07 g/cm³ und HDT=96/86 °C übernommen. Offen bleiben gedruckte
+      XY/Z-Coupons und CTE; bis dahin DERATE_Z=0,6 und CTE=90e-6 konservativ.
+      Wegen HDT(1,82)=86 °C bei T_MAX=85 °C nur weiß/hell und Temperaturfaktor
+      0,35. Thermische Fugenauslastung mit voller 500-mm-Baugruppe ~70 %.
 - [x] I3: Asymmetrie-Smoke-Test (W_TOP je Seite verschieden, innerhalb validate(p)):
       Segmente valide, Union-Invariante, DFM grün; test_identische_segmente auf
       Symmetrie bedingen; Kammerraster-min()-Kopplung geprüft (Ledger 17/28/29, T6/T8)
@@ -198,10 +200,10 @@ ZURUECKGEWIESEN / RELATIVIERT:
       task-15-report.md (Abschnitt „Review-Nachbesserung").
 
 ## Herstellbarkeits-Paket (User-Anforderung 2026-07-12: Verzugsfreiheit sicherstellen)
-- [x] Montagenotiz: Verzugs-Pflichtbedingungen — erledigt (15bd068), Task 19 auf
-      Bambu-ASA-CF-Profil (Bett 80-100 °C, Kammer 45-60 °C), seit Task 21 auf
-      Würth-ASA-GF15-Profil aktualisiert (Düse 250-270 °C gehärtet, Bett
-      100-110 °C, geschlossener Bauraum PFLICHT, Schrumpf 0,3 % lt. Blatt)
+- [x] Montagenotiz: Standard-ASA auf normalem FDM — Deckfläche nach unten,
+      geschlossener/möglichst beheizter Bauraum, Brim ≥10 mm, 4 Perimeter,
+      100 % in den geometrisch massiven Zonen, keine Supports in Kammern,
+      langsames Abkühlen; kein pauschales Tempern ohne Fixierlehre.
 - [x] Eckkammern: Kammerstruktur um die Ecken ziehen, massiv nur ~30 mm um M5/Laps
       (eliminiert die 4 größten Schrumpfspannungs-Blöcke je Segment; Rework wie Task 14)
       — VOLLSTÄNDIG ERLEDIGT/AKTIVIERT: seit Task 20 (User-Entscheidung 2026-07-12)

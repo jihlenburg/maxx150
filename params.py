@@ -5,6 +5,7 @@ Spec docs/superpowers/specs/2026-07-12-belluna-adapter-design.md.
 Mit 'Messkampagne N' markierte Defaults sind Schätzwerte, die der User
 per Messschieber ersetzt (Spec §8)."""
 import hashlib
+import math
 from dataclasses import dataclass, asdict
 
 
@@ -14,8 +15,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
-    GEOM_REV: int = 4            # 3: Unterkragen; 4: Übergangsfase abgesenkt
-                                  # (Freigang zur Belluna-Kragenspitze)
+    GEOM_REV: int = 5            # 5: Schnittstellen-Freigang, Entwässerungsfase,
+                                  # Stoßschraubenlage und Kragenloch-Layout
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung, Messkampagne 6)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -38,6 +39,13 @@ class Params:
     W_TOP_LEFT: float = 50.0
     W_TOP_RIGHT: float = 50.0
     R_OUT: float = 12.0          # Außeneckenradius
+    # --- Obere Plattenschnittstelle / Entwässerung ---
+    PLATE_OUTER_W: float = 450.0     # Belluna-Flansch, A1a/A1b bestätigt
+    PLATE_KRAGEN_W: float = 398.0    # ANNAHME A3a; vor Druck nachmessen
+    PLATE_KRAGEN_MEASURED: bool = False
+    TOP_DRAIN_RUN: float = 13.0      # max. Breite der äußeren Entwässerungsfase
+    TOP_DRAIN_DEG: float = 47.0      # selbsttragend in Druckorientierung
+    TOP_DRAIN_SUPPORT_MARGIN: float = 2.0  # ebene Auflage über Flanschrand hinaus
     # --- Freistellung Gussets oben innen (Messkampagne 4) ---
     REC_GUSSET_W: float = 18.0
     REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (Messkampagne 4 erledigt):
@@ -61,31 +69,50 @@ class Params:
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
     TOL_JOINT: float = 0.25      # Passungsluft je Fügefläche
     JOINT_BOLT_D: float = 5.5    # M5-Durchgang (M4 fiel bei 480 N Lochleibungs-Nachweis durch)
-    JOINT_BOLT_OFF: float = 35.0 # Bolzenlage ab Öffnungskante (kollidiert nicht mit Rille)
+    JOINT_BOLT_OFF: float = 30.0 # strukturell zwischen Kleberille und Entwässerungsfase
     JOINT_CB_D: float = 10.0     # Zylindersenkung Kopf (DIN912 M5)
-    JOINT_CB_T: float = 5.0
+    JOINT_CB_T: float = 6.0
     JOINT_NUT_AF: float = 8.0    # Sechskant-Schlüsselweite Muttertasche (M5)
     JOINT_NUT_T: float = 4.0
     SEG_MAX_BBOX: float = 300.0  # zulässige Segment-Boundingbox (Druckservice)
     # --- Unterkragen (User-Entscheidung 2026-07-13): dupliziert den Belluna-
     # Einbaukragen nach UNTEN -- taucht in den Dachausschnitt und wird dort
     # SEITLICH verschraubt (Methode der Belluna-Anleitung; mechanische
-    # Redundanz zum Kleber am Dach-Interface). 12 Löcher = 3 je Seite:
-    # identische Segmente erzwingen Vielfache von 4, daher 12 statt der 10
-    # der Anleitung (User-Entscheidung); KEIN Loch bei 0 (Seitenmitte =
+    # Redundanz zum Kleber am Dach-Interface). Verwendet werden die acht
+    # äußeren Positionen des gemessenen Belluna-3/2/3/2-Lochbilds; die beiden
+    # Mittellöcher an Segmentstößen bleiben frei. Es wird nicht zugunsten
+    # identischer Segmente verändert. Die beiliegenden Schrauben sind laut
+    # Belluna-Anleitung ST 4.2x25: 8x Platte->Adapter und 8x Adapter->Holz. Die
+    # Lastabtragung erfolgt ausschließlich in den nachgerüsteten Holzrahmen,
+    # nicht in XPS. Das Layout ist je Seite separat parametriert; die symme-
+    # trischen Defaults folgen dem umlaufend gleichen Schraubgrund und sind
+    # keine Folge identischer Drucksegmente. KEIN Loch bei 0 (Seitenmitte =
     # Segmentstoß). Druckorientierung kopfüber -> Kragen zeigt im Druck nach
     # oben, 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
     BOT_KRAGEN: bool = True
     BOT_KRAGEN_T: float = 4.0        # Wandstärke
-    BOT_KRAGEN_CLEAR: float = 1.0    # Radialluft je Seite im 400er-Ausschnitt
+    BOT_KRAGEN_CLEAR: float = 1.0    # Belluna-Nennschnittstelle: ~398 in 400
     BOT_KRAGEN_DEPTH: float = 19.0   # Eintauchtiefe unter die Dachoberfläche (wie Belluna)
-    BOT_KRAGEN_TRANS: float = 5.0    # 45°-Übergangsfase Öffnungswand -> Kragen
+    BOT_KRAGEN_TRANS: float = 3.0    # 45°-Übergangsfase Öffnungswand -> Kragen
     BOT_KRAGEN_HOLE_D: float = 4.0   # Schraubenloch (Kernloch 3 im Dach vorbohren)
     BOT_KRAGEN_HOLE_Z: float = 10.0  # Lochmitte unter Dachoberfläche (wie Belluna)
-    BOT_KRAGEN_HOLE_OFFS: tuple = (-140.0, 60.0, 140.0)  # je Seite, ab Seitenmitte
+    BOT_KRAGEN_SCREW_D: float = 4.2  # Belluna-Lieferumfang: ST 4.2x25
+    BOT_KRAGEN_SCREW_L: float = 25.0
+    # Reihenfolge: RIGHT, FRONT, LEFT, REAR (Rotationsreihenfolge des
+    # kanonischen +y-Lochs in model/frame.py::_bot_kragen_tools).
+    BOT_KRAGEN_HOLE_OFFS_BY_SIDE: tuple = (
+        (-165.0, 165.0),         # RIGHT
+        (-140.0, 140.0),         # FRONT
+        (-165.0, 165.0),         # LEFT
+        (-140.0, 140.0),         # REAR
+    )
+    PLATE_SCREW_KEEP_HALF: float = 5.0  # Vollmaterial um obere ST4.2-Schrauben
     PLATE_KRAGEN_D: float = 19.0     # Belluna-Einbaukragen-Tiefe (A4a GEMESSEN
                                       # 2026-07-13): dessen Spitze endet bei
                                       # top_z - 19 -- Schnittstellen-Gate unten
+    PLATE_KRAGEN_Z_CLEAR_MIN: float = 2.0  # axialer Mindestfreigang zur Übergangsfase
+    ROOF_WOOD_FRAME_W: float = 30.0  # Mindestbreite des PU-verklebten Schraubgrunds
+    ROOF_WOOD_FRAME_CONFIRMED: bool = False  # erst nach Einbau/Probeschraube True
     # --- Lüfter / Lasten (Spec §3/§6) ---
     FAN_MASS: float = 6.5        # kg (Maxxfan-Hüllkurve; Belluna 5.0)
     V_DESIGN_KMH: float = 200.0  # 160 Reise + Böenreserve
@@ -99,82 +126,31 @@ class Params:
     SNOW_LOAD: float = 200.0     # N auf Grundfläche
     T_MIN: float = -20.0
     T_MAX: float = 85.0
-    # --- Material Würth ASA GF15 (Art. 4954641201, Signalweiß RAL 9003,
-    # Datenblatt Stand 05.03.2026, 750-g-Spule; Task 21 -- User-Entscheidung
-    # 2026-07-13, Spec §3.5) + Abminderung (Spec §6) ---
-    # ACHTUNG Datenlage: das Datenblatt deklariert EXPLIZIT Halbzeug-Werte
-    # (Spritzguss-Probekörper), NICHT gedruckte FDM-Probekörper -- anders als
-    # Bambu ASA-CF TDS V1.0 (Task 19, gedruckte XY+Z-Werte). Halbzeug: Zug
-    # 91,2 MPa, Dehnung 8 %, E(100%) 3520 MPa, Biegemodul 3500 MPa (ASTM),
-    # Kerbschlag 88 J/m, Vicat 101 °C, HDT/B(0,45 MPa) 99 °C, Dichte 1,1 g/cm³,
-    # Schrumpf 0,3 %, Düse 250-270 °C, max. 12 mm³/s, geschlossener Bauraum +
-    # gehärtete Düse empfohlen (GF abrasiv). Druckwerte (E_BASE/SIGMA_BASE)
-    # sind daher ANNAHMEN mit eigener Vorbehalts-Kette -- wie CTE_ASA seit
-    # Task 19 -- NICHT Messwerte:
-    E_BASE: float = 3000.0       # ANNAHME gedruckt XY (Halbzeug 3520/Biegemodul
-                                  # 3500 -- gedruckte FDM-Bauteile liegen wegen
-                                  # Schichthaftung/Porosität i. d. R. UNTER dem
-                                  # Spritzguss-Halbzeugwert; 3000 als konservativer
-                                  # Abschlag, keine eigene Messung)
-    SIGMA_BASE: float = 45.0     # ANNAHME gedruckt XY, NICHT aus dem Halbzeugwert
-                                  # (91,2 MPa) abgeleitet -- der ist für gedruckte
-                                  # GF-Teile unrealistisch hoch. Stattdessen aus
-                                  # gedruckten GF-ASA-Analoga geschätzt (Phaetus
-                                  # ASA-GF10 TDS: 40-46 MPa XY gedruckt) --
-                                  # Halbzeug 91,2 MPa bewusst NICHT verwendet
-    NU: float = 0.35             # unverändert (keine Herstellerangabe)
-    RHO: float = 1100.0          # kg/m^3 (Datenblatt Dichte 1,1 -- Halbzeug- vs.
-                                  # Druckdichte weichen bei Dichte kaum ab, anders
-                                  # als bei E/Zugfestigkeit -- daher hier Messwert,
-                                  # keine ANNAHME)
-    CTE_ASA: float = 60e-6       # 1/K; unverändert konservative OBERGRENZE aus
-                                  # Task 19 (Würth-Blatt nennt KEINEN CTE-Wert --
-                                  # gleiche Datenblatt-Lücke). GF-Materialien
-                                  # koennten je nach Faserorientierung abweichen,
-                                  # ohne Herstellerwert bleibt die Obergrenze der
-                                  # sichere Default (Gate-Muting-Lehre);
-                                  # Herstelleranfrage weiterhin offen (todo.md).
+    # --- Material: unverstärktes Standard-ASA für normalen FDM-Druck ---
+    # User-Entscheidung 2026-07-14. Die Werte sind konservative generische
+    # Projektannahmen, KEIN Ersatz für das Datenblatt der später gewählten
+    # Filamentcharge oder gedruckte XY/Z-Coupons. Weiß/hell bleibt wegen der
+    # solaren Bauteiltemperatur Pflicht. Geometrie und DFM dürfen weder eine
+    # Faserfüllung noch eine gehärtete Düse voraussetzen.
+    MATERIAL_NAME: str = "Standard-ASA lokal (User-Datenblatt 2026-07-14)"
+    E_BASE: float = 1726.0       # MPa, Datenblattwert
+    SIGMA_BASE: float = 40.0     # MPa, Datenblattwert
+    NU: float = 0.35
+    RHO: float = 1070.0          # kg/m³, Datenblatt 1.07 g/cm³
+    HDT_045: float = 96.0        # °C bei 0.45 MPa, Datenblatt
+    HDT_182: float = 86.0        # °C bei 1.82 MPa, nur 1 K über T_MAX
+    CTE_ASA: float = 90e-6       # 1/K, konservative Obergrenze Standard-ASA
     CTE_ROOF: float = 25e-6      # 1/K (GFK)
-    DERATE_TEMP: float = 0.5     # Vicat 101 °C / HDT-B(0,45 MPa) 99 °C -- UNGEKERBTE
-                                  # Bauteiltemperatur 85 °C liegt näher an diesen
-                                  # Werten als bei Bambu (Vicat 108/HDT 102 bei
-                                  # 1,8 MPa, strengerer Prüfdruck); Bauteil ist
-                                  # SIGNALWEISS RAL 9003 -> geringere Solaraufheizung
-                                  # als bei schwarzem CF-Filament, reale Dach-
-                                  # temperatur real niedriger -- Faktor bewusst NICHT
-                                  # verschärft trotz knapperer Datenblattmarge
-    DERATE_Z: float = 0.5        # GESCHÄTZT (keine Z-Probekörper im Datenblatt --
-                                  # anders als Bambu, wo Z GEMESSEN war/0.8 ergab;
-                                  # strenger als Bambu angesetzt, da keine Evidenz)
-    DERATE_CREEP: float = 0.4    # unverändert konservativ (keine Kriechdaten)
+    DERATE_TEMP: float = 0.35    # 85 °C nahe typischer ASA-Wärmeformbeständigkeit
+    DERATE_Z: float = 0.6        # konservative, bis Coupon-Test geschätzte Z-Abminderung
+    DERATE_CREEP: float = 0.4
     INFILL_FACTOR: float = 1.0   # 100 % Infill (Kammern übernehmen die Gewichtsreduktion,
                                   # kein Slicer-Infill mehr nötig)
 
-    # Preset-Vergleich (NUR Kommentar, kein totes Dict -- Spec §3.5). Aktueller
-    # Default ist Würth ASA GF15 (Art. 4954641201, ECHTES 15%-Glasfaser-Compound,
-    # Task 21 -- User-Entscheidung 2026-07-13). Datenblatt liefert nur Halbzeug-
-    # (Spritzguss-)Werte -- E_BASE/SIGMA_BASE sind daher Druckwert-ANNAHMEN (s.o.),
-    # nicht Messwerte wie bei Bambu ASA-CF (gedruckte XY+Z-Probekörper).
-    #
-    #   Feld              Würth GF15*  Bambu ASA-CF   Standard-ASA
-    #                     (Druck=ANN.) (NRND)
-    #   E_BASE     [MPa]    3000 (A.)    4200           2000
-    #   SIGMA_BASE [MPa]      45 (A.)      34             40
-    #   RHO      [kg/m^3]   1100         1020           1070
-    #   CTE_ASA    [1/K]   60e-6 (A.)   60e-6          90e-6
-    #   DERATE_TEMP           0.5          0.5            0.35
-    #   DERATE_Z              0.5 (Gesch.) 0.8 (gemessen) 0.6
-    #   * aktueller Default (Task 21); (A.) = Annahme, (Gesch.) = geschätzt
-    #
-    # Weitere Alternativen OHNE eigenes TDS im Haus -- KEINE Zahlen hier
-    # eingetragen (sonst DA-3-Bruch/Gate-Muting-Gefahr, siehe CTE_ASA oben);
-    # vor einem Umstieg erst Datenblatt beschaffen, Begründung Spec §3.5:
-    #   - Bambu ASA-CF (TDS V1.0): seit Task 21 NRND (vorheriger Default
-    #     Task 19/20, abgelöst durch Würth GF15 -- echtes GF statt CF,
-    #     Beschaffungsargument; TDS-Zahlen oben bleiben gültig/belegt)
-    #   - Fiberon ASA-CF08 (8 % CF-Filament, KEIN TDS im Haus)
-    #   - CR3D FibCR20 (20 % CF, grobe Marktklassen-Richtwerte, unbelegt)
-    #   - Extrudr DuraPro ASA GF (GF-verstärkt, KEIN TDS im Haus)
+    # Verfügbare Rückfalloption PC/ABS (User-Datenblatt 2026-07-14), bewusst
+    # KEIN aktives Preset: rho 1090 kg/m³, E 1900 MPa, Zug 41 MPa,
+    # HDT 110/96 °C (0.45/1.82 MPa), Bruchdehnung 6 %, schwarz. Thermisch
+    # günstiger, aber solare Aufheizung/Druckbarkeit/UV/CTE nicht belegt.
     # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
     CHAMBERS: bool = True
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
@@ -238,6 +214,36 @@ def outer_dims(p: Params = P):
             p.CUTOUT_W + p.W_TOP_LEFT + p.W_TOP_RIGHT)
 
 
+def side_top_widths(p: Params = P) -> tuple:
+    """Radiale Deckbreiten in der Rotationsreihenfolge REAR, RIGHT, FRONT, LEFT."""
+    return (p.W_TOP_REAR, p.W_TOP_RIGHT, p.W_TOP_FRONT, p.W_TOP_LEFT)
+
+
+def drainage_start(p: Params, side_width: float) -> float:
+    """Radialkoordinate, ab der die äußere Entwässerungsfase beginnt.
+
+    Der ebene Bereich trägt den Belluna-Flansch und die M5-Kopfsenkung. Nur
+    die danach verbleibende, frei bewitterte Außenkante wird abgeschrägt.
+    """
+    outer = p.CUTOUT_W / 2 + side_width
+    plate_keepout = p.PLATE_OUTER_W / 2 + p.TOP_DRAIN_SUPPORT_MARGIN
+    bolt_keepout = (p.CUTOUT_W / 2 + p.JOINT_BOLT_OFF
+                    + p.JOINT_CB_D / 2 + p.TOP_DRAIN_SUPPORT_MARGIN)
+    return max(outer - p.TOP_DRAIN_RUN, plate_keepout, bolt_keepout)
+
+
+def top_surface_z(p: Params, radius: float, side_width: float) -> float:
+    """Sollhöhe der ebenen bzw. nach außen fallenden Deckfläche."""
+    start = drainage_start(p, side_width)
+    drop = max(0.0, radius - start) * math.tan(math.radians(p.TOP_DRAIN_DEG))
+    return (p.H_RAISE - p.GLUE_GAP) - drop
+
+
+def bot_kragen_hole_count(p: Params = P) -> int:
+    """Gesamtzahl der seitlichen Dachschrauben."""
+    return sum(len(offsets) for offsets in p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE)
+
+
 def min_band(p: Params = P) -> float:
     """Schmalste Deckflächenbreite über alle vier Seiten (M1/Ledger 23/30/33:
     konsolidierter Ersatz für die früher mehrfach kopierte
@@ -294,6 +300,24 @@ def validate(p: Params = P) -> None:
     import math
     fehler = []
     w_min = min_band(p)                # M1/Ledger 23/30/33: eigener Helper statt Inline-min()
+    plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
+    if plate_clear < 0.5:
+        fehler.append(f"Belluna-Kragen hat oben nur {plate_clear:.1f} mm Radialluft (< 0.5): "
+                      f"PLATE_KRAGEN_W vor Druck messen")
+    if p.CUTOUT_W >= p.PLATE_OUTER_W:
+        fehler.append("Obere Rahmenöffnung erreicht den Belluna-Flansch: keine Auflagefläche")
+    if not (45.0 <= p.TOP_DRAIN_DEG <= 70.0):
+        fehler.append(f"TOP_DRAIN_DEG={p.TOP_DRAIN_DEG} außerhalb 45..70°: "
+                      f"Druck-Selbsttragfähigkeit bzw. Entwässerung nicht gesichert")
+    for side_w in side_top_widths(p):
+        outer = p.CUTOUT_W / 2 + side_w
+        start = drainage_start(p, side_w)
+        if start >= outer - 2.0:
+            fehler.append(f"Entwässerungsfase nur {outer - start:.1f} mm breit (< 2.0): "
+                          f"W_TOP={side_w} oder Keepouts prüfen")
+        if top_surface_z(p, outer, side_w) <= p.CHAMFER_OUT + 2.0:
+            fehler.append(f"Entwässerungsfase endet bei z={top_surface_z(p, outer, side_w):.1f} mm "
+                          f"zu nah an Boden/Außenfase")
     if p.CHAMBERS:
         aussenwand = w_min - (p.INNER_WALL + 2 * p.CHAMBER_W + p.CHAMBER_RIB)
         if aussenwand < 2.4:
@@ -307,11 +331,38 @@ def validate(p: Params = P) -> None:
         apex = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * p.CHAMBER_W / 2
         if apex > kammerdecke - 1.0:
             fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht Kammerdecke {kammerdecke:.1f} mm")
+        r_out2 = (p.CUTOUT_W / 2 + p.INNER_WALL + 2 * p.CHAMBER_W
+                  + p.CHAMBER_RIB)
+        for side_w in side_top_widths(p):
+            geneigte_decke = top_surface_z(p, r_out2, side_w) - p.DECK_T
+            if apex > geneigte_decke - 1.0:
+                fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht geneigte Kammerdecke "
+                              f"{geneigte_decke:.1f} mm bei W_TOP={side_w}")
+        if p.CORNER_CHAMBERS:
+            off = p.CUTOUT_W / 2 - p.CUTOUT_R
+            corner_axis = off + (r_out2 - off) * math.cos(
+                math.radians(p.CORNER_ANGLE_MARGIN))
+            corner_drop = max(
+                max(0.0, corner_axis - drainage_start(p, side_w))
+                * math.tan(math.radians(p.TOP_DRAIN_DEG))
+                for side_w in side_top_widths(p))
+            corner_ceiling = kammerdecke - corner_drop
+            if apex > corner_ceiling - 1.0:
+                fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht abgesenkte "
+                              f"Eckkammerdecke {corner_ceiling:.1f} mm")
         if not (apex + p.VENT_D / 2 + 0.5 <= p.VENT_Z <= kammerdecke - p.VENT_D / 2 - 0.5):
             fehler.append(f"VENT_Z={p.VENT_Z} außerhalb des Kammer-z-Bands "
                           f"({apex + p.VENT_D/2 + 0.5:.1f}..{kammerdecke - p.VENT_D/2 - 0.5:.1f})")
     if p.JOINT_BOLT_OFF + p.JOINT_CB_D / 2 > w_min - 2.4:
         fehler.append("M5-Kopfsenkung erreicht die Außenwand: JOINT_BOLT_OFF/W_TOP prüfen")
+    joint_r = p.CUTOUT_W / 2 + p.JOINT_BOLT_OFF
+    groove_outer = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W
+    if joint_r - p.JOINT_CB_D / 2 < groove_outer + 1.0:
+        fehler.append("M5-Kopfsenkung erreicht die Kleberille: JOINT_BOLT_OFF erhöhen")
+    for side_w in side_top_widths(p):
+        if joint_r + p.JOINT_CB_D / 2 > drainage_start(p, side_w):
+            fehler.append("M5-Kopfsenkung erreicht die Entwässerungsfase: "
+                          "JOINT_BOLT_OFF/Drainage-Keepout prüfen")
     if p.GLUE_GAP < 2.0:
         fehler.append("GLUE_GAP < 2 mm: Thermik-Elastikfuge und Noppen-Fixierflächen brauchen >= 2")
     if p.NOPPLE_FILLET < 0:
@@ -364,27 +415,43 @@ def validate(p: Params = P) -> None:
         if p.BOT_KRAGEN_CLEAR < 0.5:
             fehler.append(f"BOT_KRAGEN_CLEAR={p.BOT_KRAGEN_CLEAR} < 0.5 mm Radialluft: "
                           f"Kragen klemmt im Dachausschnitt (Druck-/Ausschnitt-Toleranzen)")
+        if p.ROOF_WOOD_FRAME_W < 30.0:
+            fehler.append(f"ROOF_WOOD_FRAME_W={p.ROOF_WOOD_FRAME_W} < 30 mm: "
+                          f"Schraubgrund/Kompressionsrahmen zu schmal")
         if p.BOT_KRAGEN_DEPTH > p.ROOF_T - 2.0:
             fehler.append(f"BOT_KRAGEN_DEPTH={p.BOT_KRAGEN_DEPTH} taucht tiefer als "
                           f"Dachstärke-2 ({p.ROOF_T - 2.0:.1f}): Kragen stößt innen durch")
         if p.BOT_KRAGEN_HOLE_Z + p.BOT_KRAGEN_HOLE_D / 2 + 1.0 > p.BOT_KRAGEN_DEPTH:
             fehler.append(f"Kragenloch (z={p.BOT_KRAGEN_HOLE_Z}, Ø{p.BOT_KRAGEN_HOLE_D}) "
                           f"unterschreitet den Kragenrand (Tiefe {p.BOT_KRAGEN_DEPTH})")
-        if min(abs(o) for o in p.BOT_KRAGEN_HOLE_OFFS) < p.LAP_L + 10.0:
-            fehler.append(f"Kragenloch zu nah an der Seitenmitte "
-                          f"(min |Offset| < LAP_L+10 = {p.LAP_L + 10.0:.0f}): "
-                          f"Seitenmitte ist der Segmentstoß")
-        if (max(abs(o) for o in p.BOT_KRAGEN_HOLE_OFFS) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
-                > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
-            fehler.append("Kragenloch läuft in den Eckradius des Unterkragens")
+        hole_sides = p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE
+        if len(hole_sides) != 4 or any(not offsets for offsets in hole_sides):
+            fehler.append("BOT_KRAGEN_HOLE_OFFS_BY_SIDE braucht 4 nichtleere Seitenlisten")
+        else:
+            if bot_kragen_hole_count(p) != 8:
+                fehler.append("Unterkragen braucht genau 8 Löcher: zweite Hälfte der 16 "
+                              "beiliegenden Belluna-ST4.2x25")
+            for side, offsets in enumerate(hole_sides):
+                if len(set(offsets)) != len(offsets):
+                    fehler.append(f"Doppelte Kragenloch-Offsets auf Seite {side}")
+                if min(abs(o) for o in offsets) < p.LAP_L + 10.0:
+                    fehler.append(f"Kragenloch auf Seite {side} zu nah an der Seitenmitte "
+                                  f"(min |Offset| < LAP_L+10 = {p.LAP_L + 10.0:.0f})")
+                if (max(abs(o) for o in offsets) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
+                        > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
+                    fehler.append(f"Kragenloch auf Seite {side} läuft in den Eckradius")
+        if p.BOT_KRAGEN_SCREW_L > p.ROOF_WOOD_FRAME_W:
+            fehler.append(f"ST4.2x{p.BOT_KRAGEN_SCREW_L:.0f} länger als Holzrahmenbreite "
+                          f"{p.ROOF_WOOD_FRAME_W:.0f} mm")
         # Schnittstelle Belluna-Kragen: dessen Spitze (top_z - PLATE_KRAGEN_D)
         # muss OBERHALB der Übergangsfase bleiben (Fasenoberkante = TRANS+0.5,
         # siehe frame._bot_kragen_tools), sonst setzt die Platte auf der
-        # Fase auf statt auf der Deckfläche (GEOM_REV 4)
+        # Fase auf statt auf der Deckfläche (seit GEOM_REV 4; Mindestluft in 5)
         frei = (p.H_RAISE - p.GLUE_GAP) - p.PLATE_KRAGEN_D
-        if p.BOT_KRAGEN_TRANS + 0.5 > frei:
-            fehler.append(f"Übergangsfase (bis z={p.BOT_KRAGEN_TRANS + 0.5:.1f}) "
-                          f"kollidiert mit der Belluna-Kragenspitze (z={frei:.1f}): "
+        z_clear = frei - (p.BOT_KRAGEN_TRANS + 0.5)
+        if z_clear < p.PLATE_KRAGEN_Z_CLEAR_MIN:
+            fehler.append(f"Axialluft Belluna-Kragenspitze↔Übergangsfase nur "
+                          f"{z_clear:.1f} mm (< {p.PLATE_KRAGEN_Z_CLEAR_MIN:.1f}): "
                           f"BOT_KRAGEN_TRANS senken oder H_RAISE erhöhen")
     if fehler:
         raise ValueError("Parameter-Validierung fehlgeschlagen:\n- " + "\n- ".join(fehler))

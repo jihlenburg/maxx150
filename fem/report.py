@@ -21,6 +21,8 @@ def write_report(fem_results: dict, joint_result: dict,
                  f"H_RAISE {p.H_RAISE} mm · Wandstärke effektiv "
                  f"{PRM.effective_wall(p)} mm · **Vierkantwelle "
                  f"{PRM.select_shaft(p):.0f} mm**")
+    lines.append(f"Material: **{p.MATERIAL_NAME}** · E {p.E_BASE:.0f} MPa · "
+                 f"ρ {p.RHO:.0f} kg/m³ · HDT(1,82 MPa) {p.HDT_182:.0f} °C")
     lines.append("")
     ok = True
 
@@ -65,8 +67,13 @@ def write_report(fem_results: dict, joint_result: dict,
     u = A.glue_shear_utilization(p)
     u_ok = u < 1.0
     ok &= u_ok
-    lines.append(f"- Elastikfugen-Auslastung (Thermik, LF5): {u*100:.0f} % "
+    lines.append(f"- Elastikfugen-Auslastung (Thermik, LF5; vollständig gefügter "
+                 f"{max(PRM.outer_dims(p)):.0f}-mm-Rahmen): {u*100:.0f} % "
                  f"→ {'PASS' if u_ok else 'FAIL'}")
+    temp_margin = p.HDT_182 - p.T_MAX
+    lines.append(f"- Materialtemperatur: T_MAX {p.T_MAX:.0f} °C, "
+                 f"HDT(1,82 MPa) {p.HDT_182:.0f} °C, Marge {temp_margin:.0f} K; "
+                 f"Temperatur-Abminderung {p.DERATE_TEMP:.2f} angewendet")
     j = A.joint_checks(p, PRM.wind_force(p))
     ok &= j["PASS"]
     lines.append(f"- Stoß analytisch: τ {j['tau_MPa']:.2f}/{j['tau_zul_MPa']:.2f} MPa, "
@@ -80,13 +87,27 @@ def write_report(fem_results: dict, joint_result: dict,
     ok &= sc["PASS"]
     lines.append(f"- Seitenschrauben-Auszug: {sc['F_zul_N']:.0f} N zulässig ≥ "
                  f"{sc['F_erf_N']:.0f} N erforderlich → {'PASS' if sc['PASS'] else 'FAIL'}")
+    plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
+    if not p.PLATE_KRAGEN_MEASURED:
+        vorbehalt = True
+    plate_status = "gemessen" if p.PLATE_KRAGEN_MEASURED else "angenommen"
+    lines.append(f"- Belluna-Kragenpassung: nominal {plate_clear:.1f} mm Radialluft "
+                 f"mit **{plate_status}em** A3a={p.PLATE_KRAGEN_W:.0f} mm"
+                 + ("; A3a vor Druck messen" if not p.PLATE_KRAGEN_MEASURED else ""))
+    if not p.ROOF_WOOD_FRAME_CONFIRMED:
+        vorbehalt = True
+    lines.append(f"- Dachinterface: 8× ST{p.BOT_KRAGEN_SCREW_D:.1f}×"
+                 f"{p.BOT_KRAGEN_SCREW_L:.0f} in nachzurüstenden Holzrahmen "
+                 f"≥{p.ROOF_WOOD_FRAME_W:.0f} mm; X150-Dach ist {p.ROOF_T:.0f} mm "
+                 f"gesamt und besitzt im Bestand keinen Schraubgrund; Status "
+                 f"{'bestätigt' if p.ROOF_WOOD_FRAME_CONFIRMED else 'vor Montage offen'}")
 
     lines.append("")
     if not ok:
         lines.append("# Gesamtergebnis: **FAIL**")
     elif vorbehalt:
         lines.append("# Gesamtergebnis: **PASS mit Vorbehalt** "
-                     "(Haubenfreigang ungemessen — Messkampagne 7 vor Druck!)")
+                     "(offene Mess-/Einbauvoraussetzungen vor Druck und Montage prüfen)")
     else:
         lines.append("# Gesamtergebnis: **PASS**")
     out = Path(out_path)

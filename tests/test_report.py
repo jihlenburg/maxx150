@@ -22,7 +22,8 @@ def test_report_pass_mit_vorbehalt(tmp="out/test_report_ok.md"):
 
 def test_report_pass_gemessen(tmp="out/test_report_meas.md"):
     # Mit gemessener Kante (Überlapp real, Freigang reicht): echtes PASS
-    p = PRM.Params(HOOD_TIP_REACH=300.0, EDGE_DIST=200.0, EDGE_H=40.0)
+    p = PRM.Params(HOOD_TIP_REACH=300.0, EDGE_DIST=200.0, EDGE_H=40.0,
+                   PLATE_KRAGEN_MEASURED=True, ROOF_WOOD_FRAME_CONFIRMED=True)
     # clearance = 28 + 30 - 40 = 18 >= 5
     ok, vorbehalt = write_report({"LF1_wind": FAKE_OK}, FAKE_OK, p, tmp)
     assert ok is True

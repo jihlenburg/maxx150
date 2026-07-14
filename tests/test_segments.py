@@ -23,13 +23,12 @@ def test_bbox_druckservice():
         assert max(bb.XLength, bb.YLength) <= PRM.P.SEG_MAX_BBOX, \
             f"Segment {bb.XLength:.0f}x{bb.YLength:.0f} zu groß"
 
-def test_identische_segmente_bei_symmetrie():
-    # Voraussetzung: SYMMETRISCHE W_TOP-Defaults (PRM.P). Bei asymmetrischen
-    # W_TOP-Breiten sind unterschiedliche Segmentvolumina korrekt und
-    # ERWARTET (siehe tests/test_asymmetrie.py, das diesen Test bewusst
-    # NICHT wiederholt -- Finalreview I3).
+def test_ausgewogene_segmentvolumina_bei_symmetrie():
+    # Das seitenspezifische ±140/±165-Lochbild erzwingt beschriftete Dateien;
+    # bei symmetrischen W_TOP sollen die Materialmengen trotzdem ausgewogen
+    # bleiben. Das ist ausdrücklich KEIN Identitätsnachweis der Shapes.
     vols = sorted(s.Volume for s in _segs())
-    assert (vols[-1] - vols[0]) / vols[-1] < 0.002   # W_TOP alle gleich -> identisch
+    assert (vols[-1] - vols[0]) / vols[-1] < 0.002
 
 def test_union_ergibt_rahmen_minus_fugenluft():
     segs = _segs()

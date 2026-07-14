@@ -1,11 +1,9 @@
 """Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
 die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
 Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
-Default EIN (CORNER_CHAMBERS=True) -- die Semantik dieses Files dreht sich
-damit: der frühere P_ECK-Sonderfall IST jetzt der Default (PRM.P, EIN-Anker
-1694758.489540970 mm³ aus Task 17), die frühere Default-Geometrie bleibt
-als AUS-Variante (Params(CORNER_CHAMBERS=False), Anker 1736006.070242394
-mm³) beweisbar erhalten (siehe test_eckkammern_default_anker und
+Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-5-Anker enthalten jetzt
+Entwässerungsfase und massive Belluna-Schraubpfade: EIN 1687528.841816324,
+AUS 1719026.358419377 mm³ (siehe test_eckkammern_default_anker und
 test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
 Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
 selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
@@ -123,27 +121,18 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 
 
 def test_eckkammern_default_anker():
-    """Default ist seit Task 20 die EIN-Variante: Volumen-Anker
-    1694758.489540970 mm³ (exakter P_ECK-Anker aus dem Task-17-Report §7,
-    in Task 17/20 verifiziert; seit GEOM_REV 3 als BOT_KRAGEN=False-
-    Variante gebaut, geometrisch identisch). params_hash muss Feldänderungen weiterhin
-    abbilden (Hash-Logik unabhängig vom Flip)."""
+    """GEOM_REV-5-Anker mit Entwässerung und Schraub-Vollzonen."""
     v = _frame_default().Volume
-    assert abs(v - 1694758.489540970) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
+    assert abs(v - 1687528.841816324) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
     assert h_default != h_alt_feld
 
 
 def test_eckkammern_ausschalt_anker():
-    """Die AUS-Variante (Params(CORNER_CHAMBERS=False)) muss geometrisch
-    IDENTISCH zum vor Task 20 verifizierten Default bleiben -- Volumen-Anker
-    1736006.070242394 mm³ (Symmetrie-Anker Ledger 21/22, Task 15; bis
-    Task 19 der Default-Anker). Damit bleibt der alte Stand beweisbar
-    reproduzierbar: der Flip hat NUR den Default gedreht, keine Geometrie
-    verändert (GEOM_REV weiterhin 2)."""
+    """GEOM_REV-5-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 1736006.070242394) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 1719026.358419377) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -155,16 +144,20 @@ def _side_cavities_only(p):
     r_in1, r_out1, r_in2, r_out2 = frame._ring_radii(p)
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = frame._side_neighbor_bounds(p)
+    side_widths = PRM.side_top_widths(p)
+    screw_offsets = frame._plate_screw_offsets_by_chamber_side(p)
     tools = []
     for k in range(4):
         plus_w, minus_w = neighbor_bounds[k]
         plus_half = frame._chamber_cell_centers(p, plus_w)
         minus_half = frame._chamber_cell_centers(p, minus_w)
-        centers = plus_half + [-c for c in minus_half]
+        centers = frame._without_plate_screw_cells(
+            plus_half + [-c for c in minus_half], screw_offsets[k], p)
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
-                cav = frame._chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p)
+                cav = frame._chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L,
+                                            p, side_widths[k])
                 tools.append(F.rotz(cav, k))
     return tools
 
@@ -223,11 +216,10 @@ def test_eckkammern_delta_und_keepout_exakt():
     frame._corner_keepout), die tatsächliche Reichweite der letzten Zelle
     bei Default-CELL_L=45 ist nur 193 mm, es wird also nichts gefiltert und
     das Zellraster bleibt bitidentisch zum Stand ohne Filter. Deshalb ist
-    das Delta AUS-EIN exakt der Task-17-Reportwert 41247.580701424 mm³
-    (= 1736006.070242394 - 1694758.489540970)."""
+    das GEOM_REV-5-Delta AUS-EIN exakt 31497.516603053 mm³."""
     v_eck = _frame_default().Volume
     delta = _frame_aus().Volume - v_eck
-    assert abs(delta - 41247.580701424) < 1.0, f"Delta driftete: {delta:.3f} mm³"
+    assert abs(delta - 31497.516603053) < 1.0, f"Delta driftete: {delta:.3f} mm³"
     keepout = frame._corner_keepout(PRM.P)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"
 

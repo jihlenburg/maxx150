@@ -16,12 +16,10 @@ def test_haubenfreigang_mit_ueberlapp():
 
 def test_fugenauslastung():
     u = A.glue_shear_utilization()
-    # Task 21 (Würth ASA GF15): CTE_ASA unverändert 60e-6 (gleiche Datenblatt-
-    # Lücke wie Bambu ASA-CF, Task 19) -> Formel und Ergebnis UNVERÄNDERT.
-    # Segmentlänge 275 mm, dT = max(85-20, 20-(-20)) = 65 K,
-    # dAlpha = (60-25)e-6 = 35e-6: delta = 35e-6*275*65 = 0.625625 mm;
-    # je Ende 0.3128125; gamma = 0.104271; /GLUE_SHEAR_CAP(0.5) = 0.208542 (~21 %).
-    assert 0.15 < u < 0.30
+    # Vollständig epoxidverklebter Rahmen: 500 mm statt Drucksegment-Länge.
+    # Standard-ASA-CTE-Annahme 90e-6: delta=(90-25)e-6*500*65=2.1125 mm;
+    # je Ende /2, durch 3-mm-Fuge und 50-%-Grenze => 70.4167 %.
+    assert abs(u - 0.7041666667) < 1e-8
 
 
 def test_stossnachweis_traegt_windlast():
@@ -41,7 +39,6 @@ def test_klebfugen_schub_aus_last():
 def test_seitenschrauben_auszug():
     r = A.side_screw_pullout(PRM.P)
     assert r["F_zul_N"] > 150.0            # je Schraube, dauerfest
-    # Sollwert statt nur Schwelle (Ledger 15, Task-5-Review). Task 21 (Würth
-    # ASA GF15): pi*4.2*12*0.5*4.50 = 356.2566 (gerundet 356.26).
-    assert abs(r["F_zul_N"] - 356.26) < 5.0
+    # Standard-ASA: pi*4.2*12*0.5*3.36 = 266.00 N.
+    assert abs(r["F_zul_N"] - 266.00) < 1.0
     assert r["PASS"]

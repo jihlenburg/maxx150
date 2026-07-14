@@ -161,6 +161,24 @@ def _side_neighbor_bounds(p: PRM.Params):
     )
 
 
+def _plate_screw_offsets_by_chamber_side(p: PRM.Params):
+    """Belluna-Seitenlöcher in Kammerreihenfolge REAR, RIGHT, FRONT, LEFT.
+
+    ``BOT_KRAGEN_HOLE_OFFS_BY_SIDE`` ist in der Werkzeug-Rotationsreihenfolge
+    RIGHT, FRONT, LEFT, REAR abgelegt. Ober- und Unterinterface verwenden
+    bewusst dieselben acht äußeren Belluna-Positionen.
+    """
+    right, front, left, rear = p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE
+    return rear, right, front, left
+
+
+def _without_plate_screw_cells(centers, offsets, p: PRM.Params):
+    """Entfernt Kammerzellen, die den radialen ST4.2-Schraubpfad kreuzen."""
+    keep = p.CELL_L / 2 + p.PLATE_SCREW_KEEP_HALF
+    return [center for center in centers
+            if all(abs(center - offset) > keep for offset in offsets)]
+
+
 def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
     """Anzahl der Kammer-SLOTS (u-Positionen) über ALLE 4 Seiten, SUMME je
     Seite (Ledger 21/22: nicht mehr 4x2xn, weil jede Seite jetzt ihr eigenes
@@ -173,28 +191,40 @@ def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
     if not p.CHAMBERS:
         return 0
     total = 0
-    for plus_w, minus_w in _side_neighbor_bounds(p):
-        total += len(_chamber_cell_centers(p, plus_w))
-        total += len(_chamber_cell_centers(p, minus_w))
+    screw_offsets = _plate_screw_offsets_by_chamber_side(p)
+    for k, (plus_w, minus_w) in enumerate(_side_neighbor_bounds(p)):
+        centers = (_chamber_cell_centers(p, plus_w)
+                   + [-c for c in _chamber_cell_centers(p, minus_w)])
+        total += len(_without_plate_screw_cells(centers, screw_offsets[k], p))
     return total
 
 
-def _chamber_profile_face(r_in, r_out, apex_z, y0, p):
-    """Kammerquerschnitt als (r,z)-Polygon in der Ebene y=y0: flache Decke
-    (z = top_z - DECK_T), senkrechte Wände bei r_in/r_out, Boden als Zelt
-    (Chevron-Apex mittig bei apex_z)."""
-    z_top = top_z(p) - p.DECK_T
+def _chamber_profile_face(r_in, r_out, apex_z, y0, p, side_width=None,
+                          z_top_override=None):
+    """Kammerquerschnitt als (r,z)-Polygon in der Ebene y=y0.
+
+    Gerade Außenkammern folgen mit ihrer Decke der Entwässerungsfase, damit
+    darüber überall ``DECK_T`` Material stehen bleibt. Eckkammern können eine
+    konservativ abgesenkte, ebene Decke über ``z_top_override`` erhalten.
+    """
+    if z_top_override is not None:
+        z_top_in = z_top_out = z_top_override
+    elif side_width is not None:
+        z_top_in = PRM.top_surface_z(p, r_in, side_width) - p.DECK_T
+        z_top_out = PRM.top_surface_z(p, r_out, side_width) - p.DECK_T
+    else:
+        z_top_in = z_top_out = top_z(p) - p.DECK_T
     z_bot = p.BOTTOM_T
     r_mid = (r_in + r_out) / 2
-    pts = [Vector(r_in, y0, z_bot), Vector(r_in, y0, z_top),
-           Vector(r_out, y0, z_top), Vector(r_out, y0, z_bot),
+    pts = [Vector(r_in, y0, z_bot), Vector(r_in, y0, z_top_in),
+           Vector(r_out, y0, z_top_out), Vector(r_out, y0, z_bot),
            Vector(r_mid, y0, apex_z)]
     wire = Part.makePolygon(pts + [pts[0]])
     return Part.Face(wire)
 
 
-def _chamber_cavity(r_in, r_out, apex_z, y0, length, p):
-    face = _chamber_profile_face(r_in, r_out, apex_z, y0, p)
+def _chamber_cavity(r_in, r_out, apex_z, y0, length, p, side_width=None):
+    face = _chamber_profile_face(r_in, r_out, apex_z, y0, p, side_width)
     return face.extrude(Vector(0, length, 0))
 
 
@@ -298,10 +328,22 @@ def _corner_chamber_cuts(p: PRM.Params):
         raise RuntimeError("frame: CORNER_ANGLE_MARGIN >= 45 lässt keinen Eck-Sektor übrig "
                            "(PRM.validate sollte das vorher abfangen)")
 
+    # Die Entwässerungsfasen schneiden an den Ecksektor-Rändern tiefer als
+    # auf den geraden Ringprofilen. Eine einheitlich abgesenkte Eckkammerdecke
+    # hält dort konservativ mindestens DECK_T Material geschlossen.
+    corner_axis_max = off + (r_out2 - off) * math.cos(math.radians(margin))
+    corner_drop = max(
+        max(0.0, corner_axis_max - PRM.drainage_start(p, side_w))
+        * math.tan(math.radians(p.TOP_DRAIN_DEG))
+        for side_w in PRM.side_top_widths(p)
+    )
+    corner_z_top = top_z(p) - p.DECK_T - corner_drop
+
     tools = []
     cr_out1 = r_out1 - off
     for r_in, r_out in ((r_in1 - off, cr_out1), (r_in2 - off, r_out2 - off)):
-        face = _chamber_profile_face(r_in, r_out, apex_z, 0.0, p)
+        face = _chamber_profile_face(r_in, r_out, apex_z, 0.0, p,
+                                     z_top_override=corner_z_top)
         face.rotate(Vector(0, 0, 0), Vector(0, 0, 1), margin)
         solid = face.revolve(Vector(0, 0, 0), Vector(0, 0, 1), sweep)
         solid.translate(Vector(off, off, 0))
@@ -354,17 +396,21 @@ def _chamber_cuts(p: PRM.Params):
     r_in1, r_out1, r_in2, r_out2 = _ring_radii(p)
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = _side_neighbor_bounds(p)
+    side_widths = PRM.side_top_widths(p)
+    screw_offsets = _plate_screw_offsets_by_chamber_side(p)
 
     tools = []
     for k in range(4):
         plus_w, minus_w = neighbor_bounds[k]
         plus_half = _chamber_cell_centers(p, plus_w)
         minus_half = _chamber_cell_centers(p, minus_w)
-        centers = plus_half + [-c for c in minus_half]
+        centers = _without_plate_screw_cells(
+            plus_half + [-c for c in minus_half], screw_offsets[k], p)
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
-                cav = _chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p)
+                cav = _chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p,
+                                      side_widths[k])
                 tools.append(F.rotz(cav, k))
             # Vent 1: Innenfläche (Öffnungskante) -> Kammerring 1 (durch INNER_WALL)
             v1 = Part.makeCylinder(p.VENT_D / 2, p.INNER_WALL + 2,
@@ -380,6 +426,32 @@ def _chamber_cuts(p: PRM.Params):
     return tools
 
 
+def _drainage_cuts(p: PRM.Params):
+    """Druckbare, nach außen fallende Deckfasen auf allen vier Seiten.
+
+    Die kanonische Fase liegt an +x (REAR) und wird wie Kammern/Segmente um
+    90° rotiert. 47° sind in der vorgesehenen Druckorientierung selbsttragend;
+    die Belluna-Auflage und die M5-Kopfsenkungen bleiben vollständig eben.
+    """
+    big = 2000.0
+    h = top_z(p)
+    slope = math.tan(math.radians(p.TOP_DRAIN_DEG))
+    tools = []
+    for k, side_w in enumerate(PRM.side_top_widths(p)):
+        outer = p.CUTOUT_W / 2 + side_w
+        start = PRM.drainage_start(p, side_w)
+        x_end = outer + 2.0
+        z_end = h - (x_end - start) * slope
+        y0 = -big / 2
+        pts = [Vector(start, y0, h),
+               Vector(start, y0, h + 2.0),
+               Vector(x_end, y0, h + 2.0),
+               Vector(x_end, y0, z_end)]
+        face = Part.Face(Part.makePolygon(pts + [pts[0]]))
+        tools.append(F.rotz(face.extrude(Vector(0, big, 0)), k))
+    return tools
+
+
 def _nopple_positions(p):
     """Zwei Noppenringe: innen (zwischen Öffnung und Rille) und außen
     (zwischen Rille und Außenkante)."""
@@ -391,10 +463,10 @@ def _nopple_positions(p):
 
 
 def _bot_kragen_tools(p):
-    """Unterkragen (GEOM_REV 3): dupliziert den Belluna-Einbaukragen nach
+    """Unterkragen: dupliziert den Belluna-Einbaukragen nach
     unten -- taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und trägt
-    3 seitliche Schraubenlöcher je Seite (12 gesamt, Belluna-Anleitungs-
-    Methode). Rückgabe (fuse_teile, loch_cutter).
+    2 seitliche Schraubenlöcher je Seite (8 gesamt, die äußeren Positionen
+    des gemessenen Belluna-Lochbilds). Rückgabe (fuse_teile, loch_cutter).
 
     Aufbau: Der Kragen (außen CUTOUT_W-2*CLEAR) liegt radial INNERHALB der
     Öffnungswand und hätte allein keinen Materialkontakt. Ein Übergangsring
@@ -409,7 +481,7 @@ def _bot_kragen_tools(p):
     ki = ko - 2 * p.BOT_KRAGEN_T                       # innen
     r_out = max(1.0, p.CUTOUT_R - p.BOT_KRAGEN_CLEAR)  # Ecke bleibt in der R5-Ecke
     r_in = max(0.5, r_out - 1.0)
-    # Fasenoberkante bewusst NIEDRIG (TRANS+0.5 statt +2, GEOM_REV 4): die
+    # Fasenoberkante bewusst niedrig (TRANS+0.5): die
     # Belluna-Kragenspitze taucht bis top_z - PLATE_KRAGEN_D (= z 6 bei
     # Defaults) in die Öffnung -- validate() sichert den Freigang
     trans_h = p.BOT_KRAGEN_TRANS + 0.5
@@ -427,10 +499,10 @@ def _bot_kragen_tools(p):
 
     cutters = []
     z_loch = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
-    for off in p.BOT_KRAGEN_HOLE_OFFS:
-        zyl = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2, p.BOT_KRAGEN_T + 4,
-                                Vector(off, ki / 2 - 2, z_loch), Vector(0, 1, 0))
-        for k in range(4):
+    for k, offsets in enumerate(p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE):
+        for off in offsets:
+            zyl = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2, p.BOT_KRAGEN_T + 4,
+                                    Vector(off, ki / 2 - 2, z_loch), Vector(0, 1, 0))
             cutters.append(F.rotz(zyl, k))
     return [trans, kragen], cutters
 
@@ -464,6 +536,12 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
         if not body.isValid():
             raise RuntimeError("frame: Kammer-Cuts ergaben ungültigen Körper")
 
+    # Bewitterte 25-mm-Außenablage der 450er Belluna-Platte entwässern.
+    body = body.cut(Part.makeCompound(_drainage_cuts(p)))
+    body = body.removeSplitter()
+    if not body.isValid():
+        raise RuntimeError("frame: Entwässerungsfasen ergaben ungültigen Körper")
+
     # Kleberille unten
     g_in = p.CUTOUT_W + 2 * p.GROOVE_OFF
     groove = F.ring(g_in + 2 * p.GROOVE_W, g_in + 2 * p.GROOVE_W,
@@ -473,7 +551,7 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     groove.translate(Vector(0, 0, -1))
     body = body.cut(groove)
 
-    # Unterkragen (GEOM_REV 3): VOR der Außenfase fusen/bohren -- der
+    # Unterkragen: VOR der Außenfase fusen/bohren -- der
     # Fasen-Kantenfilter unten greift nur nahe der Außenkontur und bleibt
     # vom innenliegenden Kragen unberührt
     if p.BOT_KRAGEN:

@@ -55,7 +55,7 @@ def _one_segment(frame, p, k):
     # die Noppenbasis ausdehnen, damit eine im Stoßband liegende Noppe IMMER
     # vollständig abgegeben wird (nie angeschnitten):
     z_lap0 = -(p.GLUE_GAP + 1)
-    # Unterkragen (GEOM_REV 3): Lappenwerkzeuge bis unter die Kragenkante
+    # Unterkragen: Lappenwerkzeuge bis unter die Kragenkante
     # ziehen, damit der Halbüberlappungsstoß auch durch den Kragen läuft
     # (statt eines gemischten Lap/Stumpf-Stoßes ab z=-GLUE_GAP-1). Die
     # Kragenlöcher liegen per validate() mindestens LAP_L+10 von der

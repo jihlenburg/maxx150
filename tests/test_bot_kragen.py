@@ -1,8 +1,9 @@
-"""Unterkragen (GEOM_REV 3): Geometrie-, Validate- und DFM-Wächter."""
+"""Unterkragen: Geometrie-, Schraubbild-, Validate- und DFM-Wächter."""
 import Part
 from FreeCAD import Vector
 
 import params as PRM
+from model import features as F
 from model.dfm import overhang_area
 from model.frame import build_frame
 
@@ -44,12 +45,17 @@ def test_loecher_vorhanden_und_frei():
     ki = p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR - 2 * p.BOT_KRAGEN_T
     z = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
     frame = _frame()
-    for off in p.BOT_KRAGEN_HOLE_OFFS:
-        sonde = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
-                                  p.BOT_KRAGEN_T + 2,
-                                  Vector(off, ki / 2 - 1, z), Vector(0, 1, 0))
-        rest = frame.common(sonde)
-        assert rest.Volume < 1e-6, f"Loch bei Offset {off} fehlt (V={rest.Volume:.1f})"
+    geprueft = 0
+    for k, offsets in enumerate(p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE):
+        for off in offsets:
+            sonde = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
+                                      p.BOT_KRAGEN_T + 2,
+                                      Vector(off, ki / 2 - 1, z), Vector(0, 1, 0))
+            rest = frame.common(F.rotz(sonde, k))
+            assert rest.Volume < 1e-6, \
+                f"Loch Seite {k}, Offset {off} fehlt (V={rest.Volume:.1f})"
+            geprueft += 1
+    assert geprueft == PRM.bot_kragen_hole_count(p) == 8
     daneben = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
                                 p.BOT_KRAGEN_T + 2,
                                 Vector(20, ki / 2 - 1, z), Vector(0, 1, 0))
@@ -64,7 +70,9 @@ def test_ohne_kragen_flach_und_anderer_hash():
 
 
 def test_validate_faengt_kragen_brecher():
-    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS=(0.0, 140.0, -140.0)),
+    lochbild_mit_stossloch = ((-165.0, 165.0), (-140.0, 0.0, 140.0),
+                              (-165.0, 165.0), (-140.0, 140.0))
+    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS_BY_SIDE=lochbild_mit_stossloch),
                    PRM.Params(BOT_KRAGEN_DEPTH=34.0),
                    PRM.Params(BOT_KRAGEN_HOLE_Z=17.0),
                    PRM.Params(BOT_KRAGEN_CLEAR=0.2)):
@@ -78,7 +86,7 @@ def test_validate_faengt_kragen_brecher():
 def test_kragen_volumendelta_plausibel():
     """Default gegen die BOT_KRAGEN=False-Variante mit sonst identischen
     Parametern: das Delta ist NUR der Unterkragen (Ring ~398x4x21 +
-    Übergangsring - 12 Löcher). Bewusst kein Vergleich gegen die
+    Übergangsring - 8 Löcher). Bewusst kein Vergleich gegen die
     Eckkammern-Anker mehr -- die pinnen seit der Messkampagne alte
     CELL_L/REC_GUSSET-Werte."""
     ohne = build_frame(PRM.Params(BOT_KRAGEN=False))
