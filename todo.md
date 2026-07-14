@@ -59,6 +59,22 @@ Wegwerf-Kopie + `validate()` belegt (Chat 2026-07-13):
       (G1=1 breit, G2=100 Teilung -> +-50/+-150) + Eck-Gussets,
       Lochbild F1a: Mitte+-140 (2 Seiten) / F1b: +-165 (2 Seiten).
 
+## Dach-Vorabinfo 2026-07-14 (User): XPS 35, Ausschnitt verbaut
+
+- [x] B3 AUFGELOEST (User-Korrektur 2026-07-14): Dach = 35 GESAMT ->
+      B3=35 eingetragen, 140er-Welle bestaetigt (effektiv 63, Band 48-67,
+      4 mm Marge). Kontrollmessung am offenen Ausschnitt bei Demontage
+      (bei > 39 wuerde die Wahl auf die 160er kippen -- unwahrscheinlich).
+- [x] Schrauben-Substrat GELOEST (User-Entscheid 2026-07-14): beim Einbau
+      wird ein Holzrahmen um den Ausschnitt ins XPS gebaut (Bestand: Heki
+      nur geklebt, kein Holz vorhanden) -> Schrauben greifen ins Holz,
+      tragende Redundanz steht. Montagenotiz auf Einbauschritt umgestellt.
+      Werkstoffliste: wasserfest verleimtes Holz (Hoehe = Kernstaerke,
+      Breite >= 30), PU-Leim. Offen bleibt nur der optionale Auszugs-
+      Nachweis Ø4-in-Holz (unkritisch, Holz >> Kunststoffwerte).
+- [ ] C1a/C2 erst bei Demontage: realen Ausschnitt messen BEVOR der
+      Unterkragen (398, Radialluft 1 mm/Seite) eingesetzt wird.
+
 ## Externes Review 2026-07-14 — Adjudikation
 
 SOFORT GEFIXT (Commit folgt):

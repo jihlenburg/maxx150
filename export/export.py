@@ -84,12 +84,16 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   **12 Schrauben Ø{p.BOT_KRAGEN_HOLE_D:.0f} (3 je Seite)** durch die
   Kragenlöcher seitlich in den Ausschnittsrand (3-mm-Kernloch vorbohren) —
   Methode der Belluna-Anleitung; fixiert den Rahmen lagerichtig, während
-  der Kleber aushärtet. **VORBEHALT Substrat**: Was der Ausschnittsrand in
-  10 mm Tiefe trägt (GFK-Haut/XPS-Schaum/Holzeinleger), ist UNGEPRÜFT — bei
-  der Mini-Heki-Demontage den Schnittrand inspizieren (Messpunkt C2) und
-  eine Probeschraube setzen; greift sie nur in Schaum, zählen die Schrauben
-  als Lagesicherung, NICHT als tragende Redundanz (der Kleber bleibt dann
-  die alleinige tragende Dach-Verbindung wie ursprünglich ausgelegt).
+  der Kleber aushärtet. **EINBAUSCHRITT Holzrahmen** (User-
+  Entscheid 2026-07-14; Bestand: Mini-Heki nur geklebt, KEIN Holz im
+  35-mm-XPS-Kern): Nach der Demontage rund um den 400×400-Ausschnitt den
+  XPS-Randstreifen ausräumen und einen wasserfest verleimten Holzrahmen
+  (Höhe = Kernstärke, Breite ≥ 30 mm) mit PU-Leim einsetzen — übliche
+  Praxis; er ist Schraubgrund UND Kompressionsschutz des Sandwichs. Die
+  12 Ø4-Schrauben greifen dann durch die GFK-Haut ins Holz (Kernloch 3)
+  und sind damit tragende Redundanz zum Kleber. Vor dem Einsetzen den
+  realen Ausschnitt messen (C1a, Soll 400×400) — der Unterkragen (398)
+  braucht rundum Luft; Schnittkanten des XPS vor dem Verkleben versiegeln.
 - Carloflex/Sika-252-Raupe in die untere Kleberille: ca. **{bead_ml:.0f} ml**
   (+ Kehlnaht außen). Noppen definieren {p.GLUE_GAP} mm Fugendicke — NICHT auspressen.
 - Karosseriebefestigungsplatte mit Carloflex in der Ringklebenut auf die
