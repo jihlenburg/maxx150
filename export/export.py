@@ -79,6 +79,12 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 
 ## Verkleben auf dem Dach
 - Untergrund: Mini-Heki-Altbett vollständig entfernen, mit Isopropanol reinigen.
+- Der **Unterkragen** taucht in den Dachausschnitt ({p.BOT_KRAGEN_CLEAR} mm
+  Radialluft je Seite) und zentriert den Rahmen. Nach dem Ausrichten:
+  **12 Schrauben Ø{p.BOT_KRAGEN_HOLE_D:.0f} (3 je Seite)** durch die
+  Kragenlöcher seitlich in den Ausschnittsrand (3-mm-Kernloch vorbohren) —
+  Methode der Belluna-Anleitung; fixiert den Rahmen lagerichtig und
+  mechanisch redundant, während der Kleber aushärtet.
 - Carloflex/Sika-252-Raupe in die untere Kleberille: ca. **{bead_ml:.0f} ml**
   (+ Kehlnaht außen). Noppen definieren {p.GLUE_GAP} mm Fugendicke — NICHT auspressen.
 - Karosseriebefestigungsplatte mit Carloflex in der Ringklebenut auf die

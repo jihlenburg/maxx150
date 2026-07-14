@@ -3,6 +3,74 @@
 Detail-Historie: `.superpowers/sdd/progress.md` (Ledger). Vor-Merge-Fixes laufen separat
 (validate(p), M5-Kommentare, Normlänge) — dieses File sammelt NUR die Follow-ups.
 
+## Messkampagne A (2026-07-13): offene Design-Entscheidungen VOR dem Patch
+
+Messwerte liegen in `messwerte.json` (Gruppe A weitgehend komplett; B + A3a/A3c/A4b
+offen). Zwei Befunde verhindern die blinde 1:1-Übernahme — beide per
+Wegwerf-Kopie + `validate()` belegt (Chat 2026-07-13):
+
+- [ ] **W_TOP-Entscheidung**: Plattenflansch real nur 26 mm je Seite (A1c–f,
+      Platte 450×450 VOLL symmetrisch — nur der Lüfter kragt nach hinten aus).
+      1:1-Übernahme (Adapter 452×452) scheitert dreifach an validate():
+      Außenwand hinter Kammerring 2 = −16 mm, M5-Senkung erreicht Außenwand.
+      EMPFEHLUNG: W_TOP=50 belassen (Adapter bleibt 500×500 wie FEM-verifiziert,
+      Platte liegt mittig, ~24 mm Deckflächen-Rand frei — Klebetrog A2a/A2b
+      landet sicher auf dem Deck). Alternative (Optik): W_TOP=45 → 490×490,
+      erfordert FEM-Re-Run. User entscheidet.
+- [ ] **REC_GUSSET-Entscheidung**: A4a = A3b = 20 mm — ABER Fotos zeigen:
+      Kragen + Clips + (vermutlich) Gussets zeigen nach OBEN zum Lüfter-Sockel,
+      nicht nach unten. Mapping A4a→REC_GUSSET_D (20,5) NICHT anwenden
+      (validate-Beweis: Deckrest −15,5). Tischtest beim User angefragt
+      (Trogseite unten, liegt die Flanschfläche satt auf?); wenn satt:
+      REC_GUSSET_D=0 setzen (model/frame.py: verträgt der Freistellungs-Cut
+      D=0? DFM-Brückenzone Gusset-Freistellung entfällt dann).
+- [ ] **Befestigungskonzept BESTÄTIGT (Seitenfoto)**: Platte hat ZWEI Kragen —
+      oben Clip-Kragen (Lüfter-Sockel, A3b/A5a/A5b), unten Einbaukragen
+      (~20 mm tief = A4a) mit SEITLICHEN Befestigungslöchern → Spec-Konzept
+      „seitliche Schrauben Einbaukragen→Adapter-Innenwand" gilt unverändert,
+      fem/analytic.py::side_screw_pullout bleibt. Noch nötig: F1–F3 (Loch-
+      Anzahl/Positionen, z-Lage unter Flansch, Ø) + A3a/A3c am UNTEREN Kragen;
+      Abgleich z-Lage ↔ INNER_WALL (voll massiv, unkritisch erwartet).
+      REC_GUSSET_D=0 umsetzen (Gussets tauchen mit ein; frame.py D=0 prüfen,
+      DFM-Brückenzone Gusset-Freistellung entfällt). B4-Messhinweis: Platte
+      auf zwei Leisten, Kragen frei, bis FLANSCH-UNTERSEITE messen.
+- [ ] A2c ist INVERS (−2-mm-Trog mit 2 dünnen Stegen, Stege tragen nicht) —
+      Skizze `docs/messkampagne/messskizze_A_platte.svg` korrigiert;
+      Auswirkung: Kleberaupe Platte→Deck bekommt definierte ~2 mm Dicke über
+      Trogtiefe. Kein params-Feld betroffen.
+- [ ] **Kreuzcheck Mittelloch <-> Segmentstoss**: Lochbild unterer Kragen
+      (gemessen): 2 Seiten mit 3 Löchern (Mitte + Paar), 2 mit 2. Das
+      MITTELLOCH liegt an der Seitenmitte = genau am Segmentstoss, F2 final
+      GEMESSEN: Lochmitte 10 unter der Auflage = 15 über Adapter-Boden;
+      Schraube Ø4 spannt 12..17 mm über Boden, Lap-Teilungsebene liegt bei
+      12,5 — nur ~0,5 mm Luft zur Fuge. Schraube in die Stossfuge wäre schlecht: AUFGELÖST
+      2026-07-13 (F1 gemessen: Mitte+-140 bzw. +-165): Ausweich-Orientierung
+      gibt es NICHT (alle 4 Seiten tragen einen Stoss in Seitenmitte).
+      Empfehlung: die 2 Mittellöcher planmäßig UNGENUTZT lassen -> 8
+      Schrauben (8 x 356 N Auszug >> Lastniveau); optional nach Epoxid-
+      Aushärtung als Dübel-Bonus setzen (3-mm-Kernloch, kreuzt die verklebte
+      Lap-Teilungsebene). Alle Aussenpaare (+-140/+-165) liegen frei von der
+      +-40-Stosszone, Innenwand ist ohnehin umlaufend massiv. In die
+      Montagenotiz übernehmen (beim nächsten Parameterlauf).
+- [ ] Noch zu messen: B1a/B1b/B2 (Freigang-Gate!), B3, B4, A3a, A3c,
+      F2 (Loch-z) + F3 (Loch-Ø), Flanschdicke. Erledigt 2026-07-13
+      nachmittags: A4b entfällt (Gussets innen), A6=346, A7=40, A8=6, A9=3,
+      A10=2x8, Unterseiten-Kanalprofil 8/2/6/2/6/2, Gussets 4/Seite
+      (G1=1 breit, G2=100 Teilung -> +-50/+-150) + Eck-Gussets,
+      Lochbild F1a: Mitte+-140 (2 Seiten) / F1b: +-165 (2 Seiten).
+
+## Unterkragen (GEOM_REV 3, 2026-07-13)
+
+- [x] Unterkragen implementiert (params BOT_KRAGEN_*, frame._bot_kragen_tools,
+      Segmente-Lappen bis Kragenkante, DFM-Zone 7, Montagenotiz, 6 Tests grün,
+      validate()-Gates). 12 Löcher = 3 je Seite bei -140/+60/+140 (identische
+      Segmente; User-Entscheidung statt exakt 10 wie Anleitung).
+- [ ] Volle Suite + run_all nach B-Messwerten (ein Lauf für alles); FEM-Report
+      neu (Hash wechselt durch GEOM_REV 3 + BOT_KRAGEN-Felder).
+- [ ] fem/analytic: Auszugs-/Lochleibungs-Nachweis der 12 Dachschrauben
+      ergänzen (analog side_screw_pullout; nicht blockierend -- Schrauben sind
+      Redundanz ZUM Kleber, nicht alleinige Befestigung).
+
 ## Pflichtpaket VOR dem Messkampagnen-Re-Run
 - [ ] Würth/OEM nach gedruckten Kennwerten (XY+Z) und CTE fragen — würde
       Annahmen durch Messwerte ersetzen (senkt Fugenauslastung von 21 % weiter

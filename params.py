@@ -14,7 +14,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
-    GEOM_REV: int = 2
+    GEOM_REV: int = 4            # 3: Unterkragen; 4: Übergangsfase abgesenkt
+                                  # (Freigang zur Belluna-Kragenspitze)
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung, Messkampagne 6)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -39,7 +40,13 @@ class Params:
     R_OUT: float = 12.0          # Außeneckenradius
     # --- Freistellung Gussets oben innen (Messkampagne 4) ---
     REC_GUSSET_W: float = 18.0
-    REC_GUSSET_D: float = 3.0
+    REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (Messkampagne 4 erledigt):
+                                  # die Belluna-Gussets tauchen mit dem Unterkragen
+                                  # in den Ausschnitt, NICHTS ragt über die
+                                  # Auflageebene -> keine Deck-Freistellung.
+                                  # 0 = Cut wird zum No-Op (Ring liegt über der
+                                  # Deckfläche); Passungstest render/passung_
+                                  # stapel.py: mit 3.0 trugen nur 2 mm Außensteg!
     # --- Unterseite: Kleberille + Noppen ---
     GROOVE_OFF: float = 15.0     # Rillenbeginn ab Öffnungskante
     GROOVE_W: float = 8.0
@@ -60,6 +67,25 @@ class Params:
     JOINT_NUT_AF: float = 8.0    # Sechskant-Schlüsselweite Muttertasche (M5)
     JOINT_NUT_T: float = 4.0
     SEG_MAX_BBOX: float = 300.0  # zulässige Segment-Boundingbox (Druckservice)
+    # --- Unterkragen (User-Entscheidung 2026-07-13): dupliziert den Belluna-
+    # Einbaukragen nach UNTEN -- taucht in den Dachausschnitt und wird dort
+    # SEITLICH verschraubt (Methode der Belluna-Anleitung; mechanische
+    # Redundanz zum Kleber am Dach-Interface). 12 Löcher = 3 je Seite:
+    # identische Segmente erzwingen Vielfache von 4, daher 12 statt der 10
+    # der Anleitung (User-Entscheidung); KEIN Loch bei 0 (Seitenmitte =
+    # Segmentstoß). Druckorientierung kopfüber -> Kragen zeigt im Druck nach
+    # oben, 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
+    BOT_KRAGEN: bool = True
+    BOT_KRAGEN_T: float = 4.0        # Wandstärke
+    BOT_KRAGEN_CLEAR: float = 1.0    # Radialluft je Seite im 400er-Ausschnitt
+    BOT_KRAGEN_DEPTH: float = 19.0   # Eintauchtiefe unter die Dachoberfläche (wie Belluna)
+    BOT_KRAGEN_TRANS: float = 5.0    # 45°-Übergangsfase Öffnungswand -> Kragen
+    BOT_KRAGEN_HOLE_D: float = 4.0   # Schraubenloch (Kernloch 3 im Dach vorbohren)
+    BOT_KRAGEN_HOLE_Z: float = 10.0  # Lochmitte unter Dachoberfläche (wie Belluna)
+    BOT_KRAGEN_HOLE_OFFS: tuple = (-140.0, 60.0, 140.0)  # je Seite, ab Seitenmitte
+    PLATE_KRAGEN_D: float = 19.0     # Belluna-Einbaukragen-Tiefe (A4a GEMESSEN
+                                      # 2026-07-13): dessen Spitze endet bei
+                                      # top_z - 19 -- Schnittstellen-Gate unten
     # --- Lüfter / Lasten (Spec §3/§6) ---
     FAN_MASS: float = 6.5        # kg (Maxxfan-Hüllkurve; Belluna 5.0)
     V_DESIGN_KMH: float = 200.0  # 160 Reise + Böenreserve
@@ -156,7 +182,11 @@ class Params:
     INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
     CHAMBER_W: float = 15.0    # radiale Kammerbreite (2 konzentrische Ringe)
     CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
-    CELL_L: float = 45.0       # Zellenteilung entlang der Seite
+    CELL_L: float = 43.0       # Zellenteilung entlang der Seite. 45->43
+                                # (2026-07-13, Passungstest): rückt die Vent-
+                                # Kanäle (an den Zellzentren, VENT_Z 17) von den
+                                # Belluna-F-Schrauben (±165, z 15) weg -- bei 45
+                                # lag Vent 161.5 nur 0.03 mm an der Schraube
     CELL_RIB: float = 3.0      # Quersteg zwischen Zellen
     SOLID_CORNER: float = 45.0 # massiv ab Eck-Außenkante
     SOLID_JOINT_HALF: float = 40.0  # massiv um Seitenmitte (deckt Lap + M5)
@@ -330,5 +360,31 @@ def validate(p: Params = P) -> None:
                     f"Eckkammer-Keepout {corner_keepout:.2f} mm liegt nicht über "
                     f"SOLID_JOINT_HALF {p.SOLID_JOINT_HALF}: kein Platz für irgendeine Zelle "
                     f"im Band (CORNER_ANGLE_MARGIN erhöhen oder CORNER_GAP senken)")
+    if p.BOT_KRAGEN:
+        if p.BOT_KRAGEN_CLEAR < 0.5:
+            fehler.append(f"BOT_KRAGEN_CLEAR={p.BOT_KRAGEN_CLEAR} < 0.5 mm Radialluft: "
+                          f"Kragen klemmt im Dachausschnitt (Druck-/Ausschnitt-Toleranzen)")
+        if p.BOT_KRAGEN_DEPTH > p.ROOF_T - 2.0:
+            fehler.append(f"BOT_KRAGEN_DEPTH={p.BOT_KRAGEN_DEPTH} taucht tiefer als "
+                          f"Dachstärke-2 ({p.ROOF_T - 2.0:.1f}): Kragen stößt innen durch")
+        if p.BOT_KRAGEN_HOLE_Z + p.BOT_KRAGEN_HOLE_D / 2 + 1.0 > p.BOT_KRAGEN_DEPTH:
+            fehler.append(f"Kragenloch (z={p.BOT_KRAGEN_HOLE_Z}, Ø{p.BOT_KRAGEN_HOLE_D}) "
+                          f"unterschreitet den Kragenrand (Tiefe {p.BOT_KRAGEN_DEPTH})")
+        if min(abs(o) for o in p.BOT_KRAGEN_HOLE_OFFS) < p.LAP_L + 10.0:
+            fehler.append(f"Kragenloch zu nah an der Seitenmitte "
+                          f"(min |Offset| < LAP_L+10 = {p.LAP_L + 10.0:.0f}): "
+                          f"Seitenmitte ist der Segmentstoß")
+        if (max(abs(o) for o in p.BOT_KRAGEN_HOLE_OFFS) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
+                > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
+            fehler.append("Kragenloch läuft in den Eckradius des Unterkragens")
+        # Schnittstelle Belluna-Kragen: dessen Spitze (top_z - PLATE_KRAGEN_D)
+        # muss OBERHALB der Übergangsfase bleiben (Fasenoberkante = TRANS+0.5,
+        # siehe frame._bot_kragen_tools), sonst setzt die Platte auf der
+        # Fase auf statt auf der Deckfläche (GEOM_REV 4)
+        frei = (p.H_RAISE - p.GLUE_GAP) - p.PLATE_KRAGEN_D
+        if p.BOT_KRAGEN_TRANS + 0.5 > frei:
+            fehler.append(f"Übergangsfase (bis z={p.BOT_KRAGEN_TRANS + 0.5:.1f}) "
+                          f"kollidiert mit der Belluna-Kragenspitze (z={frei:.1f}): "
+                          f"BOT_KRAGEN_TRANS senken oder H_RAISE erhöhen")
     if fehler:
         raise ValueError("Parameter-Validierung fehlgeschlagen:\n- " + "\n- ".join(fehler))

@@ -282,6 +282,7 @@ jede Messung ersetzt einen Default.
 | Segmentierung | 4 identische L-Ecksegmente, Stoß in Seitenmitte | Monolith (kein Bauraum) · 8 Teile (mehr Fugen; bleibt Parameter-Option) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | — wird per Messkampagne Punkt 7 verifiziert |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
+| Dach-Befestigung | Unterkragen (dupliziert Belluna-Einbaukragen, GEOM_REV 3) + 12 seitliche Ø4-Schrauben in den Ausschnittsrand + Kleber (User 2026-07-13) | nur Kleber (DA-Redundanzlücke am Dach-Interface) · exakt 10 Löcher wie Anleitung (nicht durch 4 teilbar → Segmente würden ungleich) · 8 Löcher (weniger Redundanz) |
 
 ## 10. Risiken und Gegenmaßnahmen
 

@@ -41,17 +41,27 @@ from model.segments import build_segments
 # Task 20: der frühere P_ECK-Sonderfall (CORNER_CHAMBERS=True) ist jetzt der
 # Default -- alle EIN-Tests laufen direkt auf PRM.P. Die AUS-Variante bleibt
 # als eigener Parametersatz beweisbar (alter Default-Anker).
-P_AUS = PRM.Params(CORNER_CHAMBERS=False)
+# Anker-Fixtures bauen seit GEOM_REV 3 explizit OHNE Unterkragen: der
+# Kragen ist rein additiv, ohne ihn ist die Geometrie bitidentisch zum in
+# Task 17/20 verifizierten GEOM-REV-2-Stand -- die exakten Volumen-Anker
+# unten bleiben damit beweisbar gueltig (Kragen-Delta prueft
+# tests/test_bot_kragen.py gegen den EIN-Anker).
+# ...und pinnen zusätzlich CELL_L=45/REC_GUSSET_D=3 (die Defaults, unter
+# denen die Anker in Task 17/20 gemessen wurden -- seit der Messkampagne
+# 2026-07-13 sind die Projekt-Defaults 43/0).
+P_EIN_OHNE_KRAGEN = PRM.Params(BOT_KRAGEN=False, CELL_L=45.0, REC_GUSSET_D=3.0)
+P_AUS = PRM.Params(CORNER_CHAMBERS=False, BOT_KRAGEN=False,
+                   CELL_L=45.0, REC_GUSSET_D=3.0)
 
 
 def _frame_default():
-    """Default-Frame (Eckkammern EIN seit Task 20) -- EIN Cache, kein
-    doppeltes Bauen von PRM.P und einem äquivalenten P_ECK mehr."""
+    """Eckkammern-EIN-Referenz OHNE Unterkragen (GEOM-REV-2-Anker; seit
+    GEOM_REV 3 bewusst nicht mehr PRM.P -- siehe P_EIN_OHNE_KRAGEN oben)."""
     global _CACHED_FRAME_DEFAULT
     try:
         return _CACHED_FRAME_DEFAULT
     except NameError:
-        _CACHED_FRAME_DEFAULT = build_frame(PRM.P)
+        _CACHED_FRAME_DEFAULT = build_frame(P_EIN_OHNE_KRAGEN)
         return _CACHED_FRAME_DEFAULT
 
 
@@ -115,8 +125,8 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 def test_eckkammern_default_anker():
     """Default ist seit Task 20 die EIN-Variante: Volumen-Anker
     1694758.489540970 mm³ (exakter P_ECK-Anker aus dem Task-17-Report §7,
-    in Task 17/20 verifiziert -- der Flip ändert nur das Default-Feld,
-    nicht die EIN-Geometrie). params_hash muss Feldänderungen weiterhin
+    in Task 17/20 verifiziert; seit GEOM_REV 3 als BOT_KRAGEN=False-
+    Variante gebaut, geometrisch identisch). params_hash muss Feldänderungen weiterhin
     abbilden (Hash-Logik unabhängig vom Flip)."""
     v = _frame_default().Volume
     assert abs(v - 1694758.489540970) < 1.0, f"Default-Volumen (EIN) driftete: {v}"

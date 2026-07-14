@@ -6,12 +6,16 @@ from fem.run_fem import run_case
 from model.frame import build_frame
 
 REFERENZ = {
-    # Grobnetz-Gegenprobe (MESH_MM_TEST=20) zum ersten verifizierten
-    # run_all.py-Lauf, Parameterstand 9f91735a (2026-07-12):
-    # LF1_wind 0.8933 MPa, LF3_klemmung 2.1136 MPa.
-    # (Produktionsnetz 10 mm zum Vergleich: 0.85 bzw. 2.13 MPa.)
+    # Grobnetz-Gegenprobe (MESH_MM_TEST=20). Historie:
+    # - Parameterstand 9f91735a (2026-07-12): LF1 0.8933, LF3 2.1136 MPa
+    #   (Produktionsnetz 10 mm: 0.85 bzw. 2.13 MPa).
+    # - Parameterstand dfc6857f (2026-07-13, GEOM_REV 4 + Messkampagne):
+    #   LF3 sinkt auf 1.43 MPa -- REC_GUSSET_D=0 macht die Deckplatte im
+    #   früheren Freistellungsring voll tragend (5 statt 2 mm unter der
+    #   Klemm-Lastfläche), LF1 bleibt im 15-%-Band. Bewusste Re-Baseline,
+    #   keine unbeabsichtigte Modelländerung (Suite-Lauf out/suite_passung.log).
     "LF1_wind": 0.89,
-    "LF3_klemmung": 2.11,
+    "LF3_klemmung": 1.43,
 }
 
 

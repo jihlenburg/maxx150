@@ -55,6 +55,13 @@ def _one_segment(frame, p, k):
     # die Noppenbasis ausdehnen, damit eine im Stoßband liegende Noppe IMMER
     # vollständig abgegeben wird (nie angeschnitten):
     z_lap0 = -(p.GLUE_GAP + 1)
+    # Unterkragen (GEOM_REV 3): Lappenwerkzeuge bis unter die Kragenkante
+    # ziehen, damit der Halbüberlappungsstoß auch durch den Kragen läuft
+    # (statt eines gemischten Lap/Stumpf-Stoßes ab z=-GLUE_GAP-1). Die
+    # Kragenlöcher liegen per validate() mindestens LAP_L+10 von der
+    # Seitenmitte entfernt und bleiben vom Stoßband unberührt.
+    if p.BOT_KRAGEN:
+        z_lap0 = -(p.GLUE_GAP + p.BOT_KRAGEN_DEPTH + 1)
     # Kernquadrant x>=0, y>=0:
     core = Part.makeBox(BIG, BIG, BIG, Vector(0, 0, -BIG / 2))
     # Lappe (untere Hälfte inkl. evtl. Stoßband-Noppe), ragt am Stoß A um

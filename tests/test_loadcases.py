@@ -39,7 +39,15 @@ def test_face_selektoren():
     for name in top:
         assert abs(_face_by_name(s, name).CenterOfMass.z - tz) < 1e-3
     top_area = sum(_face_by_name(s, name).Area for name in top)
-    assert 55e3 < top_area < 70e3
+    # parametrisch statt hart 55-70e3 (das Band galt nur mit REC_GUSSET_D=3):
+    # Deckfläche = Außenrechteck - Öffnung - Freistellungsring (falls aktiv);
+    # kleinere Abzüge (Eckenrundung, 4 Kopfsenkungen) deckt die 0.9-Untergrenze
+    p = PRM.P
+    L, W = PRM.outer_dims(p)
+    rec = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
+           if p.REC_GUSSET_D > 0 else 0.0)
+    erwartet = L * W - p.CUTOUT_W ** 2 - rec
+    assert erwartet * 0.9 < top_area < erwartet * 1.01
 
     # nopple_faces: alle exakt bei z = -GLUE_GAP.
     assert len(nop) >= 20

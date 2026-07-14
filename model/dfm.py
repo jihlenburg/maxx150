@@ -44,7 +44,11 @@ def _allowed_bridge_area(p):
        (die Chevron-Sektorböden selbst brauchen weiterhin keinen eigenen
        Term -- gleiches Argument wie Zone 5: >45° in JEDER Radialebene des
        Sektors, siehe _corner_chamber_cuts-Docstring)."""
-    rec_ring = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2)
+    # Zone 1 nur, solange die Freistellung existiert (REC_GUSSET_D=0 seit der
+    # Messkampagne 2026-07-13: kein Recess -> keine Brücke -> kein Freibetrag,
+    # sonst würde das Gate um ~30000 mm² zu lasch)
+    rec_ring = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
+                if p.REC_GUSSET_D > 0 else 0.0)
     cb = 4 * math.pi * (p.JOINT_CB_D / 2) ** 2
     nut = 4 * 2 * math.sqrt(3) * (p.JOINT_NUT_AF / 2) ** 2
     lap_step = ((p.LAP_L - p.TOL_JOINT)
@@ -55,7 +59,15 @@ def _allowed_bridge_area(p):
     if p.CORNER_CHAMBERS:
         eck_vent = (8 * (math.pi / 2) * (p.VENT_D / 2)
                     * max(p.INNER_WALL, p.CHAMBER_RIB) * 2)
-    return rec_ring + cb + nut + lap_step + vent + eck_vent
+    # 7. Unterkragen-Schraubenlöcher (GEOM_REV 3): 12 horizontale Ø HOLE_D-
+    #    Kanäle durch die Kragenwand (achsparallel, analog Zone 5); die
+    #    45°-Übergangsfase trägt sich über die Flankenneigung selbst
+    #    (Noppenkegel-Präzedenz), braucht keinen eigenen Term.
+    kragen_loch = 0.0
+    if p.BOT_KRAGEN:
+        kragen_loch = (4 * len(p.BOT_KRAGEN_HOLE_OFFS) * (math.pi / 2)
+                       * (p.BOT_KRAGEN_HOLE_D / 2) * p.BOT_KRAGEN_T)
+    return rec_ring + cb + nut + lap_step + vent + eck_vent + kragen_loch
 
 
 def _facet_points(facet):

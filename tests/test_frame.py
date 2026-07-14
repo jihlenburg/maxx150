@@ -18,23 +18,37 @@ def test_valide_und_wasserdicht():
 def test_hauptmasse():
     s = _frame()
     bb = s.BoundBox
+    p = PRM.P
     assert abs(bb.XLength - 500.0) < 0.01 and abs(bb.YLength - 500.0) < 0.01
-    assert abs(bb.ZMin + PRM.P.GLUE_GAP) < 1e-6          # Noppen bis -3
+    zmin = -(p.GLUE_GAP + (p.BOT_KRAGEN_DEPTH if p.BOT_KRAGEN else 0.0))
+    assert abs(bb.ZMin - zmin) < 1e-6     # Noppen bis -3 bzw. Unterkragen-Kante
     assert abs(bb.ZMax - top_z()) < 1e-6                 # Deckfläche bei 25
 
 def test_oeffnung_bleibt_400():
     s = _frame()
+    p = PRM.P
     # Prüfkörper in der Öffnung darf den Rahmen nicht schneiden. Die Öffnung
     # hat R5-Ecken (Spec), daher hat auch der Prüfkörper gerundete Ecken
-    # (R5.5 > R5 bei 0.1 mm Wandabstand -> liegt vollständig im Freiraum):
+    # (R5.5 > R5 bei 0.1 mm Wandabstand -> liegt vollständig im Freiraum).
+    # Seit GEOM_REV 3 gilt der volle 400er-Freiraum nur OBERHALB der
+    # Unterkragen-Übergangsfase (der Belluna-Kragen endet bei top_z-19,
+    # weit darüber); darunter garantiert der zweite Prüfkörper das
+    # Kragen-Innenmaß als durchgehenden Freiraum bis unter die Kragenkante.
     from FreeCAD import Vector
     from model import features as F
-    probe = F.rounded_box(399.8, 399.8, 40, 5.5, Vector(-199.9, -199.9, -5))
+    z0 = (p.BOT_KRAGEN_TRANS + 0.7) if p.BOT_KRAGEN else -5.0
+    probe = F.rounded_box(399.8, 399.8, 40, 5.5, Vector(-199.9, -199.9, z0))
     assert s.common(probe).Volume < 1e-6
+    if p.BOT_KRAGEN:
+        ki = p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR - 2 * p.BOT_KRAGEN_T - 0.2
+        tief = F.rounded_box(ki, ki, 60, 3.5, Vector(-ki / 2, -ki / 2, -25))
+        assert s.common(tief).Volume < 1e-6
 
 def test_volumen_plausibel():
+    # Band seit GEOM_REV 4 + Messkampagne: +Unterkragen (~174 cm³),
+    # +Freistellungs-Entfall (~90 cm³), +CELL_L 43 (etwas mehr Stege)
     v = _frame().Volume
-    assert 1.55e6 < v < 1.95e6, f"Volumen {v/1e6:.2f} l unplausibel"
+    assert 1.75e6 < v < 2.2e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
     """Schwelle aus Parametern statt hart 60000 (Ledger 10, Task-4-Review:

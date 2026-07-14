@@ -390,6 +390,51 @@ def _nopple_positions(p):
     return pts
 
 
+def _bot_kragen_tools(p):
+    """Unterkragen (GEOM_REV 3): dupliziert den Belluna-Einbaukragen nach
+    unten -- taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und trägt
+    3 seitliche Schraubenlöcher je Seite (12 gesamt, Belluna-Anleitungs-
+    Methode). Rückgabe (fuse_teile, loch_cutter).
+
+    Aufbau: Der Kragen (außen CUTOUT_W-2*CLEAR) liegt radial INNERHALB der
+    Öffnungswand und hätte allein keinen Materialkontakt. Ein Übergangsring
+    bettet ihn deshalb 2 mm radial in Bodenplatte/Innenwand ein (dort ist
+    der Körper massiv); seine innere Oberkante bekommt eine 45°-Fase
+    (BOT_KRAGEN_TRANS), damit die Übergangsfläche in Druckorientierung
+    (kopfüber) selbsttragend ist -- gleiches Prinzip wie der Noppenkegel.
+    Die lichte Öffnung verengt sich dadurch unterhalb z~TRANS von CUTOUT_W
+    auf das Kragen-Innenmaß; der Belluna-Kragen von oben endet bei
+    z = top_z-19 und bleibt davon unberührt (>=4 mm Luft)."""
+    ko = p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR           # außen, passt in den Ausschnitt
+    ki = ko - 2 * p.BOT_KRAGEN_T                       # innen
+    r_out = max(1.0, p.CUTOUT_R - p.BOT_KRAGEN_CLEAR)  # Ecke bleibt in der R5-Ecke
+    r_in = max(0.5, r_out - 1.0)
+    # Fasenoberkante bewusst NIEDRIG (TRANS+0.5 statt +2, GEOM_REV 4): die
+    # Belluna-Kragenspitze taucht bis top_z - PLATE_KRAGEN_D (= z 6 bei
+    # Defaults) in die Öffnung -- validate() sichert den Freigang
+    trans_h = p.BOT_KRAGEN_TRANS + 0.5
+
+    trans = F.ring(p.CUTOUT_W + 4, p.CUTOUT_W + 4, p.CUTOUT_R + 2,
+                   ki, ki, r_in, trans_h)
+    innen_oben = [e for e in trans.Edges
+                  if abs(e.CenterOfMass.z - trans_h) < 1e-6
+                  and max(abs(e.CenterOfMass.x), abs(e.CenterOfMass.y)) < ki / 2 + 1]
+    trans = trans.makeChamfer(p.BOT_KRAGEN_TRANS, innen_oben)
+
+    kragen = F.ring(ko, ko, r_out, ki, ki, r_in,
+                    p.GLUE_GAP + p.BOT_KRAGEN_DEPTH + 2.0)
+    kragen.translate(Vector(0, 0, -(p.GLUE_GAP + p.BOT_KRAGEN_DEPTH)))
+
+    cutters = []
+    z_loch = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
+    for off in p.BOT_KRAGEN_HOLE_OFFS:
+        zyl = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2, p.BOT_KRAGEN_T + 4,
+                                Vector(off, ki / 2 - 2, z_loch), Vector(0, 1, 0))
+        for k in range(4):
+            cutters.append(F.rotz(zyl, k))
+    return [trans, kragen], cutters
+
+
 def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     PRM.validate(p)
     L, W = PRM.outer_dims(p)
@@ -427,6 +472,17 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
                     p.GROOVE_D + 1)
     groove.translate(Vector(0, 0, -1))
     body = body.cut(groove)
+
+    # Unterkragen (GEOM_REV 3): VOR der Außenfase fusen/bohren -- der
+    # Fasen-Kantenfilter unten greift nur nahe der Außenkontur und bleibt
+    # vom innenliegenden Kragen unberührt
+    if p.BOT_KRAGEN:
+        kragen_teile, kragen_loecher = _bot_kragen_tools(p)
+        body = body.fuse(kragen_teile)
+        body = body.cut(Part.makeCompound(kragen_loecher))
+        body = body.removeSplitter()
+        if not body.isValid():
+            raise RuntimeError("frame: Unterkragen-Booleans ergaben ungültigen Körper")
 
     # Außenfase unten (Sika-Kehlnaht): alle z=0-Kanten nahe der Außenkontur
     def _on_outer(e):
