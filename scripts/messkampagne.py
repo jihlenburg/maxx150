@@ -12,9 +12,16 @@ Formeln (Protokoll -> params-Feld):
   EDGE_H             = B2
   ROOF_T             = B3
   HOOD_UNDERSIDE_H   = B4
-  W_TOP_FRONT/REAR/LEFT/RIGHT = A1c/A1d/A1e/A1f
-  REC_GUSSET_D       = A4a + 0.5   (Reserve: Fertigungstoleranz Gusset-Ueberstand)
-  REC_GUSSET_W       = A4b + 2.0   (Reserve: Fertigungstoleranz Gusset-Reichweite)
+
+BEWUSST KEINE automatische Uebernahme (Design-Entscheidungen 2026-07-13,
+Begruendung in messwerte.json/_notizen -- Review-Fix: die frueheren
+1:1-Mappings haetten validate()-Brecher vorgeschlagen):
+  A1c-f (Plattenflansch 26) -> W_TOP_* bleibt 50: die Deckflaeche ist
+    bewusst BREITER als der Plattenflansch (Kammerstruktur braucht >=44),
+    die Platte liegt mittig auf.
+  A4a/A4b (Gussets) -> REC_GUSSET_* bleibt 0/18: die Gussets tauchen mit
+    dem Unterkragen in den Ausschnitt, es gibt nichts freizustellen
+    (Passungstest render/passung_stapel.py).
 
 Aufruf:
   python3 scripts/messkampagne.py messwerte.json [--target params.py] [--dry-run]
@@ -39,11 +46,20 @@ _SIMPLE = (
     ("EDGE_H", "B2"),
     ("ROOF_T", "B3"),
     ("HOOD_UNDERSIDE_H", "B4"),
-    ("W_TOP_FRONT", "A1c"),
-    ("W_TOP_REAR", "A1d"),
-    ("W_TOP_LEFT", "A1e"),
-    ("W_TOP_RIGHT", "A1f"),
 )
+
+# Protokollfelder, die frueher gemappt wurden, seit den Design-Entscheidungen
+# vom 2026-07-13 aber BEWUSST NICHT mehr automatisch einfliessen (siehe
+# Moduldocstring + messwerte.json/_notizen). Werden sie geliefert, gibt main()
+# eine explizite Meldung aus, statt validate()-Brecher vorzuschlagen.
+NICHT_UEBERNOMMEN = {
+    "A1c": "W_TOP_FRONT bleibt 50 (Deckflaeche bewusst breiter als Plattenflansch)",
+    "A1d": "W_TOP_REAR bleibt 50 (dito)",
+    "A1e": "W_TOP_LEFT bleibt 50 (dito)",
+    "A1f": "W_TOP_RIGHT bleibt 50 (dito)",
+    "A4a": "REC_GUSSET_D bleibt 0 (Gussets tauchen in den Ausschnitt)",
+    "A4b": "REC_GUSSET_W unveraendert (Freistellung entfaellt)",
+}
 
 
 def compute_mapping(messwerte: dict) -> dict:
@@ -59,11 +75,6 @@ def compute_mapping(messwerte: dict) -> dict:
     for feld, proto in _SIMPLE:
         if messwerte.get(proto) is not None:
             out[feld] = messwerte[proto]
-
-    if messwerte.get("A4a") is not None:
-        out["REC_GUSSET_D"] = messwerte["A4a"] + 0.5
-    if messwerte.get("A4b") is not None:
-        out["REC_GUSSET_W"] = messwerte["A4b"] + 2.0
 
     return out
 
@@ -114,6 +125,16 @@ def main(argv=None) -> int:
     messwerte_path = Path(args.messwerte)
     messwerte = json.loads(messwerte_path.read_text(encoding="utf-8"))
     mapping = compute_mapping(messwerte)
+
+    bewusst = [f"  {proto}={messwerte[proto]}: {grund}"
+               for proto, grund in NICHT_UEBERNOMMEN.items()
+               if messwerte.get(proto) is not None]
+    if bewusst:
+        print("BEWUSST NICHT uebernommen (Design-Entscheidungen 2026-07-13, "
+              "siehe messwerte.json/_notizen):")
+        print("\n".join(bewusst))
+        print()
+
     if not mapping:
         print("Keine verwertbaren Messwerte in", messwerte_path, "-- nichts zu tun.")
         return 0

@@ -101,9 +101,14 @@ try:
                              text=True, check=True).stdout.strip()
 except Exception as exc:
     git_rev = f"UNBEKANNT ({exc})"
-append_manifest(report_path, exported, git_rev)
+append_manifest(report_path, exported, git_rev, p)
 print(f"Manifest an {report_path} angehängt ({len(exported)} Dateien, Git {git_rev}).")
 
-print(f"FERTIG: Druckdateien sind verifiziert freigegeben. "
-      f"(Gesamtlaufzeit {time.time() - t_start:.0f} s)")
+if vorbehalt:
+    print(f"FERTIG: Artefakte erzeugt -- PASS MIT VORBEHALT, KEINE "
+          f"Druckfreigabe (offene Messwerte/Probedruck, siehe Report). "
+          f"(Gesamtlaufzeit {time.time() - t_start:.0f} s)")
+else:
+    print(f"FERTIG: Druckdateien sind verifiziert freigegeben. "
+          f"(Gesamtlaufzeit {time.time() - t_start:.0f} s)")
 sys.exit(0)

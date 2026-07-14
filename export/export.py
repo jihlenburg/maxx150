@@ -83,8 +83,13 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Radialluft je Seite) und zentriert den Rahmen. Nach dem Ausrichten:
   **12 Schrauben Ø{p.BOT_KRAGEN_HOLE_D:.0f} (3 je Seite)** durch die
   Kragenlöcher seitlich in den Ausschnittsrand (3-mm-Kernloch vorbohren) —
-  Methode der Belluna-Anleitung; fixiert den Rahmen lagerichtig und
-  mechanisch redundant, während der Kleber aushärtet.
+  Methode der Belluna-Anleitung; fixiert den Rahmen lagerichtig, während
+  der Kleber aushärtet. **VORBEHALT Substrat**: Was der Ausschnittsrand in
+  10 mm Tiefe trägt (GFK-Haut/XPS-Schaum/Holzeinleger), ist UNGEPRÜFT — bei
+  der Mini-Heki-Demontage den Schnittrand inspizieren (Messpunkt C2) und
+  eine Probeschraube setzen; greift sie nur in Schaum, zählen die Schrauben
+  als Lagesicherung, NICHT als tragende Redundanz (der Kleber bleibt dann
+  die alleinige tragende Dach-Verbindung wie ursprünglich ausgelegt).
 - Carloflex/Sika-252-Raupe in die untere Kleberille: ca. **{bead_ml:.0f} ml**
   (+ Kehlnaht außen). Noppen definieren {p.GLUE_GAP} mm Fugendicke — NICHT auspressen.
 - Karosseriebefestigungsplatte mit Carloflex in der Ringklebenut auf die

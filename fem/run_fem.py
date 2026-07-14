@@ -1,6 +1,7 @@
 """Skriptierter CalculiX-Lauf für einen Lastfall (Muster aus Task-2-Smoke,
 tests/test_toolchain.py: Binärpfade, Gmsh+ccxtools-Sequenz)."""
 import os
+import shutil
 import tempfile
 
 import FreeCAD
@@ -93,7 +94,8 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
 
         fea = ccxtools.FemToolsCcx(ana, sol)
         fea.update_objects()
-        fea.setup_working_dir(tempfile.mkdtemp(prefix=f"fc_{case.name}_"))
+        workdir = tempfile.mkdtemp(prefix=f"fc_{case.name}_")
+        fea.setup_working_dir(workdir)
         fea.setup_ccx()
         msg = fea.check_prerequisites()
         if msg:
@@ -159,6 +161,10 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
         }
     finally:
         FreeCAD.closeDocument(doc.Name)
+        # ccx-Arbeitsverzeichnis aufraeumen (Review-Fix 2026-07-14: mkdtemp
+        # sammelte sonst ~20 MB je Lastfall-Lauf im System-Temp an)
+        if 'workdir' in dir():
+            shutil.rmtree(workdir, ignore_errors=True)
 
 
 def run_all_cases(shape, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:

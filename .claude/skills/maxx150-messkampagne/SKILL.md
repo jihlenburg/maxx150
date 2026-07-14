@@ -17,9 +17,13 @@ Schätzwerte durch belastbare Zahlen. Reines Python3-Tool
 | B2 | `EDGE_H` | 1:1 |
 | B3 | `ROOF_T` | 1:1 |
 | B4 | `HOOD_UNDERSIDE_H` | 1:1 |
-| A1c / A1d / A1e / A1f | `W_TOP_FRONT`/`_REAR`/`_LEFT`/`_RIGHT` | 1:1 je Seite |
-| A4a | `REC_GUSSET_D` | + 0.5 mm Reserve (Fertigungstoleranz) |
-| A4b | `REC_GUSSET_W` | + 2.0 mm Reserve (Fertigungstoleranz) |
+
+A1c–f und A4a/A4b werden seit 2026-07-13 BEWUSST NICHT mehr automatisch
+übernommen (Design-Entscheidungen, Begründung in `messwerte.json/_notizen`:
+Deckfläche bleibt breiter als der 26er-Plattenflansch, Gusset-Freistellung
+entfällt) — der Importer meldet gelieferte Werte dieser Felder explizit als
+„BEWUSST NICHT uebernommen" statt sie zu mappen (Review-Fix 2026-07-14,
+Wächter: tests/test_tools_messkampagne.py::test_echte_messwerte_json_...).
 
 Weitere Protokollfelder (A2a-c, A3a-c, A5a, A5b) sind im Messprotokoll
 vorgesehen, haben aber noch KEIN params-Feld/keine Formel — bleiben in

@@ -66,8 +66,10 @@ Parametern und schreibt sie in die Montagenotiz.
 2. **Festigkeit:** Auslegungsanströmung 200 km/h (= 160 km/h Reise + Böen-/Gegenwindreserve),
    Schlechtweg ±4 g vertikal / ±2 g quer auf 6,5 kg Auslegungsmasse (Maxxfan-Hüllkurve; Belluna 5,0 kg).
 3. **Temperatur:** Bauteiltemperatur −20 … **+85 °C** dauerhaft formstabil und tragfähig.
-4. **Fertigung:** Druckservice, druckerunabhängig; Segment-Boundingbox konservativ ≤ 250 mm
-   Kantenlänge; stützenfrei druckbar.
+4. **Fertigung:** Druckservice, druckerunabhängig; Segment-Boundingbox ≤ 300 mm
+   Kantenlänge (`SEG_MAX_BBOX`; Ist ~277 mm — die ursprünglich konservativen 250 mm
+   wurden mit der Bauraum-Klärung angehoben, Bambu H2D 350 mm verfügbar; Drift-Fix
+   2026-07-14); stützenfrei druckbar.
 5. **Material & Prozess (§3.5):** **Würth ASA GF15 (Art. 4954641201, Signalweiß RAL 9003,
    Datenblatt Stand 05.03.2026)** im **FDM/FFF**-Verfahren als Default (User-Entscheidung
    Task 21, 2026-07-13). Löst den bisherigen Bambu-ASA-CF-Default (Task 19/20) ab —

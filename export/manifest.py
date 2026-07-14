@@ -20,16 +20,19 @@ def _sha256(path) -> str:
     return h.hexdigest()
 
 
-def append_manifest(report_path: str, files, git_rev: str) -> None:
+def append_manifest(report_path: str, files, git_rev: str,
+                    p: PRM.Params = PRM.P) -> None:
     """Hängt eine '## Datei-Manifest'-Sektion an den bestehenden Report unter
     report_path an: je Datei in `files` (Path oder str) Dateiname + SHA256,
     dazu `git_rev` (vom Aufrufer ermittelt, z. B. `git rev-parse HEAD` in
     run_all.py -- manifest.py selbst braucht dafür keine Subprocess-
-    Abhängigkeit) und Params.GEOM_REV des aktuellen Standes."""
+    Abhängigkeit) und GEOM_REV des TATSÄCHLICH manifestierten
+    Parameterobjekts p (Review-Fix 2026-07-14: vorher global PRM.P --
+    bei Varianten-Läufen wäre der falsche Stand dokumentiert worden)."""
     rows = "\n".join(f"| {Path(f).name} | `{_sha256(f)}` |" for f in files)
     section = (
         "\n\n## Datei-Manifest\n\n"
-        f"Git-Commit: `{git_rev}` · GEOM_REV: `{PRM.P.GEOM_REV}`\n\n"
+        f"Git-Commit: `{git_rev}` · GEOM_REV: `{p.GEOM_REV}`\n\n"
         "| Datei | SHA256 |\n"
         "|---|---|\n"
         f"{rows}\n"

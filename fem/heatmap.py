@@ -13,6 +13,7 @@ rohen Knotenspannungen+-koordinaten gebraucht -- Aufbau/Ablauf ist
 identisch zu run_case, Helfer (_direction_ref, _ensure_binary_paths) werden
 von dort importiert statt dupliziert."""
 import json
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -182,7 +183,8 @@ def run_capture(shape, case, p: PRM.Params, mesh_mm: float):
 
         fea = ccxtools.FemToolsCcx(ana, sol)
         fea.update_objects()
-        fea.setup_working_dir(tempfile.mkdtemp(prefix=f"hm_{case.name}_"))
+        workdir = tempfile.mkdtemp(prefix=f"hm_{case.name}_")
+        fea.setup_working_dir(workdir)
         fea.setup_ccx()
         msg = fea.check_prerequisites()
         if msg:
@@ -198,6 +200,8 @@ def run_capture(shape, case, p: PRM.Params, mesh_mm: float):
         return vm_by_node, coords
     finally:
         FreeCAD.closeDocument(doc.Name)
+        if 'workdir' in dir():
+            shutil.rmtree(workdir, ignore_errors=True)
 
 
 def heatmap_all(p: PRM.Params = PRM.P, mesh_mm: float = None,

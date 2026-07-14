@@ -49,16 +49,17 @@ def test_beispiel_json_patcht_erwartete_felder():
     assert abs(_feld_wert(text, "EDGE_H") - messwerte["B2"]) < 1e-6
     assert abs(_feld_wert(text, "ROOF_T") - messwerte["B3"]) < 1e-6
     assert abs(_feld_wert(text, "HOOD_UNDERSIDE_H") - messwerte["B4"]) < 1e-6
-    assert abs(_feld_wert(text, "W_TOP_FRONT") - messwerte["A1c"]) < 1e-6
-    assert abs(_feld_wert(text, "W_TOP_REAR") - messwerte["A1d"]) < 1e-6
-    assert abs(_feld_wert(text, "W_TOP_LEFT") - messwerte["A1e"]) < 1e-6
-    assert abs(_feld_wert(text, "W_TOP_RIGHT") - messwerte["A1f"]) < 1e-6
-    # dokumentierte Reserven:
-    assert abs(_feld_wert(text, "REC_GUSSET_D") - (messwerte["A4a"] + 0.5)) < 1e-6
-    assert abs(_feld_wert(text, "REC_GUSSET_W") - (messwerte["A4b"] + 2.0)) < 1e-6
+
+    # Design-Entscheidungen 2026-07-13 (Review-Fix): A1c-f und A4a/A4b werden
+    # BEWUSST NICHT mehr gemappt -- W_TOP_*/REC_GUSSET_* muessen auf ihren
+    # params.py-Defaults stehen bleiben, der Lauf meldet das explizit.
+    original = (ROOT / "params.py").read_text()
+    for feld in ("W_TOP_FRONT", "W_TOP_REAR", "W_TOP_LEFT", "W_TOP_RIGHT",
+                 "REC_GUSSET_D", "REC_GUSSET_W"):
+        assert _feld_wert(text, feld) == _feld_wert(original, feld), feld
+    assert "BEWUSST NICHT uebernommen" in r.stdout
 
     # Felder OHNE Formel/Messwert (A2/A3/A5, hier null) bleiben unveraendert:
-    original = (ROOT / "params.py").read_text()
     assert _feld_wert(text, "CUTOUT_W") == _feld_wert(original, "CUTOUT_W")
 
     backup = target.with_name(target.name + ".bak")
@@ -83,6 +84,37 @@ def test_diff_tabelle_im_stdout():
     assert "EDGE_DIST" in r.stdout
     assert "alt" in r.stdout and "neu" in r.stdout
     assert "run_tests.py" in r.stdout and "run_all.py" in r.stdout
+
+
+def test_echte_messwerte_json_ergibt_validen_parameterstand():
+    """Review-Fix 2026-07-14: die ECHTE messwerte.json (nicht nur das
+    Beispiel) muss durch den Importer laufen und einen validate()-sauberen
+    Parameterstand ergeben. Vorher schlug der Importer W_TOP=26 und
+    REC_GUSSET_D=19.5 vor -- beides dokumentierte validate()-Brecher
+    (Design-Entscheidungen in messwerte.json/_notizen)."""
+    echt = ROOT / "messwerte.json"
+    target = _tmp_params()
+    r = _run(str(echt), "--target", str(target))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "BEWUSST NICHT uebernommen" in r.stdout
+
+    text = target.read_text()
+    original = (ROOT / "params.py").read_text()
+    for feld in ("W_TOP_FRONT", "W_TOP_REAR", "W_TOP_LEFT", "W_TOP_RIGHT",
+                 "REC_GUSSET_D"):
+        assert _feld_wert(text, feld) == _feld_wert(original, feld), feld
+
+    # gepatchte Kopie importieren und validate() ausfuehren (python3-Subprozess,
+    # params.py ist reines Python)
+    check = subprocess.run(
+        ["python3", "-c",
+         "import importlib.util,sys;"
+         f"spec=importlib.util.spec_from_file_location('pp', r'{target}');"
+         "m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);"
+         "m.validate();print('VALIDATE-OK', m.params_hash())"],
+        capture_output=True, text=True)
+    assert check.returncode == 0, check.stdout + check.stderr
+    assert "VALIDATE-OK" in check.stdout
 
 
 def test_echtes_params_py_bleibt_unberuehrt():

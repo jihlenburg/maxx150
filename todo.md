@@ -59,6 +59,53 @@ Wegwerf-Kopie + `validate()` belegt (Chat 2026-07-13):
       (G1=1 breit, G2=100 Teilung -> +-50/+-150) + Eck-Gussets,
       Lochbild F1a: Mitte+-140 (2 Seiten) / F1b: +-165 (2 Seiten).
 
+## Externes Review 2026-07-14 — Adjudikation
+
+SOFORT GEFIXT (Commit folgt):
+- [x] messkampagne.py schlug W_TOP=26 / REC_GUSSET_D=19.5 vor (validate-
+      Brecher; Mappings waren durch Design-Entscheidungen überholt) ->
+      Mappings entfernt, explizite "BEWUSST NICHT uebernommen"-Meldung,
+      NEUER Wächtertest mit der ECHTEN messwerte.json + validate().
+- [x] run_all-Schlusszeile log "verifiziert freigegeben" auch bei
+      PASS MIT VORBEHALT -> konditional ("KEINE Druckfreigabe").
+- [x] manifest.py nahm GEOM_REV aus globalem PRM.P statt dem manifestierten
+      Parameterobjekt -> p-Parameter durchgereicht.
+- [x] FEM-Tempdirs (mkdtemp) wurden nie geloescht -> shutil.rmtree im
+      finally (run_fem + heatmap), Altbestand gepurgt.
+- [x] Spec-Drift Segment-Bbox (<=250 vs. Ist 277/Gate 300) -> Spec korrigiert.
+- [x] Montagenotiz: Substrat-VORBEHALT fuer die 12 Dachschrauben (GFK/XPS/
+      Holz in 10 mm Tiefe ungeprueft -> Probeschraube bei Demontage;
+      bis dahin Lagesicherung, nicht tragende Redundanz).
+
+BERECHTIGT, GROESSER — Roadmap (User entscheidet Priorität):
+- [ ] Release-Zustaende statt PASS/Vorbehalt-Binarität: MODEL_PASS /
+      PROTOTYPE_ONLY / BLOCKED / RELEASED; Export-Benennung daran koppeln.
+      Heute blockt der Vorbehalt nur den Freigang, nicht Materialannahmen/
+      fehlende physische Qualifikation.
+- [ ] Provenienz je kritischem Eingang (Wert, Quelle, Status gemessen/
+      Datenblatt/Schaetzung, Datum) statt nur ANNAHME-Kommentaren; Gate auf
+      Provenienz. Läuft auf ein params-Metadaten-Schema hinaus.
+- [ ] Physische Qualifikation VOR "verifiziert": Stoss-Coupon, XY+Z-Zugstaebe
+      aus dem echten Druckprozess, Klebe-Coupons (GFK+ASA-GF, echte
+      Vorbereitung), 1 Segment Verzugs-/Masskontrolle, Trocken-Fit,
+      Thermozyklus+Fluttest. (Deckt sich mit geplantem PLA-Fit + Messkampagne,
+      geht aber darüber hinaus.)
+- [ ] FEM-Ausbau: Netz-Konvergenz 20/10/5, nachgiebige Noppen-Bettung
+      (elastische Lager statt starr — deckt sich mit Alt-Punkt), Stoss-
+      Submodell mit echter Lap-Geometrie+Bolzen, Kraeftegleichgewichts-Report.
+- [ ] README/Statusseite (aktueller Hash, Release-Zustand, Reports),
+      Run-Verzeichnisse unveraenderlich (Staging + Versionen der Tools).
+- [ ] heatmap.run_capture dupliziert run_case-Setup ohne dessen
+      Fehlerpruefungen -> konsolidieren; passung_stapel als Gate-Test
+      einbinden; N_SEGMENTS!=4-Pseudoparameter entfernen oder implementieren.
+
+ZURUECKGEWIESEN / RELATIVIERT:
+- "identische Segmente vs. Asymmetrie widerspruechlich": Asymmetrie ist
+  dokumentierte Parameter-OPTION (Messkampagnen-Vorsorge, tests/
+  test_asymmetrie.py); Default ist symmetrisch-identisch. Kein Defekt.
+- "kein Report fuer dfc6857f": korrekt, aber Artefakt-, kein Code-Problem —
+  Lauf nachgeholt (out/report_dfc6857f.md).
+
 ## Unterkragen (GEOM_REV 3, 2026-07-13)
 
 - [x] Unterkragen implementiert (params BOT_KRAGEN_*, frame._bot_kragen_tools,
