@@ -1,4 +1,5 @@
 import params as PRM
+from FreeCAD import Vector
 from model.frame import build_frame
 from model.segments import build_segments
 
@@ -23,12 +24,21 @@ def test_bbox_druckservice():
         assert max(bb.XLength, bb.YLength) <= PRM.P.SEG_MAX_BBOX, \
             f"Segment {bb.XLength:.0f}x{bb.YLength:.0f} zu groß"
 
-def test_ausgewogene_segmentvolumina_bei_symmetrie():
-    # Das seitenspezifische ±140/±165-Lochbild erzwingt beschriftete Dateien;
-    # bei symmetrischen W_TOP sollen die Materialmengen trotzdem ausgewogen
-    # bleiben. Das ist ausdrücklich KEIN Identitätsnachweis der Shapes.
-    vols = sorted(s.Volume for s in _segs())
-    assert (vols[-1] - vols[0]) / vols[-1] < 0.002
+def test_vier_segmente_sind_rotationsidentisch():
+    """Starker Identitätsnachweis statt bloß ähnlicher Volumina.
+
+    Jedes Segment wird in die kanonische SEG0-Lage zurückgedreht. Das Volumen
+    der symmetrischen Differenz muss bis auf OCC-Rauschen verschwinden.
+    """
+    segs = _segs()
+    reference = segs[0]
+    for index, segment in enumerate(segs):
+        canonical = segment.copy()
+        canonical.rotate(Vector(0, 0, 0), Vector(0, 0, 1), -90 * index)
+        overlap = reference.common(canonical).Volume
+        symmetric_difference = reference.Volume + canonical.Volume - 2 * overlap
+        assert abs(symmetric_difference) < 1.0, \
+            f"Segment {index} ist nicht rotationsidentisch: ΔV={symmetric_difference:.3f} mm³"
 
 def test_union_ergibt_rahmen_minus_fugenluft():
     segs = _segs()

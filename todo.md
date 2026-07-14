@@ -117,9 +117,10 @@ BERECHTIGT, GROESSER — Roadmap (User entscheidet Priorität):
 
 ZURUECKGEWIESEN / RELATIVIERT:
 - "identische Segmente vs. Asymmetrie widerspruechlich": W_TOP-Asymmetrie
-  bleibt eine getestete Parameteroption. Seit GEOM_REV 5 sind die vier
-  Dateien wegen des Belluna-±140/±165-Lochbilds bewusst beschriftet; die
-  frühere Identitätsanforderung gilt nicht mehr.
+  bleibt eine getestete Parameteroption. Der GEOM_REV-5-Stand mit vier
+  beschrifteten Dateien wegen des Belluna-±140/±165-Lochbilds wurde durch
+  GEOM_REV 6 überholt: Default-W_TOP ist rotationssymmetrisch, Dach- und
+  Platten-Schraubraster sind entkoppelt, daher wieder ein Universalteil x4.
 - "kein Report fuer dfc6857f": korrekt, aber Artefakt-, kein Code-Problem —
   Lauf nachgeholt (out/report_dfc6857f.md).
 
@@ -143,6 +144,26 @@ ZURUECKGEWIESEN / RELATIVIERT:
 - [x] Volle Suite + run_all mit Standard-ASA-Materialkarte; neuen Report/Export
       erzeugen. STL/3MF-Export steht jetzt direkt druckorientiert mit der
       Deckfläche auf Z=0; vier beschriftete Desktop-STLs abgelegt.
+      **Durch GEOM_REV 6 ersetzt; die alten vier Dateien bleiben nur Archiv.**
+
+## Universal-Segment (GEOM_REV 6, 2026-07-14)
+
+- [x] Dachinterface auf zwei gleiche Kragenlöcher je Seite bei ±140 mm
+      umgestellt; weiterhin 8x ST4.2x25 Adapter→Holzrahmen, kein Loch am Stoß.
+- [x] Belluna-Interface entkoppelt: jede Seite besitzt geschlossene lokale
+      10-mm-Rippen an ±140 und ±165 mm; nur die acht realen Plattenlöcher
+      werden gebohrt, es gibt keine ungenutzten offenen Vorratslöcher.
+- [x] FDM-Kammern erhalten: keine ganzen 43-mm-Zellen mehr auslassen;
+      Schraubrippen laufen unten 45° aus, kollidierende Ø4-Ventkanäle werden
+      innerhalb ihrer Zelle mit 1 mm Abstand verschoben.
+- [x] Starker Rotationsidentitäts-Test über symmetrische Differenz statt nur
+      gleicher Volumina; Export auf genau eine STEP/STL/3MF-Datei mit x4 im
+      Namen reduziert.
+- [x] Volle Suite 92/92 und Produktionslauf bestanden; DFM 4/4 PASS, alle
+      FEM-Lastfälle und Stoß PASS. Parameterstand `081422f2`.
+- [ ] Physisches Gate bleibt: A3a/Kragen-Außenmaß, realen Dachausschnitt und
+      Holzrahmen nach Demontage messen; erst ein helles ASA-Segment als
+      Ebenheits-/Passungs-Probedruck fertigen.
 
 ## Pflichtpaket VOR dem Messkampagnen-Re-Run
 - [x] Lokales Standard-ASA: Datenblattwerte E=1726 MPa, Zug=40 MPa,

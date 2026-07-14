@@ -87,6 +87,9 @@ def write_report(fem_results: dict, joint_result: dict,
     ok &= sc["PASS"]
     lines.append(f"- Seitenschrauben-Auszug: {sc['F_zul_N']:.0f} N zulässig ≥ "
                  f"{sc['F_erf_N']:.0f} N erforderlich → {'PASS' if sc['PASS'] else 'FAIL'}")
+    lines.append("- Fertigungslogik: 1 rotationsidentisches Universal-Segment ×4; "
+                 "Belluna-Vollmaterialrippen ±140/±165 auf jeder Seite, "
+                 "Dachschrauben unabhängig umlaufend ±140")
     plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
     if not p.PLATE_KRAGEN_MEASURED:
         vorbehalt = True

@@ -82,7 +82,11 @@ def test_entwaesserungsfase_faellt_nach_aussen_und_bleibt_geschlossen():
     assert len(s.Shells) == 1 and s.Shells[0].isClosed()
 
 def test_obere_belluna_schraubpfade_sind_vollmaterial():
-    """ST4.2x25 darf an keiner der acht Positionen in eine Kammer laufen."""
+    """Beide Belluna-Paare müssen auf allen Seiten 25 mm Vollmaterial haben.
+
+    Real verwendet werden acht der sechzehn universell vorgehaltenen Pfade;
+    unbenutzte Pfade sind massive Rippen, keine offenen Löcher.
+    """
     import math
     import Part
     from FreeCAD import Vector
@@ -93,20 +97,53 @@ def test_obere_belluna_schraubpfade_sind_vollmaterial():
     r = 0.7
     length = 24.5
     voll = math.pi * r * r * length
+    geprueft = 0
     for k, offsets in enumerate(MF._plate_screw_offsets_by_chamber_side(p)):
         for offset in offsets:
             probe = Part.makeCylinder(r, length,
-                                      Vector(p.CUTOUT_W / 2 + 0.25, offset, 15),
+                                      Vector(p.CUTOUT_W / 2 + 0.25, offset,
+                                             p.H_RAISE - p.GLUE_GAP
+                                             - p.PLATE_SCREW_Z_FROM_TOP),
                                       Vector(1, 0, 0))
             material = s.common(F.rotz(probe, k)).Volume
             assert material > voll * 0.98, \
                 f"Schraubpfad Seite {k}, Offset {offset} nicht massiv: {material:.1f}/{voll:.1f}"
+            geprueft += 1
+    assert geprueft == 16
+
+
+def test_ventkanaele_halten_abstand_zu_universalrippen():
+    import Part
+    from FreeCAD import Vector
+    from model import features as F
+    from model import frame as MF
+    p = PRM.P
+    s = _frame()
+    clearance = p.PLATE_SCREW_BOSS_HALF + p.VENT_D / 2 + 1.0
+    centers = MF._chamber_cell_centers(p, p.W_TOP_LEFT)
+    for center in centers + [-c for c in centers]:
+        vent_u = MF._vent_u_clear_of_plate_boss(center, p)
+        assert min(abs(vent_u - off) for off in p.PLATE_SCREW_OFFS) >= clearance - 1e-9
+        assert abs(vent_u - center) <= p.CELL_L / 2 - p.VENT_D / 2 - 1.0
+        # Nicht nur die Koordinate prüfen: beide realen Querkanäle müssen
+        # nach Kammer-Cut, Rippen-Fuse und removeSplitter im Endkörper frei
+        # bleiben. Ein etwas kleinerer Zylinder vermeidet OCC-Randrauschen.
+        for x0, length in ((p.CUTOUT_W / 2 - 0.5, p.INNER_WALL + 1.0),
+                           (p.CUTOUT_W / 2 + p.INNER_WALL + p.CHAMBER_W - 0.5,
+                            p.CHAMBER_RIB + 1.0)):
+            probe = Part.makeCylinder(p.VENT_D / 2 - 0.25, length,
+                                      Vector(x0, vent_u, p.VENT_Z),
+                                      Vector(1, 0, 0))
+            for k in range(4):
+                rest = s.common(F.rotz(probe, k)).Volume
+                assert rest < 1e-6, \
+                    f"Vent Seite {k}, u={vent_u:.1f} nach Rippen-Fuse blockiert: {rest:.3f} mm³"
 
 def test_kammern_wirken():
     """Rippenkammern (Task 14) müssen substanziellen Materialanteil entfernen,
-    aber die acht 25-mm-Schraubpfade als Vollmaterial stehen lassen.
-    GEOM_REV 5 entfernt deshalb weniger Volumen als der alte, überall
-    gekammerte Stand; 253 cm³ bleiben weiterhin substanziell."""
+    aber die sechzehn lokalen 25-mm-Schraubpfade als Vollmaterial stehen
+    lassen. Die 10-mm-Rippen ersetzen die früher grob ausgelassenen ganzen
+    43-mm-Kammerzellen."""
     import params as PRM
     from model.frame import build_frame
     v_solid = build_frame(PRM.Params(CHAMBERS=False, CORNER_CHAMBERS=False)).Volume

@@ -88,8 +88,10 @@ Parametern und schreibt sie in die Montagenotiz.
    ist ohne UV-/CTE-Nachweis und wegen solarer Aufheizung aber nicht Default.
 6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
    verklebt (Ringklebenut). Zusätzlich werden die 16 beiliegenden Belluna-ST4.2×25
-   auf zwei Interfaces verteilt: 8 äußere Belluna-Seitenlöcher Platte→lokal massiver
-   Adapter und 8 Löcher Unterkragen→nachgerüsteter, PU-verklebter Holzrahmen im XPS.
+   auf zwei entkoppelte Interfaces verteilt: 8 äußere Belluna-Seitenlöcher
+   Platte→lokale Universalrippen (jede Seite hält ±140 und ±165 vor, ohne
+   offene Vorratslöcher) und 8 umlaufend gleiche ±140-Löcher
+   Unterkragen→nachgerüsteter, PU-verklebter Holzrahmen im XPS.
    Die zwei Belluna-Mittellöcher an den Segmentstößen bleiben frei. Keine Verschraubung
    von oben durch eine Dichtfläche.
    **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
@@ -108,8 +110,13 @@ Parametern und schreibt sie in die Montagenotiz.
   einzeln parametrisierbar (`W_TOP_FRONT/REAR/LEFT/RIGHT`, Startwert 50 mm), da der
   Plattenflansch asymmetrisch ist. Innen liegender Bereich mit parametrischer **Freistellung**
   (Tiefe `REC_GUSSET`) für die Dreiecks-Gussets der Plattenunterseite.
-- **Innenwand:** 8 mm umlaufend; an den acht gemessenen ±140/±165-mm-
-  Schraubpositionen werden die Kammern über den ganzen ST4.2×25-Pfad unterdrückt.
+- **Innenwand:** 8 mm umlaufend; jede Seite besitzt an ±140 und ±165 mm
+  lokale 10-mm-Vollmaterialrippen über den ganzen 25-mm-Schraubpfad. Acht
+  der sechzehn möglichen Pfade werden durch die realen Belluna-Löcher genutzt.
+  Die Rippen sind oben an die Deckplatte angebunden und laufen unten mit 45°
+  aus; dadurch bleiben die 43-mm-Kammerzellen weitgehend erhalten und der
+  Druck bleibt supportfrei. Kollidierende Ventkanäle werden innerhalb ihrer
+  Zelle aus der Rippe verschoben.
 - **Außenwand:** geschlossen, unten gefast für die Sika-Kehlnaht zum Dach.
 - **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
   Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 47°-Chevron
@@ -125,10 +132,12 @@ Parametern und schreibt sie in die Montagenotiz.
 - **Unterseite:** Klebespalt-Noppen (3 mm) für definierte Elastikfugen-Dicke + umlaufende
   Kleberille für die Carloflex-Raupe.
 
-**Segmentierung:** Standard **4 beschriftete L-Ecksegmente**,
+**Segmentierung:** Standard **ein rotationsidentisches L-Ecksegment, 4× drucken**,
 Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: Halbüberlappung
 (Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 1 Durchsteckschraube M5 je Stoß
-(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Unterstützt sind vier Segmente.
+(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Die vier
+Kopien werden nur um Z gedreht, nie gespiegelt; ein starker Geometrietest
+prüft die Rotationsidentität über die symmetrische Differenz.
 
 **Thermik konstruktiv:** Standard-ASA α = 90 µm/(m·K), konservative
 Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit Epoxid und M5 vollständig
@@ -160,14 +169,14 @@ maxx150/
 │                        #   Segmentierung, Toleranzen — kommentiert
 ├── model/
 │   ├── frame.py         # Gesamtrahmen als B-Rep (FreeCAD Part-API)
-│   ├── segments.py      # Zerlegung in N Segmente, Verzahnung, Schraubdome
+│   ├── segments.py      # 4 Rotationskopien des Universalteils, Verzahnung
 │   └── features.py      # Kleberille, Noppen, Rippen, Fasen, Schraubkanäle
 ├── fem/
 │   ├── material.py      # ASA-Kennwerte + Abminderungskette
 │   ├── loadcases.py     # LF1–LF5 (Kräfte, Randbedingungen) als Code
 │   ├── run_fem.py       # Netgen-Mesh → CalculiX → Ergebnisextraktion
 │   └── report.py        # Markdown-Report, PASS/FAIL je Kriterium
-├── export/export.py     # STEP gesamt+Segmente, STL/3MF je Segment,
+├── export/export.py     # STEP gesamt + eine Universaldatei x4 (STEP/STL/3MF),
 │                        #   Fertigungs-/Montagenotiz (auto-generiert)
 ├── out/                 # Artefakte (gitignored)
 ├── run_all.py           # Pipeline: Modell → FEM → Export → Report
@@ -213,7 +222,8 @@ Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 
 ## 7. Export, Fertigung, Tests
 
-**Export:** STEP (gesamt + je Segment), STL + 3MF je Segment; Dateinamen mit Parameter-Hash.
+**Export:** STEP gesamt + genau eine Universal-Segmentdatei (`universal_segment_x4`)
+als STEP, STL und 3MF; Dateinamen mit Parameter-Hash.
 Auto-generierte Fertigungs-/Montagenotiz: Druckorientierung (liegend auf Deckfläche),
 ≥4 Perimeter, 100 % Infill (Kammern tragen die Gewichtsreduktion), Tempern-Empfehlung, Schraubenliste, Carloflex-Bedarf (aus
 Raupenlänge/-querschnitt berechnet), berechnete Wellenwahl (140 mm bei 35+28).
@@ -257,10 +267,10 @@ jede Messung ersetzt einen Default.
 | Pipeline | A: vollparametrisch, headless FreeCAD + CalculiX | B: GUI+Spreadsheet (nicht reproduzierbar) · C: CadQuery-Stack (Werkzeugvorgabe FreeCAD) |
 | Material | **lokal verfügbares Standard-ASA weiß/hell** (User-Datenblatt 2026-07-14) | PC/ABS schwarz (thermisch besser, UV/CTE/Solar ungünstig bzw. offen) · GF/CF-ASA (lokal nicht nötig) |
 | Befestigung | Kleben + seitliche Schrauben | nur Kleben (keine Redundanz) · Klemmen (Kriechen der Klemmstelle) |
-| Segmentierung | 4 beschriftete L-Ecksegmente, Stoß in Seitenmitte | Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
+| Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | — wird per Messkampagne Punkt 7 verifiziert |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Belluna-konform seitlich: 8× ST4.2×25 Platte→Adapter + 8× ST4.2×25 Adapter-Unterkragen→nachgerüsteter Holzrahmen; genau die 16 beiliegenden Schrauben, plus Kleber | von oben durch Dichtfläche (Belluna rät ab) · 12 erfundene Symmetrielöcher |
+| Dach-Befestigung | Belluna-konform seitlich: 8× ST4.2×25 Platte→Universalrippen ±140/±165 + 8× ST4.2×25 Adapter-Unterkragen im eigenen ±140-Raster→nachgerüsteter Holzrahmen; genau die 16 beiliegenden Schrauben, plus Kleber | Kopplung beider Lochraster (zwei Segmenttypen) · von oben durch Dichtfläche (Belluna rät ab) · 12 Schrauben |
 
 ## 10. Risiken und Gegenmaßnahmen
 
@@ -280,6 +290,7 @@ jede Messung ersetzt einen Default.
 
 1. `run_all.py` läuft fehlerfrei durch: Modell → FEM (alle LF PASS) → Export → Report.
 2. Alle Tests grün, inkl. Segmente-≡-Monolith und DFM-Checks.
-3. Druckdateien: 4 beschriftete Segmente, stützenfrei, Boundingbox ≤ 300 mm.
+3. Druckdateien: 1 Universal-Segment ×4, rotationsidentisch, stützenfrei,
+   Boundingbox ≤ 300 mm.
 4. Physisch: Segmente fügen sich passgenau, Lüfter mit 140er-Welle montierbar, Haube öffnet
    kollisionsfrei über der Dachkante, dicht nach Regenfahrt.

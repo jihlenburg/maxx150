@@ -457,3 +457,33 @@ vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
   **PASS mit Vorbehalt, keine Druckfreigabe**: A3a/reales Kragenmaß,
   Ausschnittmaß nach Demontage, heller Farbton und ein ASA-Probedruck mit
   Trocken-Fit bleiben physische Gates.
+
+## 2026-07-14 — Task 23: Ein Universal-Segment ×4 (GEOM_REV 6)
+
+- Vier seitenspezifische Dateien wieder auf ein rotationsidentisches
+  Universalteil zurückgeführt, ohne das reale Belluna-Lochbild zu verändern:
+  Dachinterface umlaufend 2× ±140 mm je Seite; Platteninterface hält auf jeder
+  Seite geschlossene Vollmaterialpfade für ±140 und ±165 mm vor. Nur die acht
+  realen Belluna-Außenlöcher werden durch die Platte gebohrt; die acht
+  ungenutzten Pfade sind massive Rippen, keine offenen Vorratslöcher.
+- Die frühere, grobe Lösung ließ an Schraubpositionen komplette 43-mm-
+  Kammerzellen aus. REV 6 erhält alle Zellen und fust nur 10 mm breite,
+  25 mm lange Rippen zurück. Die Rippen wachsen in Druckorientierung von der
+  Deckplatte mit 45°-Unterseite supportfrei auf. Nahe ±165 mm werden die
+  Ø4-Ventkanäle innerhalb ihrer Zelle um 4,5 mm verschoben; 1 mm Luft zur
+  Rippe und der offene Kanal im fertigen Boolean-Körper sind getestet.
+- Rotationsidentität wird geometrisch bewiesen: alle vier Montage-Shapes
+  werden um −k×90° zurückgedreht, die symmetrische Differenz zum Referenzteil
+  bleibt <1 mm³. Montage nur drehen, nie spiegeln/umdrehen.
+- Export erzeugt genau fünf Artefakte: Gesamt-STEP, Universal-STEP,
+  Universal-STL, Universal-3MF und Montagenotiz. Hash `081422f2`; die eine
+  Datei heißt `universal_segment_x4_081422f2.*`.
+- Stückvolumen 461842,87 mm³, bei ρ=1,07 g/cm³ rund 494,17 g; vier Teile
+  rund 1,977 kg. Gegen REV 5 sinkt die Druckmasse um rund 100,3 g, obwohl nun
+  jede Seite beide Belluna-Rippenvarianten trägt.
+- Volle Suite: **92 bestanden, 0 fehlgeschlagen**. Produktionslauf 190 s:
+  DFM 4× PASS (2948/8834, danach 2935/8834 mm²); FEM LF1 0,75/8,40,
+  LF2 0,37/8,40, LF3 1,35/3,36, LF4 0,11/8,40 MPa; Stoß
+  3,38/8,40 MPa, alles PASS. Gesamtstatus weiterhin bewusst **PASS mit
+  Vorbehalt, keine Druckfreigabe** bis A3a/Ausschnitt/Holzrahmen real geprüft
+  und ein helles ASA-Segment als Ebenheits-/Trocken-Fit-Probedruck vorliegt.

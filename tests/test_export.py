@@ -22,29 +22,27 @@ def test_export_erzeugt_alle_dateien():
     names = {f.name for f in files}
     h = PRM.params_hash()
     assert f"frame_{h}.step" in names
-    for k in range(4):
-        assert f"seg{k}_{h}.step" in names
-        assert f"seg{k}_{h}.stl" in names
-        assert f"seg{k}_{h}.3mf" in names
+    for ext in ("step", "stl", "3mf"):
+        assert f"universal_segment_x4_{h}.{ext}" in names
+    assert not any(name.startswith("seg") for name in names)
     assert f"montagenotiz_{h}.md" in names
 
 def test_step_reimport_volumen():
     _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
     s = Part.Shape()
-    s.read(f"out/test_export/seg0_{h}.step")
+    s.read(f"out/test_export/universal_segment_x4_{h}.step")
     assert s.Volume > 1e5
 
 
 def test_stl_liegt_druckorientiert_auf_z_null():
     _export()
     h = PRM.params_hash()
-    for k in range(4):
-        mesh = Mesh.Mesh(f"out/test_export/seg{k}_{h}.stl")
-        bb = mesh.BoundBox
-        assert abs(bb.ZMin) < 1e-6
-        assert 46.9 < bb.ZLength < 47.1
-        assert max(bb.XLength, bb.YLength) <= PRM.P.SEG_MAX_BBOX
+    mesh = Mesh.Mesh(f"out/test_export/universal_segment_x4_{h}.stl")
+    bb = mesh.BoundBox
+    assert abs(bb.ZMin) < 1e-6
+    assert 46.9 < bb.ZLength < 47.1
+    assert max(bb.XLength, bb.YLength) <= PRM.P.SEG_MAX_BBOX
 
 def test_montagenotiz_inhalt():
     _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
@@ -54,5 +52,6 @@ def test_montagenotiz_inhalt():
                  "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid",
                  "PFLICHT gegen Verzug", "beheizter Bauraum", "Brim",
                  "PFLICHT", "ISO-20653", "M5x", "Standard-ASA",
-                 "ST 4.2×25", "16 Belluna-Schrauben", "HDT", "Kammer"):
+                 "ST 4.2×25", "16 Belluna-Schrauben", "HDT", "Kammer",
+                 "Universal-Segment", "4x identisch", "nicht spiegeln"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"

@@ -48,7 +48,7 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
     bead_ml = groove_len * p.GROOVE_W * (p.GLUE_GAP + p.GROOVE_D) / 1000.0
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
-## Druck (4 beschriftete Segmente; Lochlayout seitenspezifisch)
+## Druck (1 Universal-Segment, **4x identisch drucken**)
 - Material: **{p.MATERIAL_NAME}, weiß/hell** — keine GF-/CF-Füllung
   vorausgesetzt. Hell = geringere Solaraufheizung; die Thermik-Auslegung setzt
   das voraus. Düsen-/Bett-/Trocknungswerte nach Datenblatt der tatsächlich
@@ -60,6 +60,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Orientierung: **Deckfläche nach unten**; damit liegen die Hauptlasten in XY
   und alle 47°-Flächen sind supportfrei. Keine Supports in Kammern oder
   Schraubkanälen zulassen. Layerhöhe 0,20 mm als Ausgangspunkt, 0,4-mm-Düse.
+- Alle vier Teile kommen aus derselben Datei `universal_segment_x4`: beim
+  Zusammenbau ausschließlich um Z drehen, **nicht spiegeln oder umdrehen**.
+  Jede Halbüberlappung greift dann zyklisch in den nächsten identischen Stoß.
 - Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
   übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
   Porenschluss), 0,4er Düse.
@@ -97,7 +100,8 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Der **Unterkragen** taucht in den Dachausschnitt ({p.BOT_KRAGEN_CLEAR} mm
   Radialluft je Seite) und zentriert den Rahmen. Nach dem Ausrichten:
   **8 der beiliegenden ST {p.BOT_KRAGEN_SCREW_D:.1f}×{p.BOT_KRAGEN_SCREW_L:.0f}**
-  durch die zwei Kragenlöcher je Seite seitlich in den Ausschnittsrand —
+  durch die zwei Kragenlöcher je Seite bei **±140 mm** seitlich in den
+  Ausschnittsrand —
   dieselbe optionale Holzrahmen-Methode wie Belluna, nicht von oben durch die
   Dichtfläche schrauben. Vorbohrdurchmesser am realen Holz per Probeschraube
   festlegen. **EINBAUSCHRITT Holzrahmen** (User-
@@ -114,11 +118,14 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Carloflex/Sika-252-Raupe in die untere Kleberille: ca. **{bead_ml:.0f} ml**
   (+ Kehlnaht außen). Noppen definieren {p.GLUE_GAP} mm Fugendicke — NICHT auspressen.
 - Karosseriebefestigungsplatte mit Carloflex in der Ringklebenut auf die
-  Deckfläche kleben. Von den zehn gemessenen seitlichen Belluna-Löchern nur
-  die **acht äußeren** (je ±140 mm auf FRONT/REAR, je ±165 mm auf LEFT/RIGHT)
-  mit den übrigen 8 beiliegenden ST4.2×25 in die dafür massiv gehaltenen
-  Adapterzonen schrauben; die zwei Mittellöcher an den Segmentstößen bleiben
-  frei. Damit werden insgesamt exakt die 16 Belluna-Schrauben verwendet.
+  Deckfläche kleben. Jede Adapterseite besitzt geschlossene Vollmaterialrippen
+  für **beide** Belluna-Varianten ±140 und ±165 mm, aber keine offenen
+  Vorratslöcher. Von den zehn realen seitlichen Belluna-Löchern nur die
+  **acht äußeren** durch die Platte in die jeweils dahinterliegende Rippe
+  vorbohren und mit den übrigen 8 beiliegenden ST4.2×25 verschrauben; die zwei
+  Mittellöcher an den Segmentstößen bleiben frei. Damit werden insgesamt
+  exakt die 16 Belluna-Schrauben verwendet. Dach-±140 und Belluna-±140/±165
+  sind zwei bewusst unabhängige Schraubebenen.
 - Die vier PT4.0×12 für Lüfter-Hauptelement→Karosseriebefestigungsplatte und
   das Belluna-Anzugsmoment 0,7 Nm bleiben gegenüber der Anleitung unverändert.
 
@@ -135,8 +142,11 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
     baut nur, was NICHT übergeben wurde -- run_all.py hat frame/segments für
     FEM/DFM-Gate ohnehin schon gebaut und reicht sie durch (spart ~20-30 s
     je Produktionslauf, keine doppelten build_frame/build_segments-Booleans
-    mehr). Rückwärtskompatibel: ohne Argumente identisches Verhalten wie
-    zuvor (bestehende Aufrufer/Tests unverändert grün)."""
+    mehr). Ohne Argumente bleibt der Aufruf kompatibel; GEOM_REV 6 exportiert
+    jedoch bewusst nur noch das eine Universal-Segment mit Stückzahl x4."""
+    PRM.validate(p)
+    if len(set(PRM.side_top_widths(p))) != 1:
+        raise ValueError("Universal-Segment-Export setzt vier gleiche W_TOP-Breiten voraus")
     h = PRM.params_hash(p)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -150,15 +160,20 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
 
     if segments is None:
         segments = build_segments(p)
-    for k, seg in enumerate(segments):
-        sp = out / f"seg{k}_{h}.step"
-        seg.exportStep(str(sp))
-        files.append(sp)
-        printable = _print_oriented(seg)
-        for ext in (".stl", ".3mf"):
-            mp = out / f"seg{k}_{h}{ext}"
-            _write_mesh(printable, mp)
-            files.append(mp)
+    if len(segments) != 4:
+        raise ValueError(f"Universal-Export erwartet 4 Montagekopien, bekam {len(segments)}")
+    # GEOM_REV 6: alle vier Shapes sind Rotationskopien desselben physischen
+    # Teils. Nur die kanonische Datei exportieren; Stückzahl steht im Namen.
+    segment = segments[0]
+    stem = f"universal_segment_x4_{h}"
+    sp = out / f"{stem}.step"
+    segment.exportStep(str(sp))
+    files.append(sp)
+    printable = _print_oriented(segment)
+    for ext in (".stl", ".3mf"):
+        mp = out / f"{stem}{ext}"
+        _write_mesh(printable, mp)
+        files.append(mp)
 
     note = out / f"montagenotiz_{h}.md"
     note.write_text(_montagenotiz(p, h), encoding="utf-8")

@@ -162,21 +162,37 @@ def _side_neighbor_bounds(p: PRM.Params):
 
 
 def _plate_screw_offsets_by_chamber_side(p: PRM.Params):
-    """Belluna-Seitenlöcher in Kammerreihenfolge REAR, RIGHT, FRONT, LEFT.
+    """Universelle Belluna-Vollzonen je Seite, Reihenfolge REAR/RIGHT/FRONT/LEFT.
 
-    ``BOT_KRAGEN_HOLE_OFFS_BY_SIDE`` ist in der Werkzeug-Rotationsreihenfolge
-    RIGHT, FRONT, LEFT, REAR abgelegt. Ober- und Unterinterface verwenden
-    bewusst dieselben acht äußeren Belluna-Positionen.
+    Jede Seite unterstützt beide am Original vorkommenden Außenlochpaare
+    ±140/±165. Die Platte nutzt davon nur ihr reales Paar. Weil die vier
+    Tupel absichtlich gleich sind, bleibt der Rahmen 90°-rotationssymmetrisch.
     """
-    right, front, left, rear = p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE
-    return rear, right, front, left
+    return (p.PLATE_SCREW_OFFS,) * 4
 
 
-def _without_plate_screw_cells(centers, offsets, p: PRM.Params):
-    """Entfernt Kammerzellen, die den radialen ST4.2-Schraubpfad kreuzen."""
-    keep = p.CELL_L / 2 + p.PLATE_SCREW_KEEP_HALF
-    return [center for center in centers
-            if all(abs(center - offset) > keep for offset in offsets)]
+def _vent_u_clear_of_plate_boss(uc, p: PRM.Params):
+    """Verschiebt einen Vent-Kanal innerhalb seiner Zelle aus Schraubrippen.
+
+    Die regulären ±168,5-mm-Zellzentren liegen nahe den universellen
+    ±165-mm-Rippen. Der Vent-Kanal wandert dort nur so weit zur Ecke, dass
+    zwischen Ø4-Vent und Rippe 1 mm Luft bleibt. Die Kavität selbst bleibt
+    unverändert; damit entstehen weder eine grobe 43-mm-Vollzone noch ein
+    geschlossener Hohlraum durch ein nachträglich versiegeltes Vent.
+    """
+    clearance = p.PLATE_SCREW_BOSS_HALF + p.VENT_D / 2 + 1.0
+    nearest = min(p.PLATE_SCREW_OFFS, key=lambda offset: abs(uc - offset))
+    distance = abs(uc - nearest)
+    if distance >= clearance:
+        return uc
+    direction = 1.0 if uc >= 0 else -1.0
+    shift = clearance - distance
+    shifted = uc + direction * shift
+    max_shift = p.CELL_L / 2 - p.VENT_D / 2 - 1.0
+    if abs(shifted - uc) > max_shift:
+        raise ValueError("Vent kann innerhalb der Kammerzelle nicht aus der "
+                         "Belluna-Schraubrippe verschoben werden")
+    return shifted
 
 
 def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
@@ -191,11 +207,10 @@ def chamber_slot_count(p: PRM.Params = PRM.P) -> int:
     if not p.CHAMBERS:
         return 0
     total = 0
-    screw_offsets = _plate_screw_offsets_by_chamber_side(p)
     for k, (plus_w, minus_w) in enumerate(_side_neighbor_bounds(p)):
         centers = (_chamber_cell_centers(p, plus_w)
                    + [-c for c in _chamber_cell_centers(p, minus_w)])
-        total += len(_without_plate_screw_cells(centers, screw_offsets[k], p))
+        total += len(centers)
     return total
 
 
@@ -397,15 +412,12 @@ def _chamber_cuts(p: PRM.Params):
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = _side_neighbor_bounds(p)
     side_widths = PRM.side_top_widths(p)
-    screw_offsets = _plate_screw_offsets_by_chamber_side(p)
-
     tools = []
     for k in range(4):
         plus_w, minus_w = neighbor_bounds[k]
         plus_half = _chamber_cell_centers(p, plus_w)
         minus_half = _chamber_cell_centers(p, minus_w)
-        centers = _without_plate_screw_cells(
-            plus_half + [-c for c in minus_half], screw_offsets[k], p)
+        centers = plus_half + [-c for c in minus_half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
@@ -413,12 +425,13 @@ def _chamber_cuts(p: PRM.Params):
                                       side_widths[k])
                 tools.append(F.rotz(cav, k))
             # Vent 1: Innenfläche (Öffnungskante) -> Kammerring 1 (durch INNER_WALL)
+            vent_u = _vent_u_clear_of_plate_boss(uc, p)
             v1 = Part.makeCylinder(p.VENT_D / 2, p.INNER_WALL + 2,
-                                   Vector(p.CUTOUT_W / 2 - 1, uc, p.VENT_Z),
+                                   Vector(p.CUTOUT_W / 2 - 1, vent_u, p.VENT_Z),
                                    Vector(1, 0, 0))
             # Vent 2: Kammerring 1 -> Kammerring 2 (durch den Steg CHAMBER_RIB)
             v2 = Part.makeCylinder(p.VENT_D / 2, p.CHAMBER_RIB + 2,
-                                   Vector(r_out1 - 1, uc, p.VENT_Z),
+                                   Vector(r_out1 - 1, vent_u, p.VENT_Z),
                                    Vector(1, 0, 0))
             tools.append(F.rotz(v1, k))
             tools.append(F.rotz(v2, k))
@@ -452,6 +465,35 @@ def _drainage_cuts(p: PRM.Params):
     return tools
 
 
+def _plate_screw_bosses(p: PRM.Params):
+    """Lokale, FDM-gerechte Vollmaterialpfade für Belluna ST4.2x25.
+
+    Kanonisch beginnt jede Rippe an der +x-Öffnungswand und endet nach
+    PLATE_SCREW_BOSS_L im massiven Steg zwischen Kammerring 1 und 2. Der
+    Querschnitt in (u,z) ist oben mit der Deckfläche verbunden und läuft
+    unter der Schraubachse als 45°-Spitze aus: in Druckorientierung
+    (Deckfläche auf dem Bett) wächst er ohne Support aus der Deckplatte.
+    Beide Belluna-Varianten ±140/±165 sind auf jeder Seite vorhanden, aber
+    ohne vorgefertigte Löcher; gebohrt wird nur durch das reale Plattenloch.
+    """
+    h = top_z(p)
+    zc = h - p.PLATE_SCREW_Z_FROM_TOP
+    half = p.PLATE_SCREW_BOSS_HALF
+    x0 = p.CUTOUT_W / 2
+    bosses = []
+    for offset in p.PLATE_SCREW_OFFS:
+        points = [Vector(x0, offset - half, h),
+                  Vector(x0, offset + half, h),
+                  Vector(x0, offset + half, zc),
+                  Vector(x0, offset, zc - half),
+                  Vector(x0, offset - half, zc)]
+        face = Part.Face(Part.makePolygon(points + [points[0]]))
+        boss = face.extrude(Vector(p.PLATE_SCREW_BOSS_L, 0, 0))
+        for k in range(4):
+            bosses.append(F.rotz(boss, k))
+    return bosses
+
+
 def _nopple_positions(p):
     """Zwei Noppenringe: innen (zwischen Öffnung und Rille) und außen
     (zwischen Rille und Außenkante)."""
@@ -465,8 +507,9 @@ def _nopple_positions(p):
 def _bot_kragen_tools(p):
     """Unterkragen: dupliziert den Belluna-Einbaukragen nach
     unten -- taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und trägt
-    2 seitliche Schraubenlöcher je Seite (8 gesamt, die äußeren Positionen
-    des gemessenen Belluna-Lochbilds). Rückgabe (fuse_teile, loch_cutter).
+    2 seitliche Schraubenlöcher je Seite (8 gesamt, umlaufend identisch bei
+    ±140 und bewusst unabhängig vom Belluna-Lochbild). Rückgabe
+    (fuse_teile, loch_cutter).
 
     Aufbau: Der Kragen (außen CUTOUT_W-2*CLEAR) liegt radial INNERHALB der
     Öffnungswand und hätte allein keinen Materialkontakt. Ein Übergangsring
@@ -499,8 +542,8 @@ def _bot_kragen_tools(p):
 
     cutters = []
     z_loch = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
-    for k, offsets in enumerate(p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE):
-        for off in offsets:
+    for k in range(4):
+        for off in p.BOT_KRAGEN_HOLE_OFFS:
             zyl = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2, p.BOT_KRAGEN_T + 4,
                                     Vector(off, ki / 2 - 2, z_loch), Vector(0, 1, 0))
             cutters.append(F.rotz(zyl, k))
@@ -535,6 +578,15 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
         body = body.removeSplitter()
         if not body.isValid():
             raise RuntimeError("frame: Kammer-Cuts ergaben ungültigen Körper")
+
+    # Universelle Belluna-Schraubrippen erst NACH den Kammer-Cuts einsetzen:
+    # so bleiben die Kavitäten bis auf die lokalen 10-mm-Pfade erhalten.
+    # Die Vent-Kanäle wurden oben nötigenfalls innerhalb ihrer Zelle versetzt,
+    # damit keine Rippe den einzigen Druckausgleich einer Zelle verschließt.
+    body = body.fuse(_plate_screw_bosses(p))
+    body = body.removeSplitter()
+    if not body.isValid():
+        raise RuntimeError("frame: Belluna-Schraubrippen ergaben ungültigen Körper")
 
     # Bewitterte 25-mm-Außenablage der 450er Belluna-Platte entwässern.
     body = body.cut(Part.makeCompound(_drainage_cuts(p)))

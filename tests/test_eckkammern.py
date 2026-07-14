@@ -1,9 +1,9 @@
 """Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
 die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
 Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
-Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-5-Anker enthalten jetzt
-Entwässerungsfase und massive Belluna-Schraubpfade: EIN 1687528.841816324,
-AUS 1719026.358419377 mm³ (siehe test_eckkammern_default_anker und
+Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-6-Anker enthalten jetzt
+Entwässerungsfase und lokale Universal-Schraubrippen: EIN 1597985.5915437404,
+AUS 1629483.1080823927 mm³ (siehe test_eckkammern_default_anker und
 test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
 Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
 selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
@@ -121,18 +121,22 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 
 
 def test_eckkammern_default_anker():
-    """GEOM_REV-5-Anker mit Entwässerung und Schraub-Vollzonen."""
+    """GEOM_REV-6-Anker mit lokalen Universal-Schraubrippen.
+
+    Gegenüber REV 5 bleiben die 43-mm-Kammerzellen erhalten; nur kompakte
+    10-mm-Rippen werden zurückgefust. Das erklärt die bewusste Volumenabnahme.
+    """
     v = _frame_default().Volume
-    assert abs(v - 1687528.841816324) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
+    assert abs(v - 1597985.5915437404) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
     assert h_default != h_alt_feld
 
 
 def test_eckkammern_ausschalt_anker():
-    """GEOM_REV-5-AUS-Anker ohne Eckkammern."""
+    """GEOM_REV-6-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 1719026.358419377) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 1629483.1080823927) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -145,14 +149,12 @@ def _side_cavities_only(p):
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = frame._side_neighbor_bounds(p)
     side_widths = PRM.side_top_widths(p)
-    screw_offsets = frame._plate_screw_offsets_by_chamber_side(p)
     tools = []
     for k in range(4):
         plus_w, minus_w = neighbor_bounds[k]
         plus_half = frame._chamber_cell_centers(p, plus_w)
         minus_half = frame._chamber_cell_centers(p, minus_w)
-        centers = frame._without_plate_screw_cells(
-            plus_half + [-c for c in minus_half], screw_offsets[k], p)
+        centers = plus_half + [-c for c in minus_half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
             for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
@@ -214,12 +216,12 @@ def test_eckkammern_delta_und_keepout_exakt():
     gegen den damaligen AUS-Default): der Keepout-Filter greift bei
     Default-Parametern NICHT -- corner_keepout ist 196.22 mm (siehe
     frame._corner_keepout), die tatsächliche Reichweite der letzten Zelle
-    bei Default-CELL_L=45 ist nur 193 mm, es wird also nichts gefiltert und
+    bei Default-CELL_L=43 ist nur 193 mm, es wird also nichts gefiltert und
     das Zellraster bleibt bitidentisch zum Stand ohne Filter. Deshalb ist
-    das GEOM_REV-5-Delta AUS-EIN exakt 31497.516603053 mm³."""
+    das GEOM_REV-6-Delta AUS-EIN exakt 31497.516538652 mm³."""
     v_eck = _frame_default().Volume
     delta = _frame_aus().Volume - v_eck
-    assert abs(delta - 31497.516603053) < 1.0, f"Delta driftete: {delta:.3f} mm³"
+    assert abs(delta - 31497.516538652) < 1.0, f"Delta driftete: {delta:.3f} mm³"
     keepout = frame._corner_keepout(PRM.P)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"
 

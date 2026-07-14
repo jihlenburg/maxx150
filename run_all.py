@@ -36,13 +36,13 @@ t0 = time.time()
 segments = build_segments(p)
 print(f"  Segmente gebaut ({time.time() - t0:.1f} s)")
 
-print("DFM-Überhangs-Gate je Segment (Druckorientierung kopfüber) …")
+print("DFM-Überhangs-Gate für 4 Rotationskopien des Universal-Segments …")
 dfm_failed = []
 for i, seg in enumerate(segments):
     bad, allowed = overhang_area(seg, p)
     limit = allowed * 1.2 + 200
     status = "PASS" if bad <= limit else "FAIL"
-    print(f"  DFM Segment {i}: {bad:.0f}/{limit:.0f} mm² Überhang -> {status}")
+    print(f"  DFM Universal-Kopie {i}: {bad:.0f}/{limit:.0f} mm² Überhang -> {status}")
     if bad > limit:
         dfm_failed.append(i)
 if dfm_failed:
@@ -94,7 +94,7 @@ exported = export_all(p, "out", frame=frame, segments=segments)
 for f in exported:
     print(f"  {f}")
 print(f"  Export fertig ({time.time() - t0:.1f} s, frame/segments durchgereicht "
-      f"-- M4: kein erneutes build_frame/build_segments)")
+      f"-- eine Universal-Datei x4, kein erneutes build_frame/build_segments)")
 
 try:
     git_rev = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,

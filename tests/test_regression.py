@@ -18,6 +18,8 @@ REFERENZ = {
     #   massive ST4.2-Schraubpfade ändern die Steifigkeitsverteilung bewusst.
     #   Re-Baseline aus separatem Grobnetzlauf: LF1 0.7305, LF3 1.3767 MPa;
     #   die unveränderte ±15-%-Toleranz fängt weitere Drift weiterhin ab.
+    # - GEOM_REV 6: lokale statt 43-mm-breiter Schraub-Vollzonen; separater
+    #   Grobnetzlauf bleibt innerhalb derselben unveränderten 15-%-Bänder.
     "LF1_wind": 0.74,
     "LF3_klemmung": 1.38,
 }

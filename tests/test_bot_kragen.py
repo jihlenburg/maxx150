@@ -46,8 +46,8 @@ def test_loecher_vorhanden_und_frei():
     z = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
     frame = _frame()
     geprueft = 0
-    for k, offsets in enumerate(p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE):
-        for off in offsets:
+    for k in range(4):
+        for off in p.BOT_KRAGEN_HOLE_OFFS:
             sonde = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
                                       p.BOT_KRAGEN_T + 2,
                                       Vector(off, ki / 2 - 1, z), Vector(0, 1, 0))
@@ -70,9 +70,8 @@ def test_ohne_kragen_flach_und_anderer_hash():
 
 
 def test_validate_faengt_kragen_brecher():
-    lochbild_mit_stossloch = ((-165.0, 165.0), (-140.0, 0.0, 140.0),
-                              (-165.0, 165.0), (-140.0, 140.0))
-    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS_BY_SIDE=lochbild_mit_stossloch),
+    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 0.0, 140.0)),
+                   PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 150.0)),
                    PRM.Params(BOT_KRAGEN_DEPTH=34.0),
                    PRM.Params(BOT_KRAGEN_HOLE_Z=17.0),
                    PRM.Params(BOT_KRAGEN_CLEAR=0.2)):
@@ -81,6 +80,13 @@ def test_validate_faengt_kragen_brecher():
             assert False, "erwartete ValueError"
         except ValueError:
             pass
+
+
+def test_dachschrauben_sind_umlaufend_identisch_und_unabhaengig_von_belluna():
+    p = PRM.P
+    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
+    assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
+    assert PRM.bot_kragen_hole_count(p) == 8
 
 
 def test_kragen_volumendelta_plausibel():

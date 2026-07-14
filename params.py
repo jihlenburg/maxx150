@@ -15,8 +15,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
-    GEOM_REV: int = 5            # 5: Schnittstellen-Freigang, Entwässerungsfase,
-                                  # Stoßschraubenlage und Kragenloch-Layout
+    GEOM_REV: int = 6            # 6: rotationsidentisches Universal-Segment;
+                                  # Dach- und Belluna-Schraubraster entkoppelt
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung, Messkampagne 6)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -78,17 +78,16 @@ class Params:
     # --- Unterkragen (User-Entscheidung 2026-07-13): dupliziert den Belluna-
     # Einbaukragen nach UNTEN -- taucht in den Dachausschnitt und wird dort
     # SEITLICH verschraubt (Methode der Belluna-Anleitung; mechanische
-    # Redundanz zum Kleber am Dach-Interface). Verwendet werden die acht
-    # äußeren Positionen des gemessenen Belluna-3/2/3/2-Lochbilds; die beiden
-    # Mittellöcher an Segmentstößen bleiben frei. Es wird nicht zugunsten
-    # identischer Segmente verändert. Die beiliegenden Schrauben sind laut
-    # Belluna-Anleitung ST 4.2x25: 8x Platte->Adapter und 8x Adapter->Holz. Die
-    # Lastabtragung erfolgt ausschließlich in den nachgerüsteten Holzrahmen,
-    # nicht in XPS. Das Layout ist je Seite separat parametriert; die symme-
-    # trischen Defaults folgen dem umlaufend gleichen Schraubgrund und sind
-    # keine Folge identischer Drucksegmente. KEIN Loch bei 0 (Seitenmitte =
-    # Segmentstoß). Druckorientierung kopfüber -> Kragen zeigt im Druck nach
-    # oben, 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
+    # Redundanz zum Kleber am Dach-Interface). Dieses Dachinterface ist seit
+    # GEOM_REV 6 bewusst vom 3/2/3/2-Lochbild der Belluna-Platte entkoppelt:
+    # acht umlaufend gleiche Löcher bei ±140 gehen in den nachgerüsteten
+    # Holzrahmen. Die Belluna-Platte nutzt oben weiterhin ihre realen
+    # ±140/±165-Positionen, dort aber universelle lokale Vollmaterialrippen.
+    # So bleibt jedes der vier Druckteile rotationsidentisch. Die 16
+    # beiliegenden ST4.2x25 bleiben vollständig zugeordnet: 8x
+    # Platte->Adapter und 8x Adapter->Holz. KEIN Loch bei 0 (Segmentstoß).
+    # Druckorientierung kopfüber -> Kragen zeigt im Druck nach oben,
+    # 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
     BOT_KRAGEN: bool = True
     BOT_KRAGEN_T: float = 4.0        # Wandstärke
     BOT_KRAGEN_CLEAR: float = 1.0    # Belluna-Nennschnittstelle: ~398 in 400
@@ -98,15 +97,14 @@ class Params:
     BOT_KRAGEN_HOLE_Z: float = 10.0  # Lochmitte unter Dachoberfläche (wie Belluna)
     BOT_KRAGEN_SCREW_D: float = 4.2  # Belluna-Lieferumfang: ST 4.2x25
     BOT_KRAGEN_SCREW_L: float = 25.0
-    # Reihenfolge: RIGHT, FRONT, LEFT, REAR (Rotationsreihenfolge des
-    # kanonischen +y-Lochs in model/frame.py::_bot_kragen_tools).
-    BOT_KRAGEN_HOLE_OFFS_BY_SIDE: tuple = (
-        (-165.0, 165.0),         # RIGHT
-        (-140.0, 140.0),         # FRONT
-        (-165.0, 165.0),         # LEFT
-        (-140.0, 140.0),         # REAR
-    )
-    PLATE_SCREW_KEEP_HALF: float = 5.0  # Vollmaterial um obere ST4.2-Schrauben
+    BOT_KRAGEN_HOLE_OFFS: tuple = (-140.0, 140.0)  # identisch auf allen 4 Seiten
+    # Obere Belluna-Platte: jede Segmenthälfte bietet BEIDE möglichen
+    # Außenloch-Abstände. Nur das am realen Plattenloch liegende Paar wird
+    # verschraubt; es entstehen keine ungenutzten offenen Löcher.
+    PLATE_SCREW_OFFS: tuple = (-165.0, -140.0, 140.0, 165.0)
+    PLATE_SCREW_Z_FROM_TOP: float = 10.0  # F2: Lochmitte unter Plattenauflage
+    PLATE_SCREW_BOSS_HALF: float = 5.0    # 10-mm-Rippe um ST4.2-Schraubachse
+    PLATE_SCREW_BOSS_L: float = 25.0      # radialer Vollmaterialpfad
     PLATE_KRAGEN_D: float = 19.0     # Belluna-Einbaukragen-Tiefe (A4a GEMESSEN
                                       # 2026-07-13): dessen Spitze endet bei
                                       # top_z - 19 -- Schnittstellen-Gate unten
@@ -158,11 +156,10 @@ class Params:
     INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
     CHAMBER_W: float = 15.0    # radiale Kammerbreite (2 konzentrische Ringe)
     CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
-    CELL_L: float = 43.0       # Zellenteilung entlang der Seite. 45->43
-                                # (2026-07-13, Passungstest): rückt die Vent-
-                                # Kanäle (an den Zellzentren, VENT_Z 17) von den
-                                # Belluna-F-Schrauben (±165, z 15) weg -- bei 45
-                                # lag Vent 161.5 nur 0.03 mm an der Schraube
+    CELL_L: float = 43.0       # Zellenteilung entlang der Seite. Vent-Kanäle,
+                                # die einer Universal-Schraubrippe zu nahe
+                                # kommen, werden innerhalb ihrer Zelle lokal
+                                # zur Ecke verschoben (model/frame.py).
     CELL_RIB: float = 3.0      # Quersteg zwischen Zellen
     SOLID_CORNER: float = 45.0 # massiv ab Eck-Außenkante
     SOLID_JOINT_HALF: float = 40.0  # massiv um Seitenmitte (deckt Lap + M5)
@@ -241,7 +238,7 @@ def top_surface_z(p: Params, radius: float, side_width: float) -> float:
 
 def bot_kragen_hole_count(p: Params = P) -> int:
     """Gesamtzahl der seitlichen Dachschrauben."""
-    return sum(len(offsets) for offsets in p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE)
+    return 4 * len(p.BOT_KRAGEN_HOLE_OFFS)
 
 
 def min_band(p: Params = P) -> float:
@@ -411,6 +408,30 @@ def validate(p: Params = P) -> None:
                     f"Eckkammer-Keepout {corner_keepout:.2f} mm liegt nicht über "
                     f"SOLID_JOINT_HALF {p.SOLID_JOINT_HALF}: kein Platz für irgendeine Zelle "
                     f"im Band (CORNER_ANGLE_MARGIN erhöhen oder CORNER_GAP senken)")
+    # Obere Belluna-Schnittstelle ist geometrisch unabhängig vom optionalen
+    # Unterkragen und muss deshalb auch bei BOT_KRAGEN=False validiert werden.
+    plate_offsets = p.PLATE_SCREW_OFFS
+    if len(plate_offsets) != 4 or len(set(plate_offsets)) != 4:
+        fehler.append("PLATE_SCREW_OFFS braucht vier verschiedene universelle Positionen")
+    else:
+        if any(-offset not in plate_offsets for offset in plate_offsets):
+            fehler.append("PLATE_SCREW_OFFS muss vorzeichen-symmetrisch sein")
+        if min(abs(o) for o in plate_offsets) < p.SOLID_JOINT_HALF + p.PLATE_SCREW_BOSS_HALF:
+            fehler.append("Belluna-Schraubrippe erreicht die massive Segmentstoßzone")
+        if (max(abs(o) for o in plate_offsets) + p.PLATE_SCREW_BOSS_HALF
+                > p.CUTOUT_W / 2 - p.CUTOUT_R):
+            fehler.append("Belluna-Schraubrippe erreicht den Eckradius")
+    if p.PLATE_SCREW_BOSS_HALF < p.BOT_KRAGEN_SCREW_D / 2 + 2.0:
+        fehler.append("PLATE_SCREW_BOSS_HALF lässt <2 mm Material neben ST4.2")
+    boss_min_l = p.INNER_WALL + p.CHAMBER_W
+    boss_max_l = boss_min_l + p.CHAMBER_RIB
+    if not (boss_min_l <= p.PLATE_SCREW_BOSS_L <= boss_max_l):
+        fehler.append(f"PLATE_SCREW_BOSS_L={p.PLATE_SCREW_BOSS_L} muss im "
+                      f"Zwischensteg {boss_min_l:.1f}..{boss_max_l:.1f} mm enden")
+    screw_z = (p.H_RAISE - p.GLUE_GAP) - p.PLATE_SCREW_Z_FROM_TOP
+    if screw_z - p.PLATE_SCREW_BOSS_HALF < p.BOTTOM_T + 1.0:
+        fehler.append("Belluna-Schraubrippe reicht zu nah an Kammerboden/Bodenplatte")
+
     if p.BOT_KRAGEN:
         if p.BOT_KRAGEN_CLEAR < 0.5:
             fehler.append(f"BOT_KRAGEN_CLEAR={p.BOT_KRAGEN_CLEAR} < 0.5 mm Radialluft: "
@@ -424,22 +445,22 @@ def validate(p: Params = P) -> None:
         if p.BOT_KRAGEN_HOLE_Z + p.BOT_KRAGEN_HOLE_D / 2 + 1.0 > p.BOT_KRAGEN_DEPTH:
             fehler.append(f"Kragenloch (z={p.BOT_KRAGEN_HOLE_Z}, Ø{p.BOT_KRAGEN_HOLE_D}) "
                           f"unterschreitet den Kragenrand (Tiefe {p.BOT_KRAGEN_DEPTH})")
-        hole_sides = p.BOT_KRAGEN_HOLE_OFFS_BY_SIDE
-        if len(hole_sides) != 4 or any(not offsets for offsets in hole_sides):
-            fehler.append("BOT_KRAGEN_HOLE_OFFS_BY_SIDE braucht 4 nichtleere Seitenlisten")
+        offsets = p.BOT_KRAGEN_HOLE_OFFS
+        if len(offsets) != 2 or len(set(offsets)) != 2:
+            fehler.append("BOT_KRAGEN_HOLE_OFFS braucht genau zwei verschiedene Offsets")
         else:
+            if abs(sum(offsets)) > 1e-6:
+                fehler.append("BOT_KRAGEN_HOLE_OFFS muss als symmetrisches ±Paar "
+                              "rotationsidentische Segmente ergeben")
             if bot_kragen_hole_count(p) != 8:
                 fehler.append("Unterkragen braucht genau 8 Löcher: zweite Hälfte der 16 "
                               "beiliegenden Belluna-ST4.2x25")
-            for side, offsets in enumerate(hole_sides):
-                if len(set(offsets)) != len(offsets):
-                    fehler.append(f"Doppelte Kragenloch-Offsets auf Seite {side}")
-                if min(abs(o) for o in offsets) < p.LAP_L + 10.0:
-                    fehler.append(f"Kragenloch auf Seite {side} zu nah an der Seitenmitte "
-                                  f"(min |Offset| < LAP_L+10 = {p.LAP_L + 10.0:.0f})")
-                if (max(abs(o) for o in offsets) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
-                        > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
-                    fehler.append(f"Kragenloch auf Seite {side} läuft in den Eckradius")
+            if min(abs(o) for o in offsets) < p.LAP_L + 10.0:
+                fehler.append(f"Kragenloch zu nah an der Seitenmitte "
+                              f"(min |Offset| < LAP_L+10 = {p.LAP_L + 10.0:.0f})")
+            if (max(abs(o) for o in offsets) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
+                    > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
+                fehler.append("Kragenloch läuft in den Eckradius")
         if p.BOT_KRAGEN_SCREW_L > p.ROOF_WOOD_FRAME_W:
             fehler.append(f"ST4.2x{p.BOT_KRAGEN_SCREW_L:.0f} länger als Holzrahmenbreite "
                           f"{p.ROOF_WOOD_FRAME_W:.0f} mm")

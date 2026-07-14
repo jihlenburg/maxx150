@@ -34,6 +34,23 @@ def test_lokales_asa_datenblatt_abgebildet():
     assert p.HDT_045 == 96.0 and p.HDT_182 == 86.0
     assert p.T_MAX < p.HDT_182
 
+
+def test_universal_segment_schraubraster():
+    p = PRM.P
+    assert p.GEOM_REV == 6
+    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
+    assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
+    assert p.PLATE_SCREW_BOSS_L == 25.0
+
+
+def test_obere_schraubrippen_werden_ohne_unterkragen_validiert():
+    kaputt = PRM.Params(BOT_KRAGEN=False, PLATE_SCREW_OFFS=(-165.0, -140.0, 140.0))
+    try:
+        PRM.validate(kaputt)
+        assert False, "asymmetrische obere Schraubrippen wurden akzeptiert"
+    except ValueError as exc:
+        assert "PLATE_SCREW_OFFS" in str(exc)
+
 def test_aussenmasse_und_hash():
     L, W = PRM.outer_dims()
     assert L == 500.0 and W == 500.0

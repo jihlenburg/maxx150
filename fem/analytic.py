@@ -39,9 +39,10 @@ def glue_load_shear(p: PRM.Params, f_inplane: float) -> dict:
 def side_screw_pullout(p: PRM.Params) -> dict:
     """Auszug einer Belluna-ST4.2x25 in der oberen Adapter-Innenwand.
 
-    Die Kammern werden an allen acht Schraubpositionen vollständig
-    unterdrückt. Vom nominellen 25-mm-Schraubpfad werden trotzdem nur 12 mm
-    Gewindeeingriff angesetzt; Scherfestigkeit = 0.5*Dauerzulässigkeit.
+    Jede Seite besitzt lokale Vollmaterialrippen für beide Belluna-Paare
+    ±140/±165; acht der sechzehn möglichen Pfade werden real benutzt. Vom
+    nominellen 25-mm-Schraubpfad werden trotzdem nur 12 mm Gewindeeingriff
+    angesetzt; Scherfestigkeit = 0.5*Dauerzulässigkeit.
     """
     d, l_e = p.BOT_KRAGEN_SCREW_D, 12.0
     import math
