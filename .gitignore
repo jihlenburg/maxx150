@@ -1,3 +1,13 @@
+# Reproduzierbare Build-Artefakte
+build/
+
+# Historischer Ausgabeordner vor der Pipeline-Konsolidierung
 out/
+
+# Lokale Werkzeug- und Betriebssystemdateien
 __pycache__/
+*.py[cod]
+.ruff_cache/
+.DS_Store
 *.FCStd1
+params.py.bak

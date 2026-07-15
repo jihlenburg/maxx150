@@ -2,10 +2,10 @@
 
 Zweck
 -----
-Rendert die 14 illustrierten Schrittbilder der Montageanleitung nach
-``out/montage/img/``. Alle Geometrien kommen als STL aus
+Rendert die 14 illustrierten Schrittbilder nach
+``build/documentation/<hash>/img/``. Alle Geometrien kommen als STL aus
 ``montage/build_stls.py`` (FreeCAD-Seite); alle Koordinaten (Markerachsen,
-Explosions-Offsets, Filtergrenzen) werden aus ``out/montage/manifest.json``
+Explosions-Offsets, Filtergrenzen) werden aus dem benachbarten Manifest
 gelesen -- nichts ist hier hartkodiert.
 
 Konventionen
@@ -151,8 +151,8 @@ def _new_scene():
 def _mat(name, rgb, rough=0.5, metallic=0.0, emission=0.0, alpha=1.0):
     """Principled-BSDF-Material mit optionaler Emission (Druck-Marker/Flächen).
 
-    Emission über 'Emission Color' + 'Emission Strength' (Muster
-    render/blender_platte_a3a.py; FreeCAD-/Blender-API-Version-robust)."""
+    Emission über 'Emission Color' + 'Emission Strength'; robust gegen die
+    unterschiedlichen Socket-Namen unterstützter Blender-Versionen."""
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     b = m.node_tree.nodes["Principled BSDF"]

@@ -1,9 +1,8 @@
 """Zentrale Parameterdatei — einzige Quelle der Wahrheit.
 Längen mm, Kräfte N, Spannungen MPa, Temperaturen °C.
 Quellen: Belluna-Anleitung (22 S.), Challenger-Dachdiagramm (35 mm X-Modelle),
-Spec docs/superpowers/specs/2026-07-12-belluna-adapter-design.md.
-Mit 'Messkampagne N' markierte Defaults sind Schätzwerte, die der User
-per Messschieber ersetzt (Spec §8)."""
+aktuelle Auslegung ``docs/design.md`` und Referenzen unter ``references/``.
+Als Messpunkte markierte Defaults werden am realen Fahrzeug ersetzt."""
 import hashlib
 import math
 from dataclasses import dataclass, asdict
@@ -18,11 +17,11 @@ class Params:
     GEOM_REV: int = 6            # 6: rotationsidentisches Universal-Segment;
                                   # Dach- und Belluna-Schraubraster entkoppelt
     # --- Dachausschnitt / Fahrzeug ---
-    CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung, Messkampagne 6)
+    CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung; Messpunkt C1)
     CUTOUT_R: float = 5.0        # Eckenradius R5
-    ROOF_T: float = 35.0         # Dachstärke X-Modelle (Messkampagne 8)
-    EDGE_DIST: float = 250.0     # Ausschnitt-Hinterkante -> Dachkante (Messkampagne 7)
-    EDGE_H: float = 55.0         # Höhe Dachkante über Dachebene (Messkampagne 7)
+    ROOF_T: float = 35.0         # Dachstärke X-Modelle (B3)
+    EDGE_DIST: float = 250.0     # Ausschnitt-Hinterkante -> Dachkante (B1a+B1b)
+    EDGE_H: float = 55.0         # Höhe Dachkante über Dachebene (B2)
     # --- Haubengeometrie für Freigang-Check (MaxxFan-Deluxe-Maßblatt) ---
     HOOD_TIP_REACH: float = 179.0   # Haubenüberstand über Ausschnitt-Hinterkante, offen (Maßblatt)
     HOOD_UNDERSIDE_H: float = 30.0  # Haubenunterkante am Überstand über Plattensitz
@@ -33,7 +32,7 @@ class Params:
     GLUE_GAP: float = 3.0        # Elastikfuge unten = Noppenhöhe (Thermik!)
     GLUE_SHEAR_CAP: float = 0.5  # zulässige Schubverzerrung der Fuge (50 %, Sika-Klasse)
     T_CURE: float = 20.0         # Verklebetemperatur
-    # --- Deckflächenbreiten je Seite (Messkampagne 1/2) ---
+    # --- Deckflächenbreiten je Seite (aus A1/A2 abgeleitete Designwahl) ---
     W_TOP_FRONT: float = 50.0
     W_TOP_REAR: float = 50.0
     W_TOP_LEFT: float = 50.0
@@ -41,20 +40,20 @@ class Params:
     R_OUT: float = 12.0          # Außeneckenradius
     # --- Obere Plattenschnittstelle / Entwässerung ---
     PLATE_OUTER_W: float = 450.0     # Belluna-Flansch, A1a/A1b bestätigt
-    PLATE_KRAGEN_W: float = 398.0    # ANNAHME A3a; vor Druck nachmessen
-    PLATE_KRAGEN_MEASURED: bool = False
+    PLATE_KRAGEN_W: float = 397.0    # A3a gemessen 2026-07-14
+    PLATE_KRAGEN_MEASURED: bool = True
     TOP_DRAIN_RUN: float = 13.0      # max. Breite der äußeren Entwässerungsfase
     TOP_DRAIN_DEG: float = 47.0      # selbsttragend in Druckorientierung
     TOP_DRAIN_SUPPORT_MARGIN: float = 2.0  # ebene Auflage über Flanschrand hinaus
-    # --- Freistellung Gussets oben innen (Messkampagne 4) ---
+    # --- Freistellung Gussets oben innen (Messpunkt A4) ---
     REC_GUSSET_W: float = 18.0
-    REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (Messkampagne 4 erledigt):
+    REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (A4 erledigt):
                                   # die Belluna-Gussets tauchen mit dem Unterkragen
                                   # in den Ausschnitt, NICHTS ragt über die
                                   # Auflageebene -> keine Deck-Freistellung.
                                   # 0 = Cut wird zum No-Op (Ring liegt über der
-                                  # Deckfläche); Passungstest render/passung_
-                                  # stapel.py: mit 3.0 trugen nur 2 mm Außensteg!
+                                  # Deckfläche); der digitale Passungscheck
+                                  # belegt die vollständige Stegauflage.
     # --- Unterseite: Kleberille + Noppen ---
     GROOVE_OFF: float = 15.0     # Rillenbeginn ab Öffnungskante
     GROOVE_W: float = 8.0
@@ -304,8 +303,9 @@ def validate(p: Params = P) -> None:
     w_min = min_band(p)                # M1/Ledger 23/30/33: eigener Helper statt Inline-min()
     plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
     if plate_clear < 0.5:
+        source = "gemessen" if p.PLATE_KRAGEN_MEASURED else "angenommen"
         fehler.append(f"Belluna-Kragen hat oben nur {plate_clear:.1f} mm Radialluft (< 0.5): "
-                      f"PLATE_KRAGEN_W vor Druck messen")
+                      f"PLATE_KRAGEN_W ist {source}; Schnittstelle korrigieren")
     if p.CUTOUT_W >= p.PLATE_OUTER_W:
         fehler.append("Obere Rahmenöffnung erreicht den Belluna-Flansch: keine Auflagefläche")
     if not (45.0 <= p.TOP_DRAIN_DEG <= 70.0):
@@ -328,7 +328,7 @@ def validate(p: Params = P) -> None:
         deck_rest = p.DECK_T - p.REC_GUSSET_D
         if deck_rest < 2.0:
             fehler.append(f"Deckplatten-Rest über Kammern nur {deck_rest:.1f} mm (< 2.0): "
-                          f"DECK_T an REC_GUSSET_D anpassen (Messkampagne 4!)")
+                          f"DECK_T an REC_GUSSET_D anpassen (Messpunkt A4)")
         kammerdecke = (p.H_RAISE - p.GLUE_GAP) - p.DECK_T
         apex = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * p.CHAMBER_W / 2
         if apex > kammerdecke - 1.0:

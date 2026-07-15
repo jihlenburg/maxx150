@@ -1,9 +1,8 @@
 """Datei-Manifest an den Verifikationsreport anhängen (Finalreview I1):
 SHA256 je Exportdatei + Git-Commit + GEOM_REV. Macht die Artefakte eines
-Reports nachvollziehbar zuordenbar, auch wenn ein späterer Lauf mit
-UNVERÄNDERTEM Parameterstand (identischer params_hash) dieselben Dateinamen
-in out/ überschreibt -- der Report bleibt der Beleg, WELCHER konkrete
-Dateiinhalt zu diesem Lauf gehörte."""
+Reports nachvollziehbar zuordenbar. Jeder Parameterstand besitzt ein eigenes
+Engineering-Verzeichnis; der Report bleibt zusätzlich der kryptografische
+Beleg des konkreten Dateiinhalts."""
 import hashlib
 from pathlib import Path
 
@@ -25,7 +24,7 @@ def append_manifest(report_path: str, files, git_rev: str,
     """Hängt eine '## Datei-Manifest'-Sektion an den bestehenden Report unter
     report_path an: je Datei in `files` (Path oder str) Dateiname + SHA256,
     dazu `git_rev` (vom Aufrufer ermittelt, z. B. `git rev-parse HEAD` in
-    run_all.py -- manifest.py selbst braucht dafür keine Subprocess-
+    pipeline/engineering.py -- manifest.py selbst braucht dafür keine Subprocess-
     Abhängigkeit) und GEOM_REV des TATSÄCHLICH manifestierten
     Parameterobjekts p (Review-Fix 2026-07-14: vorher global PRM.P --
     bei Varianten-Läufen wäre der falsche Stand dokumentiert worden)."""

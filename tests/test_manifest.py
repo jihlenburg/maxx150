@@ -1,12 +1,12 @@
 """export/manifest.py::append_manifest (Finalreview I1, Task 16 Block 2)."""
 import re
 import subprocess
-from pathlib import Path
 
 import params as PRM
 from export.manifest import append_manifest
+from project_paths import tests_dir
 
-OUT = Path("out/test_manifest")
+OUT = tests_dir("manifest")
 
 
 def _fake_report_und_dateien():
@@ -49,7 +49,7 @@ def test_manifest_hash_stimmt_mit_inhalt_ueberein():
 
 def test_manifest_git_rev_wird_wortwoertlich_uebernommen():
     # append_manifest ruft git NICHT selbst auf (git_rev ist Pflichtparameter
-    # vom Aufrufer, siehe run_all.py) -- Beleg, dass der übergebene Wert
+    # vom Aufrufer, siehe pipeline/engineering.py) -- Beleg, dass der übergebene Wert
     # unverändert im Report landet (kein eigenes git rev-parse in manifest.py).
     report, files = _fake_report_und_dateien()
     echter_head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,

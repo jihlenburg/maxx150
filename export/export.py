@@ -1,4 +1,5 @@
 """Export der Druck-/Archivdateien + auto-generierte Montagenotiz (Spec §7)."""
+import re
 from pathlib import Path
 
 import MeshPart
@@ -13,6 +14,29 @@ def _write_mesh(shape, path: Path):
     mesh = MeshPart.meshFromShape(shape, LinearDeflection=0.05,
                                   AngularDeflection=0.35, Relative=False)
     mesh.write(str(path))
+
+
+def _normalize_step_header(path: Path) -> None:
+    """Entfernt den laufabhängigen FreeCAD-Zeitstempel aus dem STEP-Header.
+
+    OpenCascade schreibt bei identischer Geometrie sonst bei jedem Lauf andere
+    Bytes. Der neutrale Zeitstempel macht SHA-256-Manifeste reproduzierbar,
+    ohne Geometrie- oder Produktdaten zu verändern.
+    """
+    text = path.read_text(encoding="utf-8")
+    normalized, count = re.subn(
+        r"(FILE_NAME\('[^']*',)'[^']*'", r"\1'1970-01-01T00:00:00'", text, count=1
+    )
+    if count != 1:
+        raise ValueError(f"STEP-Header in {path} nicht erkannt")
+    # OpenCascade setzt in einigen Context-Zeilen bedeutungslose Leerzeichen
+    # vor dem Zeilenende. Sie sind nicht semantisch, stoeren aber Patch-Checks
+    # und bytegenaue Reproduzierbarkeit zwischen Exporterversionen.
+    keep_final_newline = normalized.endswith("\n")
+    normalized = "\n".join(line.rstrip() for line in normalized.splitlines())
+    if keep_final_newline:
+        normalized += "\n"
+    path.write_text(normalized, encoding="utf-8")
 
 
 def _print_oriented(shape):
@@ -143,7 +167,7 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
                frame=None, segments=None) -> list:
     """frame/segments optional vorgefertigt übergeben (Finalreview I2/M4):
-    baut nur, was NICHT übergeben wurde -- run_all.py hat frame/segments für
+    baut nur, was NICHT übergeben wurde -- die Engineering-Stufe hat frame/segments für
     FEM/DFM-Gate ohnehin schon gebaut und reicht sie durch (spart ~20-30 s
     je Produktionslauf, keine doppelten build_frame/build_segments-Booleans
     mehr). Ohne Argumente bleibt der Aufruf kompatibel; GEOM_REV 6 exportiert
@@ -160,6 +184,7 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
         frame = build_frame(p)
     fp = out / f"frame_{h}.step"
     frame.exportStep(str(fp))
+    _normalize_step_header(fp)
     files.append(fp)
 
     if segments is None:
@@ -172,6 +197,7 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
     stem = f"universal_segment_x4_{h}"
     sp = out / f"{stem}.step"
     segment.exportStep(str(sp))
+    _normalize_step_header(sp)
     files.append(sp)
     printable = _print_oriented(segment)
     for ext in (".stl", ".3mf"):

@@ -45,7 +45,7 @@ def test_oeffnung_bleibt_400():
         assert s.common(tief).Volume < 1e-6
 
 def test_volumen_plausibel():
-    # Band seit GEOM_REV 4 + Messkampagne: +Unterkragen (~174 cm³),
+    # Band seit GEOM_REV 4 + Messwertübernahme: +Unterkragen (~174 cm³),
     # +Freistellungs-Entfall (~90 cm³), +CELL_L 43 (etwas mehr Stege)
     v = _frame().Volume
     assert 1.75e6 < v < 2.2e6, f"Volumen {v/1e6:.2f} l unplausibel"

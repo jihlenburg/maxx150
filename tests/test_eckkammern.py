@@ -45,7 +45,7 @@ from model.segments import build_segments
 # unten bleiben damit beweisbar gueltig (Kragen-Delta prueft
 # tests/test_bot_kragen.py gegen den EIN-Anker).
 # ...und pinnen zusätzlich CELL_L=45/REC_GUSSET_D=3 (die Defaults, unter
-# denen die Anker in Task 17/20 gemessen wurden -- seit der Messkampagne
+# denen die Anker in Task 17/20 gemessen wurden -- seit der Messwertübernahme
 # 2026-07-13 sind die Projekt-Defaults 43/0).
 P_EIN_OHNE_KRAGEN = PRM.Params(BOT_KRAGEN=False, CELL_L=45.0, REC_GUSSET_D=3.0)
 P_AUS = PRM.Params(CORNER_CHAMBERS=False, BOT_KRAGEN=False,

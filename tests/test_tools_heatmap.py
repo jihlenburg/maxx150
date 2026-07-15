@@ -1,7 +1,7 @@
 """Unit-Tests fuer fem.heatmap: NUR die FreeCAD-freien Helferfunktionen
 (classify, cmap, write_ply) -- kein Gmsh/CalculiX-Lauf (Laufzeit!), daher
 kein Suite-Aufruf von heatmap_all()/run_capture() hier. Dateiname enthaelt
-'tools' (gemeinsamer Substring-Filter mit test_tools_messkampagne.py, siehe
+'tools' (gemeinsamer Substring-Filter mit test_tools_measurements.py, siehe
 tests/run_tests.py::TEST_FILTER)."""
 import io
 

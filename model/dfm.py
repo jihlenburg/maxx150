@@ -45,7 +45,7 @@ def _allowed_bridge_area(p):
        Term -- gleiches Argument wie Zone 5: >45° in JEDER Radialebene des
        Sektors, siehe _corner_chamber_cuts-Docstring)."""
     # Zone 1 nur, solange die Freistellung existiert (REC_GUSSET_D=0 seit der
-    # Messkampagne 2026-07-13: kein Recess -> keine Brücke -> kein Freibetrag,
+    # Messbefund 2026-07-13: kein Recess -> keine Brücke -> kein Freibetrag,
     # sonst würde das Gate um ~30000 mm² zu lasch)
     rec_ring = ((p.CUTOUT_W + 2 * p.REC_GUSSET_W) ** 2 - p.CUTOUT_W ** 2
                 if p.REC_GUSSET_D > 0 else 0.0)

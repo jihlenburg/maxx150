@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "checked_on": "2026-07-15",
+  "files": [
+    {
+      "path": "belluna/manuals/belluna-super-fan-installation.pdf",
+      "status": "manufacturer_manual",
+      "source": "https://belluna.eu/wp-content/uploads/2024/05/Anleitung-Super-Fan.pdf",
+      "sha256": "f31747ad22388cc3df3c58cd1cfdf470be59f28fc2e77591e492bea82e48bc85"
+    },
+    {
+      "path": "vehicle/challenger-x150-roof-construction.jpg",
+      "status": "user_supplied_reference",
+      "source": "IRP Challenger X150.jpg, bereitgestellt 2026-07-14",
+      "sha256": "8c99e0c1268adb1087aff0202708243383e6258432d32d0bc0e231a828f85991"
+    },
+    {
+      "path": "datasheets/adhesives/weicon-rk-1300.pdf",
+      "status": "selected",
+      "source": "https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf",
+      "sha256": "da7dde7a05ac49a015a477be19374f8e2ab177e57895810f0e5e450e6a3346fa"
+    },
+    {
+      "path": "datasheets/adhesives/sikaforce-710-l35.pdf",
+      "status": "selected",
+      "source": "https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf",
+      "sha256": "95de916491b358dc694f3f5470e6257fd5e339ef67af24c7b0239c168e84344f"
+    },
+    {
+      "path": "datasheets/adhesives/sikaflex-522.pdf",
+      "status": "qualified_alternative",
+      "source": "https://deu.sika.com/dms/getdocument.get/6e0cd83c-98d1-4c32-a8eb-a2925cd2ecf1/sikaflex-522.pdf",
+      "sha256": "7efca012f57bf42d04366078873417af4429bc3b549973fe35618611056c0f87"
+    },
+    {
+      "path": "datasheets/adhesives/evaluated-not-selected/weicon-epoxyd-minutenkleber.pdf",
+      "status": "evaluated_not_selected",
+      "source": "https://media.weicon.de/fmds/307275/dld%3Ainline/DE_TDS_10550024_Epoxyd-Minutenkleber.pdf",
+      "sha256": "3d556cd5bd6275cf586d9571af9ca115ca4f8878c454b0b66d2b1aed7d6f9a13"
+    },
+    {
+      "path": "datasheets/adhesives/evaluated-not-selected/sikaflex-521-uv.pdf",
+      "status": "evaluated_superseded",
+      "source": "vom Nutzer bereitgestelltes Sika-Produktdatenblatt",
+      "sha256": "ae6008339993eb25760564f4518fd57cac7f268e512601f32819ac58421b602b"
+    },
+    {
+      "path": "datasheets/coatings/mipa-1k-plastic-grundierfiller-spray.pdf",
+      "status": "selected",
+      "source": "https://www.mipa-paints.com/fileadmin/product/de/pi/spray/Mipa_1K-Plastic-Grundierfiller-Spray_DE.pdf",
+      "sha256": "9ec5ff39907c7f9e346f408eba1b0caf61f9084f73256c6381c6496dea43b3ef"
+    },
+    {
+      "path": "datasheets/coatings/mipa-pur-hs-2k-pur-fahrzeuglack.pdf",
+      "status": "selected",
+      "source": "https://www.mipa-paints.com/fileadmin/product/de/pi/lm/Mipa_PUR_HS_2K-PUR-Acryl-Fahrzeuglack_DE.pdf",
+      "sha256": "6a684a9aee231ba0653d00c2fcf86014790b2761b7edefd873a83c6850c0cab0"
+    },
+    {
+      "path": "datasheets/materials/wuerth-asa-gf15.md",
+      "status": "selected_manufacturer_reference",
+      "source": "https://eshop.wuerth.de/Product-categories/Filament-ASA-GF/140120024201115.cyid/1401.cgid/en/US/EUR/",
+      "sha256": "d3e777b43ed8f049eb253e3a1f7f3ae69c089636dc43c18e507de4228173df0a"
+    }
+  ]
+}

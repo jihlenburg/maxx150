@@ -40,6 +40,7 @@ def test_wuerth_asa_gf15_planstand_abgebildet():
 def test_universal_segment_schraubraster():
     p = PRM.P
     assert p.GEOM_REV == 6
+    assert p.PLATE_KRAGEN_W == 397.0 and p.PLATE_KRAGEN_MEASURED
     assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
     assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
     assert p.PLATE_SCREW_BOSS_L == 25.0
@@ -63,7 +64,7 @@ def test_aussenmasse_und_hash():
 def test_validate_defaults_ok():
     PRM.validate()                                    # Defaults müssen sauber sein
 
-def test_validate_faengt_messkampagnen_brecher():
+def test_validate_faengt_inkonsistente_messwertvarianten():
     for kaputt in (PRM.Params(W_TOP_FRONT=40.0, W_TOP_REAR=40.0,
                               W_TOP_LEFT=40.0, W_TOP_RIGHT=40.0),
                    PRM.Params(REC_GUSSET_D=6.0),

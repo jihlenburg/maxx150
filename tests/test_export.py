@@ -1,10 +1,12 @@
-from pathlib import Path
-
 import Mesh
 import Part
 
 import params as PRM
 from export.export import export_all
+from project_paths import tests_dir
+
+
+OUT = tests_dir("export")
 
 
 def _export():
@@ -13,7 +15,7 @@ def _export():
     try:
         return _CACHED
     except NameError:
-        _CACHED = export_all(PRM.P, "out/test_export")
+        _CACHED = export_all(PRM.P, str(OUT))
         return _CACHED
 
 
@@ -31,14 +33,21 @@ def test_step_reimport_volumen():
     _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
     s = Part.Shape()
-    s.read(f"out/test_export/universal_segment_x4_{h}.step")
+    s.read(str(OUT / f"universal_segment_x4_{h}.step"))
     assert s.Volume > 1e5
+
+
+def test_step_header_ist_reproduzierbar_normalisiert():
+    _export()
+    h = PRM.params_hash()
+    text = (OUT / f"universal_segment_x4_{h}.step").read_text(encoding="utf-8")
+    assert "1970-01-01T00:00:00" in text
 
 
 def test_stl_liegt_druckorientiert_auf_z_null():
     _export()
     h = PRM.params_hash()
-    mesh = Mesh.Mesh(f"out/test_export/universal_segment_x4_{h}.stl")
+    mesh = Mesh.Mesh(str(OUT / f"universal_segment_x4_{h}.stl"))
     bb = mesh.BoundBox
     assert abs(bb.ZMin) < 1e-6
     assert 46.9 < bb.ZLength < 47.1
@@ -47,7 +56,7 @@ def test_stl_liegt_druckorientiert_auf_z_null():
 def test_montagenotiz_inhalt():
     _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
-    text = Path(f"out/test_export/montagenotiz_{h}.md").read_text(encoding="utf-8")
+    text = (OUT / f"montagenotiz_{h}.md").read_text(encoding="utf-8")
     for muss in ("140", "165", "Carloflex 410 UV", "Deckfläche nach unten", "Tempern",
                  "4 Perimeter", "100 % Infill", "Dichtheit", "RK-1300",
                  "PFLICHT gegen Verzug", "temperierter Bauraum", "Brim",

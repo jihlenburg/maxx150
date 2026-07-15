@@ -15,10 +15,10 @@ def _vertical_edges(solid, tol=1e-7):
     return out
 
 
-def rounded_box(l, w, h, r, origin=Vector(0, 0, 0)):
-    box = Part.makeBox(l, w, h, origin)
-    if r > 0:
-        box = box.makeFillet(r, _vertical_edges(box))
+def rounded_box(length, width, height, radius, origin=Vector(0, 0, 0)):
+    box = Part.makeBox(length, width, height, origin)
+    if radius > 0:
+        box = box.makeFillet(radius, _vertical_edges(box))
     return box
 
 

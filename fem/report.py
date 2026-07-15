@@ -10,7 +10,7 @@ def write_report(fem_results: dict, joint_result: dict,
                  p: PRM.Params, out_path: str) -> tuple[bool, bool]:
     """Schreibt den Verifikationsreport nach out_path und liefert (ok,
     vorbehalt) (Ledger 42: strukturierte Rückgabe statt "Vorbehalt"-Text-
-    Matching im Reporttext durch Konsumenten wie run_all.py). M7: leeres
+    Matching im Reporttext durch Konsumenten wie pipeline/engineering.py). M7: leeres
     fem_results (kein Lastfall) ist ein Aufrufer-Fehler, kein stiller
     Report -- wirft ValueError statt eine leere/irreführende Lastfall-
     Tabelle zu schreiben."""
@@ -55,12 +55,12 @@ def write_report(fem_results: dict, joint_result: dict,
     vorbehalt = False
     if clr == float("inf"):
         # DA-Review 2026-07-12: inf entsteht nur aus SCHÄTZWERTEN
-        # (EDGE_DIST/EDGE_H, Messkampagne 7) und darf kein stilles PASS sein.
+        # (EDGE_DIST/EDGE_H, Messpunkte B1/B2) und darf kein stilles PASS sein.
         vorbehalt = True
         lines.append(f"- Haubenfreigang über Dachkante: **OFFEN** — kein Überlapp "
                      f"laut Schätzwerten (EDGE_DIST={p.EDGE_DIST:.0f}, "
                      f"EDGE_H={p.EDGE_H:.0f}); vor Druckfreigabe messen "
-                     f"(Messkampagne 7)")
+                     f"(Messpunkte B1/B2)")
     else:
         clr_ok = clr >= p.CLEAR_MIN
         ok &= clr_ok

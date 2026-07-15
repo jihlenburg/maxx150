@@ -93,7 +93,7 @@ def test_kragen_volumendelta_plausibel():
     """Default gegen die BOT_KRAGEN=False-Variante mit sonst identischen
     Parametern: das Delta ist NUR der Unterkragen (Ring ~398x4x21 +
     Übergangsring - 8 Löcher). Bewusst kein Vergleich gegen die
-    Eckkammern-Anker mehr -- die pinnen seit der Messkampagne alte
+    Eckkammern-Anker mehr -- die pinnen seit der Messwertübernahme alte
     CELL_L/REC_GUSSET-Werte."""
     ohne = build_frame(PRM.Params(BOT_KRAGEN=False))
     delta = _frame().Volume - ohne.Volume
@@ -101,6 +101,6 @@ def test_kragen_volumendelta_plausibel():
 
 
 def test_dfm_gate_mit_kragen():
-    """Gleiches Gate wie run_all.py: Überhang <= erlaubt*1.2 + 200."""
+    """Gleiches Gate wie die Engineering-Stufe: Überhang <= erlaubt*1.2 + 200."""
     bad, allowed = overhang_area(_frame())
     assert bad <= allowed * 1.2 + 200, f"DFM: {bad:.0f} > {allowed * 1.2 + 200:.0f}"

@@ -2,9 +2,8 @@
 
 Zweck
 -----
-Erzeugt aus einer gut dokumentierten ``STEPS``-Datenstruktur und den Werten aus
-``out/montage/manifest.json`` zunächst ``out/montage/montageanleitung_<hash>.html``
-und druckt diese via Chrome-Headless zu ``out/montageanleitung_<hash>.pdf``.
+Erzeugt aus dem Manifest zunächst HTML und druckt es via Chrome-Headless als
+PDF. Standardziel ist ``build/documentation/<hash>/``.
 
 Alle variablen Zahlen (M5-Länge, Klebstoffmenge, Wellenlänge, Schraubenanzahl …)
 stammen aus dem Manifest -- als Fixtext gekennzeichnete Angaben (Tempern
@@ -17,12 +16,11 @@ Aufruf
 Abhängigkeiten
 --------------
 - Google Chrome (Headless-PDF-Druck).
-- out/montage/manifest.json + out/montage/img/*.png (aus build_stls/render_steps).
+- Manifest + ``img/*.png`` aus den vorigen Dokumentationsstufen.
 
 Endmarker im Log: ``PDF-ENDE: <pfad>``.
 """
 import argparse
-import datetime
 import html
 import json
 import os
@@ -30,9 +28,13 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT_MONTAGE = os.path.join(ROOT, "out", "montage")
-OUT = os.path.join(ROOT, "out")
-IMG_REL = "img"                         # relativ zur HTML-Datei in out/montage/
+sys.path.insert(0, ROOT)
+
+import params as PRM  # noqa: E402
+from project_paths import manual_dir  # noqa: E402
+
+OUT_MONTAGE = str(manual_dir(PRM.params_hash(PRM.P)))
+IMG_REL = "img"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
@@ -614,19 +616,20 @@ def main():
     ap.add_argument("--no-pdf", action="store_true", help="nur HTML erzeugen")
     args = ap.parse_args()
 
+    out_montage = os.path.dirname(os.path.abspath(args.manifest))
     with open(args.manifest, encoding="utf-8") as fh:
         mf = json.load(fh)
 
     m = build_model(mf)
     html_doc = render_html(m)
 
-    os.makedirs(OUT_MONTAGE, exist_ok=True)
-    html_path = os.path.join(OUT_MONTAGE, f"montageanleitung_{m['hash']}.html")
+    os.makedirs(out_montage, exist_ok=True)
+    html_path = os.path.join(out_montage, f"montageanleitung_{m['hash']}.html")
     with open(html_path, "w", encoding="utf-8") as fh:
         fh.write(html_doc)
     print("HTML:", html_path, flush=True)
 
-    pdf_path = os.path.join(OUT, f"montageanleitung_{m['hash']}.pdf")
+    pdf_path = os.path.join(out_montage, f"montageanleitung_{m['hash']}.pdf")
     if args.no_pdf:
         print("PDF übersprungen (--no-pdf).", flush=True)
         return

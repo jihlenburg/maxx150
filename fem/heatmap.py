@@ -28,6 +28,7 @@ from fem import loadcases as LC
 from fem.material import fem_material_dict
 from fem.run_fem import _direction_ref, _ensure_binary_paths
 from model.frame import build_frame, top_z
+from project_paths import heatmap_dir
 
 VIRIDIS = [(0.267, 0.005, 0.329), (0.229, 0.322, 0.545), (0.128, 0.567, 0.551),
           (0.369, 0.788, 0.383), (0.993, 0.906, 0.144)]
@@ -205,7 +206,7 @@ def run_capture(shape, case, p: PRM.Params, mesh_mm: float):
 
 
 def heatmap_all(p: PRM.Params = PRM.P, mesh_mm: float = None,
-                out_dir: str = "out/heatmap") -> dict:
+                out_dir: str | Path | None = None) -> dict:
     """Fuehrt alle Lastfaelle aus fem.loadcases.CASES aus, schreibt je Fall
     ein PLY (Oberflaechennetz, Vertexfarben auf das Fall-Maximum normiert)
     und eine gemeinsame heat_summary.json (vm_max + Hotspots je Fall) nach
@@ -213,7 +214,7 @@ def heatmap_all(p: PRM.Params = PRM.P, mesh_mm: float = None,
     Minuten -- KEIN Suite-Test, siehe tests/test_tools_heatmap.py)."""
     PRM.validate(p)
     mesh_mm = mesh_mm or p.MESH_MM
-    out = Path(out_dir)
+    out = Path(out_dir) if out_dir is not None else heatmap_dir(PRM.params_hash(p))
     out.mkdir(parents=True, exist_ok=True)
 
     frame = build_frame(p)

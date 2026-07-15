@@ -1,0 +1,60 @@
+{
+  "schema": 2,
+  "description": "Vermessene Rekonstruktion; kein Belluna-Hersteller-CAD",
+  "source": "reference_models/belluna.py",
+  "source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
+  "provenance": {
+    "classification": "MEASURED_RECONSTRUCTION",
+    "manufacturer_cad": false,
+    "measured_mm": {
+      "flange_outer": 450.0,
+      "flange_thickness": 1.5,
+      "lower_collar_outer": 397.0,
+      "lower_collar_wall": 1.5,
+      "lower_collar_depth": 19.0,
+      "clear_opening": 346.0,
+      "upper_collar_wall": 3.0,
+      "seal_width": 6.0,
+      "clip_hole_diameter": 4.0
+    },
+    "assumed_mm": {
+      "outer_corner_radius": 18.0,
+      "lower_collar_corner_radius_outer": 26.0,
+      "lower_collar_corner_radius_inner": 24.0
+    }
+  },
+  "files": {
+    "belluna_platte.step": {
+      "sha256": "52d11b57081bf2a4dc1e0e92cc53a86dbc7864eccfd7ec42fe02a0da07d3b11d",
+      "bytes": 288967
+    },
+    "belluna_platte.stl": {
+      "sha256": "8df1918df4cb6f5c86d73c429d3be9aef91310dff1d840394dd6b4d10ae0b6b9",
+      "bytes": 264084
+    },
+    "belluna_metallclips.step": {
+      "sha256": "c8e3544d4cf8ce061216a40da8211d7bab420fbec68aadcf12fbf899eafec2c0",
+      "bytes": 60458
+    },
+    "belluna_metallclips.stl": {
+      "sha256": "71435bbfa7b5cafff241f3ee907966f9a1f7448ef750a49affa890739a6546f3",
+      "bytes": 64084
+    },
+    "belluna_dichtring.step": {
+      "sha256": "3ce4069ad7078ccbfc4d7459988d7e2b993e5a972966e93c00133e95a827403b",
+      "bytes": 22814
+    },
+    "belluna_dichtring.stl": {
+      "sha256": "c575bfed857b9da6134b286eb75609e5e70bf7a3d36f0f8a2d844d8fabbf0a23",
+      "bytes": 28884
+    },
+    "belluna_baugruppe.step": {
+      "sha256": "63fa12134e53ae2dcece7acd0bba5e9f3bf9b727a3a12969dc389b399d5391b2",
+      "bytes": 372690
+    },
+    "belluna_baugruppe.stl": {
+      "sha256": "821951c744d7a92a703ab360fc2bf078e657039ee31a0d96480edf89ce1ee656",
+      "bytes": 356884
+    }
+  }
+}

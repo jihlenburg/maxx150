@@ -2,8 +2,8 @@
 
 Zweck
 -----
-Baut ALLE Geometrien der illustrierten Montageanleitung als STL nach
-``out/montage/stl/`` und schreibt ein Manifest ``out/montage/manifest.json``.
+Baut alle Geometrien der illustrierten Montageanleitung nach
+``build/documentation/<hash>/stl/`` und schreibt daneben ``manifest.json``.
 Das Manifest ist die einzige Schnittstelle zur Blender-Seite
 (``montage/render_steps.py``) und zur PDF-Seite (``montage/build_pdf.py``):
 es enthält den ``params_hash``, alle Markerkoordinaten (M5-Schraubachsen,
@@ -22,14 +22,11 @@ Abhängigkeiten
 - FreeCAD (Part, MeshPart) über ``bin/fc`` (siehe Skill maxx150-pipeline).
 - params.py, model/frame.py, model/segments.py (Geometrie).
 - export/export.py::_m5_bolt_length (M5-Länge).
-- render/belluna_platte_mock.py (Belluna-Platten-Mock via exec-Muster wie
-  render/stapel_stl.py).
+- reference_models/belluna.py (vermessene Rekonstruktion, kein Hersteller-CAD).
 
-Endmarker im Log: ``MONTAGE-STL-ENDE: <verzeichnis>`` (von
-scripts/montageanleitung.sh geparst)."""
+Endmarker im Log: ``MONTAGE-STL-ENDE: <verzeichnis>``."""
 import datetime
 import json
-import math
 import os
 import sys
 
@@ -44,15 +41,17 @@ sys.path.insert(0, os.getcwd())
 
 import params as PRM                                      # noqa: E402
 from model import features as F                           # noqa: E402
-from model.frame import build_frame, top_z               # noqa: E402
+from model.frame import top_z                            # noqa: E402
 from model.segments import build_segments                # noqa: E402
 from export.export import _m5_bolt_length                 # noqa: E402
+from project_paths import manual_dir                      # noqa: E402
+from reference_models.belluna import shapes as belluna_shapes  # noqa: E402
 
 P = PRM.P
 PRM.validate(P)
 H = PRM.params_hash(P)
 
-OUT = os.path.join("out", "montage")
+OUT = str(manual_dir(H))
 STL = os.path.join(OUT, "stl")
 os.makedirs(STL, exist_ok=True)
 
@@ -62,7 +61,7 @@ ROOF_TOP_Z = -P.GLUE_GAP               # Dachoberkante: die Noppenspitzen ruhen 
 
 
 def stl(shape, name):
-    """Vernetzt ein Shape und schreibt es als STL nach out/montage/stl/."""
+    """Vernetzt ein Shape und schreibt es in das Dokumentations-Build."""
     mesh = MeshPart.meshFromShape(shape, LinearDeflection=0.08,
                                   AngularDeflection=0.4, Relative=False)
     path = os.path.join(STL, name)
@@ -96,34 +95,23 @@ def marker_horiz(x, y0, y1, z, k=0):
 # 1) Vier Segmente (Einbaulage, wie gefügt) -- build_segments liefert seg0..3
 #    bereits rotiert an ihrer Quadrantenposition.
 # ---------------------------------------------------------------------------
-# MONTAGE_SKIP_SEGS=1 ueberspringt den teuren Segmentbau, wenn die vier
-# Segment-STLs bereits vorliegen (die Segmente haengen nicht von den unten
-# neu konstruierten Dach-/Platten-Teilen ab -- spart bei reinen Dach-Iterationen
-# den mehrminuetigen build_segments-Boolean).
-seg_stls = [os.path.join(STL, f"seg{k}.stl") for k in range(4)]
-if os.environ.get("MONTAGE_SKIP_SEGS") == "1" and all(os.path.exists(s) for s in seg_stls):
-    print(f"== Segmente uebersprungen (MONTAGE_SKIP_SEGS=1, Hash {H}) ==", flush=True)
-else:
-    print(f"== Segmente bauen (Hash {H}) -- dauert einige Minuten ==", flush=True)
-    segments = build_segments(P)
-    for k, seg in enumerate(segments):
-        stl(seg, f"seg{k}.stl")
+print(f"== Segmente bauen (Hash {H}) ==", flush=True)
+segments = build_segments(P)
+for k, seg in enumerate(segments):
+    stl(seg, f"seg{k}.stl")
 
 # Halbschnitt eines Segments für die Fügeflächen-Nahaufnahme ist nicht nötig:
 # Bild 03 zeigt das volle Segment. Für die Baugruppen-Schnitte genügen die
 # Dach-Halbschnitte unten.
 
 # ---------------------------------------------------------------------------
-# 2) Belluna-Platte + Clips + Dichtring (Mock) -- exec-Muster wie
-#    render/stapel_stl.py; auf die Deckfläche (top_z) nach +z verschieben.
+# 2) Vermessene Belluna-Rekonstruktion; auf die Deckfläche verschieben.
 # ---------------------------------------------------------------------------
-print("== Belluna-Platten-Mock laden ==", flush=True)
-os.environ["PLATTE_SKIP_EXPORT"] = "1"
-ns = {}
-src = open(os.path.join("render", "belluna_platte_mock.py")).read()
-exec(compile(src, "belluna_platte_mock", "exec"), ns)
-for name, solid in (("platte", ns["body"]), ("clips", ns["clips_comp"]),
-                    ("dichtring", ns["dichtring"])):
+print("== Belluna-Referenzmodell laden ==", flush=True)
+belluna = belluna_shapes()
+for name, solid in (("platte", belluna["belluna_platte"]),
+                    ("clips", belluna["belluna_metallclips"]),
+                    ("dichtring", belluna["belluna_dichtring"])):
     s = solid.copy()
     s.translate(App.Vector(0, 0, TOP_Z))       # Auflageebene des Mock (z=0) -> Deckfläche
     stl(s, f"{name}.stl")
@@ -291,7 +279,7 @@ manifest = {
         "hdt_045": P.HDT_045,
         "hdt_182": P.HDT_182,
         "t_max": P.T_MAX,
-        "seg_mass_g": 465,               # Zielmasse je Druckteil (Projektannahme)
+        "seg_mass_g": round(segments[0].Volume * P.RHO / 1_000_000),
         "torque_nm": 0.8,
         "paint_prep_c": 60,
         "paint_prep_min": 60,

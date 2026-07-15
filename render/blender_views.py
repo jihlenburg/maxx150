@@ -1,5 +1,5 @@
 """Blender-Seite des Render-Workflows: rendert die Standardansichten aus den
-STLs, die render/make_views_stl.py in out/render/<hash>/ abgelegt hat.
+STLs, die ``render/make_views_stl.py`` nach ``build/render/<hash>/`` legt.
 Kamera-/Licht-/Materialeinstellungen aus der verifizierten Session-Vorlage
 (render_v3.py / render_v3_schnitt.py) uebernommen.
 
