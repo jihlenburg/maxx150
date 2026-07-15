@@ -78,6 +78,12 @@ jeweiligen Produktdatenblättern und nicht aus `params.py` stammen.
 
 ## Festgelegtes Materialsystem
 
+Die folgende Tabelle ist interne Fertigungs- und Entwicklungsdokumentation.
+Die erzeugte Montageanleitung beginnt dagegen bewusst mit vier fertig
+gedruckt gelieferten Segmenten: Druckmaterial, Spulenlogistik, Charge und
+Druckparameter werden dort nicht genannt und dürfen nicht wieder in die
+Materialliste oder die Montageschritte aufgenommen werden.
+
 | Funktion | Exaktes Produkt | Warum dieses Produkt |
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben Druckcoupons Pflicht. |
@@ -100,13 +106,13 @@ Primärquellen: [Würth ASA GF15](https://eshop.wuerth.de/ASA-GF15-filament-PRNT
 | Datei | Inhalt | Markierung |
 |-------|--------|-----------|
 | 01 titel_explosion | Explosion 4 Segmente + Platte/Dichtring/Clips | — |
-| 02 teile_uebersicht | Einzelteile aufgereiht | — |
+| 02 teile_uebersicht | Universalteil + Belluna-Platte; Dichtring bereits eingelegt | — |
 | 03 fuegeflaechen | Lappenende, Fügeflächen | **grün** (Schulter + Stirn) |
 | 04 kleber_aktivator | Zwei Segmente am Stoß getrennt | **blau** (Aktivator auf beiden Flächen) / **grün** (danach RK-1300 einseitig) |
 | 05 m5_montage | Stoß von oben | roter M5-Achsmarker (Senkung) |
 | 06 m5_mutter | Stoß von unten | roter M5-Achsmarker (Muttertasche) |
 | 07 rahmen_komplett | Gefügter Rahmen | 4× dezent rote M5-Marker |
-| 08 maskierung_lack | Unterseite | **gelb** (Kleberille + Noppenfeld) |
+| 08 maskierung_lack | orthogonale Unteransicht | **gelb** (gleichmäßige Kleberille + Noppen-Auflageflächen) |
 | 09 dach_holzrahmen | Dach-Halbschnitt | Holzrahmen eindeutig holzfarben, ohne Bauteil-fremden Marker |
 | 10 aufsetzen | Rahmen über Dach, Kragen sichtbar | — |
 | 11 dachschrauben | Rahmen auf Dach (halbtransparent) | 8× rote Ø4-Achsmarker |

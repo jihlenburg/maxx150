@@ -311,10 +311,20 @@ def stossB_faces(c, n):
 
 
 def mask_faces(c, n):
-    """Maskierzone (Bild 08): Kleberille + Noppenfeld auf der Unterseite."""
+    """Maskierzone (Bild 08): horizontale Kleberille + Noppen-Auflageflächen.
+
+    Der zusätzliche Normalenfilter ist wichtig: Nur tatsächlich nach unten
+    gerichtete Kontaktflächen werden markiert. Ohne ihn färbte der reine
+    Schwerpunktfilter auch senkrechte Rillen-/Kragenwände und erzeugte in der
+    Perspektive eine optisch ungleichmäßige, ausgefranste Gelbfläche.
+    """
     r = _rad(c)
-    ring = G["mask_r_in"] <= r <= G["mask_r_out"] and c.z < 2.6
-    noppen = c.z < 0.0 and (G["nopple_inner_r"] - 6) <= r <= (G["nopple_outer_r"] + 6)
+    downward = n.z < -0.55
+    ring = (downward and G["mask_r_in"] <= r <= G["mask_r_out"]
+            and c.z < 2.6)
+    noppen = (downward and c.z < 0.0
+              and (G["nopple_inner_r"] - 6) <= r
+              <= (G["nopple_outer_r"] + 6))
     return ring or noppen
 
 
@@ -355,7 +365,9 @@ def img02_teile_uebersicht():
     clips = load_part("clips", _mat("clips", COL_CLIPS, rough=0.28, metallic=0.92))
     clips.location = (230, 0, 0)
     seal = load_part("dichtring", _mat("seal", COL_SEAL, rough=0.8))
-    seal.location = (230, 0, 60)
+    # Lieferzustand: Die schwarze Runddichtung sitzt bereits in ihrer Tasche
+    # zwischen Clip-Kragen und Haltesteg der Belluna-Originalplatte.
+    seal.location = (230, 0, 0)
     cam, target = _rig(scene, area=90000)
     _cam(cam, target, (250, -1050, 640), (10, 0, 10), lens=52)
     _render(scene, "02_teile_uebersicht.png")
@@ -429,7 +441,15 @@ def img08_maskierung_lack():
     for o in segs:
         highlight(o, COL_YELLOW, mask_faces, emission=1.0)
     cam, target = _rig(scene, key=(-500, -700, -900))
-    _cam(cam, target, (760, -760, -560), (0, 0, 0))
+    # Orthogonaler Blick auf die Unterseite: Alle vier rotationsgleichen
+    # Maskierflächen sind gleich gut sichtbar; der Unterkragen verdeckt nicht
+    # länger zwei Seiten der gelben Zone.
+    cam.data.type = "ORTHO"
+    # Blender interpretiert ortho_scale hier als Bildbreite; bei 4:3 braucht
+    # die 707-mm-Diagonale entsprechend rund 950 mm, damit auch oben/unten
+    # ein sauberer Sicherheitsrand stehen bleibt.
+    cam.data.ortho_scale = 980
+    _cam(cam, target, (1, -1, -1000), (0, 0, 0))
     _render(scene, "08_maskierung_lack.png")
 
 

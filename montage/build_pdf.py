@@ -55,11 +55,9 @@ def build_model(mf):
 
     material_parts = [
         ("4×", "Universal-Segment",
-         f"{t['material_name']}; je ca. {de(t['seg_mass_g'])} g. Schwarz ist "
-         "nur die Rohteilfarbe."),
-        ("4× 750 g", "Druckmaterial",
-         "Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, "
-         "Art.-Nr. 4954641200; alle Spulen aus derselben Charge."),
+         f"Vier identische, fertig gedruckt angelieferte Bauteile; je ca. "
+         f"{de(t['seg_mass_g'])} g. Vor der Montage auf Vollständigkeit, "
+         "Ebenheit und Transportschäden prüfen."),
         ("4×", "Stoßverschraubung",
          f"M5×{de(t['m5_length'])} DIN 912 + Sechskantmutter M5, SW "
          f"{de(t['nut_af'])}; Durchgang Ø{de(t['m5_through_d'])} mm."),
@@ -82,7 +80,7 @@ def build_model(mf):
              produkt="WEICON RK-1300 Set · Art.-Nr. 10000118",
              warum="MMA-Strukturklebstoff für Hartkunststoffe und Fahrzeugbau; "
                    "hohe Schlag-, Schäl- und Scherfestigkeit. Aktivator auf "
-                   "rauen FDM-Flächen beidseitig."),
+                   "rauen Fügeflächen beidseitig."),
         dict(rolle="Dach + Belluna", menge="1× 310 ml",
              produkt="Carloflex 410 UV weiß · Carlofon",
              warum="Bellunas eigene Empfehlung für den Super Fan. Elastische "
@@ -103,27 +101,21 @@ def build_model(mf):
     ]
 
     steps = [
-        dict(nr=1, titel="Druckteile vorbereiten",
+        dict(nr=1, titel="Gelieferte Teile vorbereiten",
              bild=("03_fuegeflaechen.png",
                    "Bild 3: Fügeflächen einer Lappe (grün) – Überlappungs"
                    "schulter und Stirn."),
              absaetze=[
-                 "Vier identische Segmente aus Würth ASA GF15 Verkehrsschwarz "
-                 "(Art.-Nr. 4954641200) drucken: Deckfläche nach unten, "
-                 "gehärtete Düse, geschlossener temperierter Bauraum, "
-                 "4 Perimeter und 100 % Infill. Vor der Serie ein Segment auf "
-                 "Ebenheit und Öffnungsmaß prüfen.",
-                 "Kein pauschales Tempern: Würth nennt für diesen Artikel keinen "
-                 "allgemeinen Temperprozess. Mechanische Werte des Herstellers "
-                 "stammen aus Halbzeug; XY- und Z-Coupons des realen Druckprozesses "
-                 "bleiben Teil der Freigabe.",
+                 "Die vier fertig gedruckt gelieferten Segmente auspacken und "
+                 "auf Vollständigkeit, Ebenheit, Maßhaltigkeit, Risse und "
+                 "Transportschäden prüfen. Beschädigte Teile nicht montieren.",
                  "Die vier Halbüberlappungs-Fügeflächen (grün im Bild: Ober- "
                  "und Unterseite der Lappe sowie die Stirn) mit Schleifpapier K240 "
                  "aufrauen und gemäß WEICON-Datenblatt reinigen und trocknen.",
              ],
-             warn=[("warn", "Keine ungeprüften Lösemittel verwenden. Aceton "
-                            "greift ASA an; Kleb- und Lackflächen außerdem strikt "
-                            "silikon-, fett- und staubfrei halten.")]),
+             warn=[("warn", "Keine ungeprüften Lösemittel verwenden. Kleb- und "
+                            "Lackflächen strikt silikon-, fett- und staubfrei "
+                            "halten.")]),
         dict(nr=2, titel="Stöße verkleben und verschrauben",
              bild=("04_kleber_aktivator.png",
                    "Bild 4: Zwei Segmente am Stoß 60 mm auseinandergezogen – "
@@ -136,7 +128,7 @@ def build_model(mf):
                       ("07_rahmen_komplett.png",
                        "Bild 7: Gefügter Rahmen, alle vier M5-Positionen.")],
              absaetze=[
-                 "WEICON RK-Aktivator auf BEIDE rauen/porösen FDM-Fügeflächen "
+                 "WEICON RK-Aktivator auf BEIDE rauen Fügeflächen "
                  "auftragen und mindestens 5 min ablüften. Anschließend RK-1300 "
                  "auf eine Fügefläche geben. Im Bild kennzeichnet Blau den "
                  "Aktivatorschritt, Grün den danach aufgetragenen Klebstoff.",
@@ -149,17 +141,18 @@ def build_model(mf):
                  "Nach dem Anziehen die vier M5-Kopftaschen bündig mit RK-1300 "
                  "versiegeln (offene Taschen wären Wasserreservoirs oben).",
              ],
-             warn=[("warn", "RK-1300 ist für ABS und GFK geprüft, ASA-GF aber "
-                            "nicht ausdrücklich gelistet. Vor der Baugruppe einen "
-                            "repräsentativen Stoßcoupon mit identischer Düse, "
-                            "Charge und Oberflächenvorbereitung zerstörend prüfen.")]),
+             warn=[("warn", "RK-1300 ist für ABS und GFK dokumentiert, der "
+                            "Werkstoff der gelieferten Segmente aber nicht "
+                            "ausdrücklich gelistet. Vor der Baugruppe einen "
+                            "Referenzcoupon aus derselben Fertigung mit identischer "
+                            "Oberflächenvorbereitung zerstörend prüfen.")]),
         dict(nr=3, titel="Weiße Schutzlackierung (Pflicht)",
              bild=("08_maskierung_lack.png",
                    "Bild 8: Unterseite – Kleberille und Noppenfeld (gelb) beim "
                    "Lackieren abkleben."),
              absaetze=[
-                 "Der Plan-of-Record ist schwarzes ASA-GF; die weiße Lackierung "
-                 "ist deshalb immer erforderlich. Nach dem Fügen die Baugruppe "
+                 "Die Segmente werden mit schwarzer Rohteiloberfläche geliefert; "
+                 "die weiße Lackierung ist deshalb immer erforderlich. Nach dem Fügen die Baugruppe "
                  "für 60 min bei 60 °C ausgasen lassen, wie es Mipa für die "
                  "Kunststoffvorbereitung fordert, und vollständig abkühlen lassen.",
                  "Alle späteren Klebezonen abkleben: untere Kleberille und "
@@ -175,8 +168,9 @@ def build_model(mf):
                  "1–2 Spritzgänge auf 50–60 µm, 5–8 min dazwischen; bei 20 °C "
                  "nach 12–24 h montagefest. Danach Maskierung abziehen.",
              ],
-             warn=[("warn", "ASA-GF steht nicht in der Mipa-Primerliste. Vorher "
-                            "am Originaldruck einen Lackcoupon komplett aufbauen "
+             warn=[("warn", "Der Werkstoff der gelieferten Segmente steht nicht "
+                            "ausdrücklich in der Mipa-Primerliste. Vorher an einem "
+                            "Referenzcoupon aus derselben Fertigung das komplette Lacksystem aufbauen "
                             "und Gitterschnitt/Abreißversuch durchführen. 2K-PUR "
                             "nur im Lackierfachbetrieb mit geeigneter Absaugung "
                             "und Schutzmaßnahmen verarbeiten."),
@@ -259,7 +253,8 @@ def build_model(mf):
                  f"±165 mm).",
              ],
              warn=[("warn", "Vor der Serienmontage Haftcoupons zerstörend prüfen: "
-                            "Carloflex auf rohem ASA-GF, auf ausgehärtetem "
+                               "Carloflex auf der unlackierten Oberfläche eines "
+                               "Referenzcoupons, auf ausgehärtetem "
                             "Mipa-Decklack und auf dem realen X150-GFK-Dach. "
                             "Nur vollständig kohäsive bzw. substratseitig "
                             "tragfähige Bruchbilder freigeben."),
@@ -287,8 +282,8 @@ def build_model(mf):
                  "Hochdruck nur aus ISO-20653-9K-Abstand auf den Sockelbereich "
                  "richten – NIE direkt auf die Lüfterhaube (Belluna ist IPX4).",
                  "Jährlich die Nähte und den Lackzustand sichtprüfen. Die "
-                 "Lackprüfung ist beim schwarzen Rohteil immer "
-                 "Pflicht; Beschädigungen bis auf ASA-GF fachgerecht ausbessern.",
+                 "Lackprüfung ist beim schwarzen Grundkörper immer "
+                 "Pflicht; Beschädigungen bis auf den Kunststoff fachgerecht ausbessern.",
              ],
              warn=[]),
     ]
@@ -466,12 +461,12 @@ def render_html(m):
 <section class="titel">
   <div class="kicker">Montageanleitung</div>
   <h1>Adapterrahmen Belluna-Dachlüfter<br>Challenger X150</h1>
-  <p class="subtitle">Vier identische FDM-Segmente · 28 mm Erhöhung · schwarzes ASA-GF mit weißer Schutzlackierung</p>
+  <p class="subtitle">Vier identische, fertig gelieferte Segmente · 28 mm Erhöhung · weiße Schutzlackierung</p>
   {_img("01_titel_explosion.png", "Bild 1: Explosionsansicht der Baugruppe – vier Segmente, Belluna-Platte, Dichtring und Clips.")}
   <div class="banner">
      <span class="tag">Vorabversion</span>
-     Druck- und Montagefreigabe erst nach Kontrolle des realen Haubenfreigangs
-     und einem PLA-Passform-Probedruck. Stand: PASS mit Vorbehalt.
+     Montagefreigabe erst nach Kontrolle des realen Haubenfreigangs und der
+     Passform am Fahrzeug. Stand: PASS mit Vorbehalt.
   </div>
   <div class="meta">
      <span>Parameterstand<b>{h}</b></span>
@@ -492,7 +487,7 @@ def render_html(m):
   <header class="page-head">
     <span class="eyebrow">Vorbereitung · 1 von 2</span>
     <h2>Bauteile und Befestigung</h2>
-    <p class="lead">Ein Universalteil, viermal gleich gedruckt. Die 16 Belluna-Schrauben bleiben eindeutig auf zwei Ebenen verteilt.</p>
+    <p class="lead">Vier fertig gedruckt gelieferte Universal-Segmente. Die Montage beginnt mit der Wareneingangsprüfung; die 16 Belluna-Schrauben bleiben eindeutig auf zwei Ebenen verteilt.</p>
   </header>
   <div class="material-hero">
     {_img("02_teile_uebersicht.png", "Bild 2: Universal-Segment und Belluna-Originalplatte mit Metallclips und Dichtring.")}
@@ -530,7 +525,7 @@ def render_html(m):
   </div>
   <div class="material-cards">{cards}</div>
   <div class="box warn qualification"><span class="tag">Freigabebedingung</span>
-    ASA-GF ist weder bei RK-1300 noch beim Mipa-Primer ausdrücklich gelistet. Deshalb zuerst Originaldruck-Coupons aufbauen und zerstörend prüfen; Carloflex zusätzlich auf Mipa-Lack und dem realen X150-GFK-Dach testen.
+    Die Haftung von RK-1300 und Mipa-Primer auf den gelieferten Segmenten ist an Referenzcoupons aus derselben Fertigung zerstörend zu prüfen; Carloflex zusätzlich auf Mipa-Lack und dem realen X150-GFK-Dach testen.
   </div>
 </section>
 """
