@@ -79,17 +79,18 @@ def build_model(mf):
         dict(rolle="Segmentstöße", menge="1× 60 g",
              produkt="WEICON RK-1300 Set · Art.-Nr. 10000118",
              warum="MMA-Strukturklebstoff für Hartkunststoffe und Fahrzeugbau; "
-                   "hohe Schlag-, Schäl- und Scherfestigkeit. Aktivator auf "
-                   "rauen Fügeflächen beidseitig."),
-        dict(rolle="Dach + Belluna", menge="1× 310 ml",
-             produkt="Carloflex 410 UV weiß · Carlofon",
-             warum="Bellunas eigene Empfehlung für den Super Fan. Elastische "
-                   "1K-PU-Masse verbindet Abdichtung, Haftung und "
-                   "Bewegungsaufnahme in einem Produkt."),
-        dict(rolle="Holzrahmen", menge="1 Gebinde",
-             produkt="KLEIBERIT 501.0 1K-PUR-Leim",
-             warum="D4 nach DIN EN 204; für Holz, Hartschäume und "
-                   "feuchtebelastete Anwendungen. 20–25 min offene Zeit."),
+                   "hohe Schlag-, Schäl- und Scherfestigkeit. Sein "
+                   "Festigkeitsoptimum bei 0,15–0,25 mm passt zur Fügepassung."),
+        dict(rolle="Dach + Belluna", menge="1× 300/310 ml",
+             produkt="Carloflex 410 UV weiß · alternativ Sikaflex-522 weiß",
+             warum="Carloflex bleibt Bellunas Referenzweg. Sikaflex-522 ist "
+                   "eine exakt benannte STP-Alternative für außen, Kunststoffe "
+                   "und 2K-Lacke – nur nach Haftprüfung und nie gemischt."),
+        dict(rolle="Holzrahmen", menge="1× 1,2 kg A+B",
+             produkt="SikaForce-710 L35 + SikaForce-010",
+             warum="2K-PUR-Paneelklebstoff, ausdrücklich für Holz/GFK mit "
+                   "XPS-Kernen. Härtet auch in der geschlossenen Dachfuge "
+                   "kontrolliert aus; professioneller Misch-/Pressprozess."),
         dict(rolle="Lack-Haftgrund", menge="1× 400 ml",
              produkt="Mipa 1K-Plastic-Grundierfiller-Spray · 213390000",
              warum="Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, "
@@ -186,24 +187,34 @@ def build_model(mf):
                    "(holzfarben) vollflächig einsetzen."),
              absaetze=[
                  "Mini-Heki demontieren, das komplette Altbett restlos entfernen "
-                 "und mit Isopropanol reinigen.",
-                 f"Ausschnitt messen (Soll {de(t['cutout_w'])}×{de(t['cutout_w'])}).",
-                 f"Rund um den Ausschnitt den XPS-Randstreifen ausräumen und einen "
-                 f"wasserfesten Holzrahmen (Höhe = real gemessener Dachkern, "
-                 f"Breite ≥ {de(t['wood_frame_w'])} mm) mit KLEIBERIT 501.0 "
-                 f"1K-PUR-Leim vollflächig einsetzen. Mindestens 60 min pressen "
-                 f"und 2–3 h nachbinden lassen. Austretenden PUR-Schaum entfernen. "
-                 f"Der Rahmen ist Schraubgrund UND Kompressionsschutz.",
+                 "und mit Isopropanol reinigen. Ausschnitt messen (Soll "
+                 f"{de(t['cutout_w'])}×{de(t['cutout_w'])}).",
+                 f"Rund um den Ausschnitt den XPS-Randstreifen ausräumen. Einen "
+                 f"wasserfesten Holzrahmen vorbereiten: Höhe = real gemessener "
+                 f"Dachkern, Breite ≥ {de(t['wood_frame_w'])} mm. Klebeflächen "
+                 f"an GFK, XPS und Holz sauber, trocken, fett- und staubfrei halten.",
+                 "SikaForce-710 L35 (Komponente A vorher aufrühren) mit "
+                 "SikaForce-010 (Komponente B) homogen mischen: 100:25 nach "
+                 "Volumen bzw. 100:19 nach Gewicht. Bei 23 °C beträgt die "
+                 "Topfzeit 35 min; vor Ablauf der halben Topfzeit auftragen und "
+                 "den Holzrahmen hohlraumfrei einsetzen.",
+                 "Mit ebenen Zulagen pressen und bei 23 °C mindestens 125 min "
+                 "nicht entlasten. Den konkreten Pressdruck am realen Dachaufbau "
+                 "ermitteln; er muss unter der Druckfestigkeit des XPS-Kerns "
+                 "bleiben. Der Rahmen ist Schraubgrund UND Kompressionsschutz.",
              ],
-             warn=[("hinweis", "Warum KLEIBERIT 501.0: Das Produkt ist D4 nach "
-                               "DIN EN 204, hochwärmebeständig und für Holz, "
-                               "Hartschäume sowie feuchtebelastete Anwendungen "
-                               "ausgewiesen. Die offene Zeit von etwa 20–25 min "
-                               "erlaubt das saubere Einsetzen des kompletten Rahmens."),
-                   ("warn", f"Der Unterkragen ({de(t['kragen_outer_w'])} mm) "
-                            f"braucht rundum ≥ {de(t['bot_kragen_clear'])} mm Luft "
-                            f"im Ausschnitt. Real gemessen passt die 397er-Platte – "
-                            f"vor dem Setzen den echten Ausschnitt kontrollieren.")]),
+             warn=[("hinweis", "Warum SikaForce-710 L35: Sika spezifiziert genau "
+                               "die vorhandene Werkstoffkette Holz/GFK mit "
+                               "expandiertem oder extrudiertem Polystyrol. Das "
+                               "reaktive 2K-System ist nicht auf Luftfeuchtigkeit "
+                               "in der geschlossenen Sandwichfuge angewiesen."),
+                   ("warn", "Nur SikaForce-710 L35 mit SikaForce-010 durch "
+                            "erfahrene Anwender gemäß Sicherheitsdatenblatt "
+                            "verarbeiten. Vorbehandlung, Auftragsmenge und "
+                            "Pressdruck am realen GFK/XPS/Holz-Coupon festlegen. "
+                            f"Der {de(t['kragen_outer_w'])}-mm-Unterkragen braucht "
+                            f"rundum ≥ {de(t['bot_kragen_clear'])} mm Luft; den "
+                            "echten Ausschnitt vor dem Setzen kontrollieren.")]),
         dict(nr=5, titel="Rahmen setzen und verschrauben",
              bild=("12_kleberaupe.png",
                    "Bild 12: Kleberaupe kommt in die grün markierte Rille der "
@@ -214,9 +225,11 @@ def build_model(mf):
                        "Bild 11: ST4,2×25-Schrauben (rot) durch den Kragen in den "
                        "Holzrahmen.")],
              absaetze=[
-                 f"Carloflex 410 UV weiß aus der 310-ml-Kartusche als geschlossene "
-                 f"Raupe (ca. {de(t['bead_ml'])} ml) in die untere Kleberille "
-                 f"legen (Bild 12).",
+                 f"Carloflex 410 UV weiß aus der 310-ml-Kartusche als Belluna-"
+                 f"Referenzweg verwenden. Alternativ ist nach bestandener "
+                 f"Haftprüfung Sikaflex-522 weiß aus der 300-ml-Kartusche zulässig. "
+                 f"Das gewählte Produkt als geschlossene Raupe (ca. "
+                 f"{de(t['bead_ml'])} ml) in die untere Kleberille legen (Bild 12).",
                  "Rahmen mit dem Unterkragen in den Ausschnitt einsetzen (Bild 10) "
                  "und lagerichtig ausrichten.",
                  f"Je Seite zwei ST {de(t['dach_screw_st_d'])}×"
@@ -224,15 +237,17 @@ def build_model(mf):
                  f"Kragenlöcher ({de(t['dach_screw_count'])} gesamt) in den "
                  f"Holzrahmen setzen – 3-mm-Kernloch vorbohren (Bild 11). Das "
                  f"fixiert den Rahmen lagerichtig, während der Kleber härtet.",
-                 "Außen umlaufend mit Carloflex eine geschlossene Kehlnaht ziehen; "
+                 "Außen umlaufend mit demselben gewählten Produkt eine geschlossene "
+                 "Kehlnaht ziehen; "
                  "Schraubdurchtritte ebenfalls abdichten.",
              ],
-             warn=[("hinweis", "Warum Carloflex 410 UV: Belluna empfiehlt genau "
-                               "dieses Produkt für den Super Fan. Die elastische, "
-                               "UV-beständige 1K-PU-Masse verbindet GFK und "
-                               "Adapter, dichtet gleichzeitig und kann die "
-                               "thermische Relativbewegung aufnehmen. Deshalb "
-                               "wird keine generische Sika-Alternative gemischt."),
+             warn=[("hinweis", "Produktentscheidung: Carloflex 410 UV bleibt der "
+                               "von Belluna empfohlene Referenzweg. Sikaflex-522 "
+                               "weiß ist eine präzise dokumentierte, UV- und "
+                               "witterungsbeständige STP-Alternative für "
+                               "Kunststoffe und 2K-Lacke. Bei Wahl von 522 beide "
+                               "Dichtebenen vollständig damit ausführen – Produkte "
+                               "nicht mischen."),
                    ("warn", f"Die Noppen definieren die {de(t['glue_gap'])} mm "
                             f"Fugendicke – den Kleber NICHT auspressen "
                             f"(Thermik-Elastikfuge).")]),
@@ -242,8 +257,8 @@ def build_model(mf):
                    "ST4,2-Schrauben (rot) seitlich durch den Platten-Kragen "
                    "in die Adapter-Innenwand."),
              absaetze=[
-                 "Carloflex 410 UV weiß in die Klebekanäle der Plattenunterseite "
-                 "auftragen "
+                 "Das in Schritt 5 gewählte Dicht-/Klebprodukt in die Klebekanäle "
+                 "der Plattenunterseite auftragen "
                  "und die Platte mittig aufsetzen (der Kragen taucht in die "
                  "Öffnung).",
                  f"Die ST {de(t['plate_screw_d'])}×{de(t['plate_screw_l'])} seitlich "
@@ -253,7 +268,7 @@ def build_model(mf):
                  f"±165 mm).",
              ],
              warn=[("warn", "Vor der Serienmontage Haftcoupons zerstörend prüfen: "
-                               "Carloflex auf der unlackierten Oberfläche eines "
+                               "das gewählte Dicht-/Klebprodukt auf der unlackierten Oberfläche eines "
                                "Referenzcoupons, auf ausgehärtetem "
                             "Mipa-Decklack und auf dem realen X150-GFK-Dach. "
                             "Nur vollständig kohäsive bzw. substratseitig "
@@ -525,7 +540,7 @@ def render_html(m):
   </div>
   <div class="material-cards">{cards}</div>
   <div class="box warn qualification"><span class="tag">Freigabebedingung</span>
-    Die Haftung von RK-1300 und Mipa-Primer auf den gelieferten Segmenten ist an Referenzcoupons aus derselben Fertigung zerstörend zu prüfen; Carloflex zusätzlich auf Mipa-Lack und dem realen X150-GFK-Dach testen.
+    RK-1300 und Mipa-Primer an Referenzcoupons der gelieferten Segmente prüfen; das gewählte Dichtprodukt auf Mipa-Lack und X150-GFK sowie SikaForce-710 L35 auf dem realen GFK/XPS/Holz-Sandwich testen.
   </div>
 </section>
 """

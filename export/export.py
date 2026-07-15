@@ -101,27 +101,34 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 ## Dach-Sandwich und Dichtheit
 - Mini-Heki und Altbett entfernen. Den XPS-Randstreifen ausräumen und einen
   wasserfesten Holzrahmen (Höhe Kern, Breite ≥ 30 mm) mit
-  **KLEIBERIT 501.0 1K-PUR-Leim** vollflächig einsetzen, mindestens 60 min
-  pressen/fixieren. Wahlgrund: D4 nach DIN EN 204, Holz und Hartschäume,
-  hohe Wärme- und Feuchtebeständigkeit. Der Rahmen ist Schraubgrund und
-  Kompressionsschutz.
+  **SikaForce-710 L35 + SikaForce-010** vollflächig einsetzen. A:B = 100:25
+  nach Volumen bzw. 100:19 nach Gewicht; A vorher aufrühren, homogen mischen,
+  bei 23 °C vor der halben Topfzeit auftragen und mindestens 125 min mit
+  ebenen Zulagen pressen. Den realen Pressdruck am GFK/XPS/Holz-Coupon
+  festlegen und unter der Druckfestigkeit des Kerns halten. Wahlgrund: Sika
+  spezifiziert genau Holz/GFK mit EPS/XPS für Sandwichpaneele; das 2K-System
+  härtet auch in der geschlossenen Dachfuge kontrolliert aus. Nur durch
+  erfahrene Anwender gemäß aktuellem Sicherheitsdatenblatt verarbeiten.
 - Der Unterkragen ({p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR:.0f} mm) zentriert im
   Soll-Ausschnitt {p.CUTOUT_W:.0f}×{p.CUTOUT_W:.0f} mm. **8 beiliegende
   ST {p.BOT_KRAGEN_SCREW_D:.1f}×{p.BOT_KRAGEN_SCREW_L:.0f}** bei ±140 mm
   seitlich ins Holz, nie von oben durch die Dichtfläche.
-- Dicht-/Klebstoff ausschließlich **Carloflex 410 UV weiß, 310 ml**: ca.
-  **{bead_ml:.0f} ml** in die untere Kleberille plus Außenkehle; Noppen halten
-  {p.GLUE_GAP} mm Fugendicke. Danach auch die Belluna-Ringklebenut mit
-  Carloflex füllen. Wahlgrund: Belluna empfiehlt genau dieses dauerelastische,
-  UV-beständige 1K-PU-Produkt für den Super Fan; es klebt und dichtet zugleich.
-  Keine generische Sika-Alternative in die Prozesskette mischen.
+- Dicht-/Klebstoff: **Carloflex 410 UV weiß, 310 ml** bleibt der von Belluna
+  empfohlene Referenzweg. Als exakt benannte Alternative ist nach bestandenem
+  Haftcoupon **Sikaflex-522 weiß, 300 ml** zulässig: ca. **{bead_ml:.0f} ml**
+  in die untere Kleberille plus Außenkehle; Noppen halten {p.GLUE_GAP} mm
+  Fugendicke. Danach auch die Belluna-Ringklebenut mit demselben gewählten
+  Produkt füllen. Sikaflex-522 ist ein UV-/witterungsbeständiger STP-Dichtstoff
+  für Kunststoffe und 2K-Lacke. Nicht mischen oder innerhalb der Baugruppe
+  wechseln.
 - Jede Adapterseite besitzt Vollmaterialrippen ±140/±165. Von den zehn
   Belluna-Seitenlöchern nur die **acht äußeren** mit den übrigen 8
   ST4.2×25 setzen; Mittellöcher an den Segmentstößen frei lassen. Die vier
   PT4.0×12 Lüfter→Platte mit Belluna-Drehmoment 0,7 Nm. Damit sind die
   **16 Belluna-Schrauben ST 4.2×25** eindeutig auf 8× Dach und 8× Platte verteilt.
-- Vor Serienmontage Haftcoupons prüfen: RK-1300 auf rohem ASA-GF; Carloflex
-  auf rohem ASA-GF, ausgehärtetem Mipa-Lack und realem X150-GFK-Dach.
+- Vor Serienmontage Haftcoupons prüfen: RK-1300 auf rohem ASA-GF; das gewählte
+  Dichtprodukt auf rohem ASA-GF, ausgehärtetem Mipa-Lack und realem
+  X150-GFK-Dach; SikaForce-710 L35 auf dem realen GFK/XPS/Holz-Sandwich.
   Beide Kleberringe geschlossen führen. Nach Einbau drucklos fluten
   (Gießkanne, 10 min); Hochdruck nur aus ISO-20653-9K-Abstand, nie direkt auf
   die IPX4-Lüfterhaube. Nähte und Lack jährlich prüfen.

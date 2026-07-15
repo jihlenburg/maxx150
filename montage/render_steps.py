@@ -441,15 +441,10 @@ def img08_maskierung_lack():
     for o in segs:
         highlight(o, COL_YELLOW, mask_faces, emission=1.0)
     cam, target = _rig(scene, key=(-500, -700, -900))
-    # Orthogonaler Blick auf die Unterseite: Alle vier rotationsgleichen
-    # Maskierflächen sind gleich gut sichtbar; der Unterkragen verdeckt nicht
-    # länger zwei Seiten der gelben Zone.
-    cam.data.type = "ORTHO"
-    # Blender interpretiert ortho_scale hier als Bildbreite; bei 4:3 braucht
-    # die 707-mm-Diagonale entsprechend rund 950 mm, damit auch oben/unten
-    # ein sauberer Sicherheitsrand stehen bleibt.
-    cam.data.ortho_scale = 980
-    _cam(cam, target, (1, -1, -1000), (0, 0, 0))
+    # Moderate 20°-Schrägansicht von unten: mehr räumliche Information als
+    # die frühere Orthogonalansicht, aber deutlich weniger seitlich als die
+    # alte Perspektive, in der der Unterkragen zwei Maskierseiten verdeckte.
+    _cam(cam, target, (300, -300, -1200), (0, 0, -3), lens=52)
     _render(scene, "08_maskierung_lack.png")
 
 

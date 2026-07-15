@@ -87,21 +87,28 @@ Parametern und schreibt sie in die Montagenotiz.
    MS 25 (2:1 Volumen). Weiß ist Teil der Thermikauslegung; Primerhaftung auf
    ASA-GF wird per Originaldruck-Coupon qualifiziert.
 6. **Befestigung:** Adapter ↔ Dach und Platte ↔ Adapter mit **Carloflex 410 UV
-   weiß** verklebt/abgedichtet (Elastikfuge bzw. Ringklebenut). Zusätzlich werden
+   weiß** als Belluna-Referenzweg verklebt/abgedichtet (Elastikfuge bzw.
+   Ringklebenut). Nach bestandenem Originalsubstrat-Coupon ist
+   **Sikaflex-522 weiß** als exakt benannte Alternative zulässig; innerhalb
+   einer Baugruppe wird nur eines der beiden Produkte verwendet. Zusätzlich werden
    die 16 beiliegenden Belluna-ST4.2×25
    auf zwei entkoppelte Interfaces verteilt: 8 äußere Belluna-Seitenlöcher
    Platte→lokale Universalrippen (jede Seite hält ±140 und ±165 vor, ohne
    offene Vorratslöcher) und 8 umlaufend gleiche ±140-Löcher
    Unterkragen→nachgerüsteter Holzrahmen im XPS. Der Holzrahmen wird mit
-   **KLEIBERIT 501.0 1K-PUR-Leim** (D4) vollflächig eingesetzt.
+   **SikaForce-710 L35 + SikaForce-010** (2K-PUR, 100:25 Volumen bzw.
+   100:19 Gewicht) vollflächig eingesetzt. Das System ist ausdrücklich für
+   Holz/GFK mit EPS/XPS-Sandwichkernen spezifiziert; Auftragsmenge und
+   Pressprozess werden am realen Dachcoupon festgelegt.
    Die zwei Belluna-Mittellöcher an den Segmentstößen bleiben frei. Keine Verschraubung
    von oben durch eine Dichtfläche.
    **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
    Lüfter geklebt + Kragen formschlüssig im Schacht, von unten nur die Zierblende.
    LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle); die mechanische
    Redundanz trägt allein die seitliche Verschraubung + Formschluss.
-7. **Dichtheit:** definierte Carloflex-Schichtdicke 3 mm (Thermodehnung),
-   Carloflex-Kehlnaht außen und abgedichtete Schraubdurchtritte.
+7. **Dichtheit:** definierte 3-mm-Elastikfuge des gewählten Dichtprodukts
+   (Carloflex 410 UV oder qualifiziertes Sikaflex-522), geschlossene Kehlnaht
+   außen und abgedichtete Schraubdurchtritte.
 
 ## 4. Bauteilgeometrie
 
@@ -149,15 +156,19 @@ Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
 Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 38 %
 Auslastung der 3-mm-Elastikfuge.
 Aufnahme ausschließlich durch die elastische Klebschicht
-(Carloflex 410 UV, elastisches 1K-PU) — deshalb sind die Klebespalt-Noppen und
+(Carloflex 410 UV oder qualifiziertes Sikaflex-522) — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
 
 **Dichtheitskonzept (Mehrteiligkeit):** Dichtheit kommt von durchgehenden Elastomer-Ebenen,
 nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt. Barrierenkette:
-(1) Carloflex-Kehlnaht außen, umlaufend geschlossen über alle Stöße; (2) Carloflex-Ring in der
+(1) Kehlnaht des gewählten Dichtprodukts außen, umlaufend geschlossen über alle Stöße; (2) dessen Ring in der
 unteren Kleberille, geschlossen über die Stöße; (3) Ringklebenut der Belluna-Platte auf der
 Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
 WEICON-RK-1300-Verklebung der Fügeflächen (M5 = Verpressung/Redundanz, nicht Dichtung).
+WEICON Epoxyd-Minutenkleber bleibt trotz hoher nomineller Festigkeit verworfen:
+sein TDS nennt nur 2,7 % Bruchdehnung und Tg 44,7 °C (46,1 °C nach Tempern),
+also deutlich unter `T_MAX = 85 °C`. RK-1300 ist bis 130 °C spezifiziert und
+hat sein Zugscherfestigkeitsoptimum bei 0,15–0,25 mm, passend zu `TOL_JOINT`.
 FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; der festgelegte Mipa-Primer +
 RAL-9003-2K-PUR-Decklack ist PFLICHT (Solarreflexion, Porenschluss, Wetterschutz).
 Validierung praktisch (Flutungstest, dann Hochdruck aus
@@ -284,11 +295,11 @@ jede Messung ersetzt einen Default.
 |---|---|
 | Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
 | Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,5 bis Coupon-Test; kein pauschales Tempern |
-| Thermodehnung reißt Klebfuge | 3-mm-Carloflex-Elastikfuge erzwungen (Noppen), LF5 |
+| Thermodehnung reißt Klebfuge | 3-mm-Elastikfuge aus Carloflex 410 UV oder qualifiziertem Sikaflex-522 erzwungen (Noppen), LF5 |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
 | Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Gitterschnitt-/Abreißcoupon auf Originaldruck; jährliche Lackkontrolle |
-| Klebstoff haftet nicht auf realem Compound/Dach | RK-1300- und Carloflex-Coupons auf rohem ASA-GF, Mipa-Lack und realem X150-GFK vor Serienmontage |
+| Klebstoff haftet nicht auf realem Compound/Dach | RK-1300- und Dichtstoff-Coupons auf rohem ASA-GF, Mipa-Lack und realem X150-GFK sowie SikaForce-710-L35-Coupon auf GFK/XPS/Holz vor Serienmontage |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |

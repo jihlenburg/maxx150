@@ -87,19 +87,27 @@ Materialliste oder die Montageschritte aufgenommen werden.
 | Funktion | Exaktes Produkt | Warum dieses Produkt |
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben Druckcoupons Pflicht. |
-| Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau mit hoher Schlag-, Schäl- und Scherfestigkeit; ASA-GF wird über Originaldruck-Coupon qualifiziert. |
-| Dach- und Belluna-Dichtung | Carloflex 410 UV weiß, 310 ml | Von Belluna für den Super Fan empfohlen; elastische 1K-PU-Masse vereint Klebung, Abdichtung und Bewegungsaufnahme. Keine parallele Sika-Alternative in derselben Prozesskette. |
-| Holzrahmen | KLEIBERIT 501.0 1K-PUR-Leim | D4 nach DIN EN 204, für Holz/Hartschäume sowie Wärme-/Feuchtebelastung; 20–25 min offene Zeit erleichtern das Einsetzen des kompletten Rahmens. |
+| Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. ASA-GF wird über Originaldruck-Coupon qualifiziert. |
+| Dach- und Belluna-Dichtung | Carloflex 410 UV weiß, 310 ml; exakt benannte Alternative: Sikaflex-522 weiß, 300 ml | Carloflex bleibt Bellunas Referenzweg. 522 ist ein aktueller UV-/witterungsbeständiger STP-Dichtstoff für Kunststoffe und 2K-Lacke; nur nach Haftcoupon, innerhalb einer Baugruppe nicht mischen. |
+| Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Erfordert exaktes Mischen, Coupon und definierten Pressprozess. |
 | Lack-Haftgrund | Mipa 1K-Plastic-Grundierfiller-Spray, Art.-Nr. 213390000 | Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, mit 2K-Decklack überlackierbar. ASA-GF ist nicht ausdrücklich gelistet: Coupon ist Pflicht. |
 | Weißer Decklack | Mipa PUR HS 2K-PUR-Acryl-Fahrzeuglack RAL 9003 Signalweiß glänzend + Mipa 2K-MS-Härter MS 25, 2:1 Volumen | Wetter- und vergilbungsfester Nutzfahrzeuglack mit hoher chemischer/mechanischer Beständigkeit; Weiß reduziert die solare Aufheizung des schwarzen Rohlings. |
 
 Primärquellen: [Würth ASA GF15](https://eshop.wuerth.de/ASA-GF15-filament-PRNTMATL-ASAGF15-TRAFFBLCK-D175-075KG/4954641200.sku/en/US/EUR/),
 [WEICON RK-1300 TDS](https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf),
+[WEICON Epoxyd-Minutenkleber TDS](https://media.weicon.de/fmds/307275/dld%3Ainline/DE_TDS_10550024_Epoxyd-Minutenkleber.pdf),
 [Belluna Carloflex 410 UV](https://belluna.eu/shop/carloflex/),
 [Belluna Super-Fan-Anleitung](https://belluna.eu/wp-content/uploads/2024/05/Anleitung-Super-Fan.pdf),
-[KLEIBERIT 501-Serie](https://kleiberit.com/fileadmin/Content_new/Infoblaetter/deutsch/501_Serie_D.pdf),
+[Sikaflex-522 TDS](https://deu.sika.com/content/dam/dms/deaddconst01/p/sikaflex-522.pdf),
+[SikaForce-710 L35 TDS](https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf),
 [Mipa Plastic-Grundierfiller TDS](https://www.mipa-paints.com/fileadmin/product/de/pi/spray/Mipa_1K-Plastic-Grundierfiller-Spray_DE.pdf) und
 [Mipa PUR HS TDS](https://www.mipa-paints.com/fileadmin/product/de/pi/lm/Mipa_PUR_HS_2K-PUR-Acryl-Fahrzeuglack_DE.pdf).
+
+Bewusst nicht gewählt: WEICON Epoxyd-Minutenkleber für die Segmentstöße.
+Trotz hoher nomineller Festigkeit und Temperaturbeständigkeit nennt das TDS
+nur 2,7 % Bruchdehnung und einen Glasübergang von 44,7 °C (46,1 °C nach
+Tempern). Das liegt deutlich unter `T_MAX = 85 °C`; RK-1300 passt außerdem
+mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 
 ## Bildliste (`out/montage/img/`)
 
@@ -112,7 +120,7 @@ Primärquellen: [Würth ASA GF15](https://eshop.wuerth.de/ASA-GF15-filament-PRNT
 | 05 m5_montage | Stoß von oben | roter M5-Achsmarker (Senkung) |
 | 06 m5_mutter | Stoß von unten | roter M5-Achsmarker (Muttertasche) |
 | 07 rahmen_komplett | Gefügter Rahmen | 4× dezent rote M5-Marker |
-| 08 maskierung_lack | orthogonale Unteransicht | **gelb** (gleichmäßige Kleberille + Noppen-Auflageflächen) |
+| 08 maskierung_lack | moderate 20°-Unteransicht | **gelb** (gleichmäßige Kleberille + Noppen-Auflageflächen) |
 | 09 dach_holzrahmen | Dach-Halbschnitt | Holzrahmen eindeutig holzfarben, ohne Bauteil-fremden Marker |
 | 10 aufsetzen | Rahmen über Dach, Kragen sichtbar | — |
 | 11 dachschrauben | Rahmen auf Dach (halbtransparent) | 8× rote Ø4-Achsmarker |
