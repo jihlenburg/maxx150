@@ -53,42 +53,53 @@ def build_model(mf):
     h = mf["params_hash"]
     datum = mf["erzeugt"]
 
-    material = [
-        ("4×", f"Druckteil-Segment (universal, rotationsidentisch) aus "
-               f"{t['material_name']}, je ca. {de(t['seg_mass_g'])} g. Schwarz "
-               f"ist nur die Rohteilfarbe; RAL 9003 ist vor Einbau Pflicht."),
-        ("4× 750 g", "Würth ASA GF15, Verkehrsschwarz RAL 9017 ähnlich, "
-                     "1,75 mm, Art.-Nr. 4954641200. Vier Spulen derselben Charge "
-                     "decken vier Segmente, Coupons und Fehldruckreserve."),
-        ("4×", f"Zylinderkopfschraube M5×{de(t['m5_length'])} DIN 912 "
-               f"(Durchgang Ø{de(t['m5_through_d'])}) + 4× Sechskantmutter M5 "
-               f"(SW {de(t['nut_af'])})"),
-        ("1× 60 g", "WEICON RK-1300 Set, Art.-Nr. 10000118, inklusive "
-                    "RK-Aktivator. Strukturklebstoff für die vier Segmentstöße; "
-                    "Aktivator auf den rauen FDM-Flächen beidseitig."),
-        ("1× 310 ml", "Carloflex 410 UV weiß (Carlofon), elastische 1K-PU-Dicht- "
-                      "und Klebemasse. Für untere Kleberille, Außenkehle, "
-                      "Belluna-Ringklebenut und Schraubabdichtung."),
-        (de(t["dach_screw_count"]) + "×",
-         f"Belluna-Schraube ST {de(t['dach_screw_st_d'])}×"
-         f"{de(t['dach_screw_st_l'])} aus dem Lieferumfang, "
-         f"Adapter-Unterkragen→Holzrahmen; 3-mm-Kernloch vorbohren"),
-        ("8×", f"Belluna-Schraube ST {de(t['dach_screw_st_d'])}×"
-               f"{de(t['dach_screw_st_l'])} aus dem Lieferumfang, "
-               f"Belluna-Platte→Adapter-Innenwand; 3-mm-Kernloch vorbohren"),
-        ("1", f"Wasserfestes Holz für den Ausschnittsrahmen (Breite ≥ "
-              f"{de(t['wood_frame_w'])} mm, Höhe = realer Dachkern)"),
-        ("1 Gebinde", "KLEIBERIT 501.0 1K-PUR-Leim, D4 nach DIN EN 204, "
-                      "zum vollflächigen Einsetzen des Holzrahmens in Holz/XPS."),
-        ("1× 400 ml", "Mipa 1K-Plastic-Grundierfiller-Spray, hellgrau, "
-                      "Art.-Nr. 213390000. Füllender Kunststoff-Haftgrund; "
-                      "die Eignung auf ASA-GF wird am Coupon bestätigt."),
-        ("1 System", "Mipa PUR HS 2K-PUR-Acryl-Fahrzeuglack, RAL 9003 "
-                     "Signalweiß glänzend + Mipa 2K-MS-Härter MS 25, "
-                     "Mischung 2:1 nach Volumen. Weiße Beschichtung ist Pflicht."),
-        ("div.", f"Mipa Kunststoffreiniger antistatisch, Schleifpapier K240, "
-                 f"MP Softpad Superfine, Drehmomentschlüssel "
-                 f"({de(t['torque_nm'])} Nm), Vierkantwelle {de(t['shaft_mm'])} mm"),
+    material_parts = [
+        ("4×", "Universal-Segment",
+         f"{t['material_name']}; je ca. {de(t['seg_mass_g'])} g. Schwarz ist "
+         "nur die Rohteilfarbe."),
+        ("4× 750 g", "Druckmaterial",
+         "Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, "
+         "Art.-Nr. 4954641200; alle Spulen aus derselben Charge."),
+        ("4×", "Stoßverschraubung",
+         f"M5×{de(t['m5_length'])} DIN 912 + Sechskantmutter M5, SW "
+         f"{de(t['nut_af'])}; Durchgang Ø{de(t['m5_through_d'])} mm."),
+        (de(t["dach_screw_count"]) + "×", "Adapter → Holz",
+         f"Belluna ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
+         "aus dem Lieferumfang; Kernloch 3 mm."),
+        ("8×", "Belluna-Platte → Adapter",
+         f"Belluna ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
+         "aus dem Lieferumfang; Kernloch 3 mm."),
+        ("1 Satz", "Holzrahmen",
+         f"Wasserfestes Holz, Breite ≥ {de(t['wood_frame_w'])} mm, Höhe = "
+         "real gemessener Dachkern."),
+        ("Werkzeug", "Vorbereitung und Montage",
+         f"K240, MP Softpad Superfine, 3-mm-Bohrer, Drehmomentschlüssel "
+         f"({de(t['torque_nm'])} Nm), Vierkantwelle {de(t['shaft_mm'])} mm."),
+    ]
+
+    material_system = [
+        dict(rolle="Segmentstöße", menge="1× 60 g",
+             produkt="WEICON RK-1300 Set · Art.-Nr. 10000118",
+             warum="MMA-Strukturklebstoff für Hartkunststoffe und Fahrzeugbau; "
+                   "hohe Schlag-, Schäl- und Scherfestigkeit. Aktivator auf "
+                   "rauen FDM-Flächen beidseitig."),
+        dict(rolle="Dach + Belluna", menge="1× 310 ml",
+             produkt="Carloflex 410 UV weiß · Carlofon",
+             warum="Bellunas eigene Empfehlung für den Super Fan. Elastische "
+                   "1K-PU-Masse verbindet Abdichtung, Haftung und "
+                   "Bewegungsaufnahme in einem Produkt."),
+        dict(rolle="Holzrahmen", menge="1 Gebinde",
+             produkt="KLEIBERIT 501.0 1K-PUR-Leim",
+             warum="D4 nach DIN EN 204; für Holz, Hartschäume und "
+                   "feuchtebelastete Anwendungen. 20–25 min offene Zeit."),
+        dict(rolle="Lack-Haftgrund", menge="1× 400 ml",
+             produkt="Mipa 1K-Plastic-Grundierfiller-Spray · 213390000",
+             warum="Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, "
+                   "mit 2K-Decklacken überlackierbar."),
+        dict(rolle="Weißer Decklack", menge="1 System",
+             produkt="Mipa PUR HS RAL 9003 + 2K-MS-Härter MS 25",
+             warum="2:1 Volumen. Wetter- und vergilbungsfester "
+                   "Nutzfahrzeuglack; Weiß begrenzt die Solaraufheizung."),
     ]
 
     steps = [
@@ -282,7 +293,8 @@ def build_model(mf):
              warn=[]),
     ]
 
-    return dict(hash=h, datum=datum, geom_rev=mf["geom_rev"], material=material,
+    return dict(hash=h, datum=datum, geom_rev=mf["geom_rev"],
+                material_parts=material_parts, material_system=material_system,
                 steps=steps, text=t)
 
 
@@ -290,73 +302,142 @@ def build_model(mf):
 # HTML/CSS
 # ---------------------------------------------------------------------------
 CSS = """
-:root { --ink:#1a1d21; --muted:#5b6570; --line:#c8ccd2; --accent:#1f4e8c; }
-* { box-sizing: border-box; }
-@page { size: A4; margin: 14mm; }
+:root {
+  --ink:#15212b; --muted:#5b6872; --quiet:#eef3f6; --line:#cbd5dc;
+  --blue:#006aa6; --blue-dark:#004e7c; --blue-soft:#e8f2f8;
+  --amber:#e6a400; --amber-soft:#fff5d8; --red:#bd2d2d; --red-soft:#fdecec;
+}
+* { box-sizing:border-box; }
+@page { size:A4; margin:12.5mm 14mm 13mm; }
 html, body { margin:0; padding:0; }
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--ink); font-size: 10.7pt; line-height: 1.5;
-  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  font-family:"Avenir Next", "Noto Sans", Arial, sans-serif;
+  color:var(--ink); font-size:9.25pt; line-height:1.42;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  font-variant-numeric:tabular-nums;
 }
-h1 { font-size: 22pt; line-height:1.15; margin:0 0 4mm; }
-h2 { font-size: 13.5pt; margin:0 0 3mm; color: var(--accent);
-     border-bottom: 2px solid var(--accent); padding-bottom: 1.5mm; }
-p { margin: 0 0 2.4mm; }
-img { max-width: 100%; height: auto; display:block; border:1px solid var(--line);
-      border-radius: 3px; }
-figure { margin: 0 0 3mm; }
-figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1mm; }
+h1, h2, h3, p { margin-top:0; }
+h1 { font-size:27pt; line-height:1.04; letter-spacing:-.55px; margin-bottom:4mm; }
+h2 { font-size:18pt; line-height:1.12; letter-spacing:-.2px; margin:0; color:var(--ink); }
+h3 { font-size:10.5pt; line-height:1.25; margin:0 0 1mm; }
+p { margin-bottom:2.2mm; }
+img { display:block; max-width:100%; height:auto; }
+figure { margin:0; }
+figcaption { color:var(--muted); font-size:7.5pt; line-height:1.3; margin-top:1.2mm; }
+.page { break-after:page; page-break-after:always; min-height:258mm; }
+.eyebrow { color:var(--blue); font-size:8pt; font-weight:700; letter-spacing:1px;
+           text-transform:uppercase; }
+.lead { color:var(--muted); font-size:10.2pt; line-height:1.45; max-width:145mm; }
+.page-head { border-top:2.2mm solid var(--blue); padding-top:3.5mm; margin-bottom:4mm; }
+.page-head .eyebrow { display:block; margin-bottom:1.2mm; }
 
-/* Titelseite */
-.titel { min-height: 247mm; display:flex; flex-direction:column; page-break-after: always; }
-.titel .kicker { color: var(--accent); font-weight:600; letter-spacing:.5px;
-                 text-transform:uppercase; font-size:9.5pt; }
-.titel figure { margin-top: 4mm; }
-.titel .meta { margin-top: auto; font-size: 10pt; color: var(--muted); }
-.titel .meta b { color: var(--ink); }
+/* Titelseite: Identifikation, Bild, Freigabestatus. */
+.titel { min-height:258mm; display:flex; flex-direction:column;
+         break-after:page; page-break-after:always; }
+.titel .kicker { color:var(--blue); font-weight:700; letter-spacing:1.2px;
+                 text-transform:uppercase; font-size:8pt; margin-bottom:2mm; }
+.titel .subtitle { color:var(--muted); font-size:11pt; margin-bottom:5mm; }
+.titel figure img { width:100%; height:125mm; object-fit:cover; border-radius:2mm; }
+.titel .banner { margin-top:5mm; }
+.titel .meta { margin-top:auto; display:grid; grid-template-columns:1fr 1fr 1fr;
+               border-top:1px solid var(--line); padding-top:3mm; color:var(--muted);
+               font-size:8pt; gap:4mm; }
+.titel .meta b { color:var(--ink); display:block; font-size:9.5pt; margin-top:.6mm; }
 
-/* Vorbehalts-Banner (rot umrandet) */
-.banner { border:2.2px solid #c02626; background:#fbeaea; color:#7a1414;
-          border-radius:6px; padding:4mm 5mm; margin:6mm 0 0; font-size:10.2pt; }
-.banner .tag { font-weight:700; text-transform:uppercase; letter-spacing:.4px;
-               color:#c02626; display:block; margin-bottom:1.2mm; }
+.banner { border-left:2mm solid var(--red); background:var(--red-soft);
+          color:#6f1b1b; border-radius:1mm; padding:3.4mm 4mm; font-size:9.2pt; }
+.banner .tag { color:var(--red); display:block; font-size:7.6pt; font-weight:800;
+               letter-spacing:.9px; text-transform:uppercase; margin-bottom:.8mm; }
 
-/* Schritte */
-.schritt { page-break-inside: avoid; margin: 0 0 7mm; padding-top: 2mm; }
-.schritt-kopf { display:flex; align-items:center; gap:3.5mm; margin-bottom:3mm; }
-.nr { flex:0 0 auto; width:10mm; height:10mm; border-radius:50%;
-      background:var(--accent); color:#fff; font-weight:700; font-size:13pt;
-      display:flex; align-items:center; justify-content:center; }
-.schritt-kopf h2 { border:0; margin:0; padding:0; }
-.grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:3mm; margin-top:2mm; }
+/* Materialseiten. */
+.material-hero { display:grid; grid-template-columns:1.35fr .65fr; gap:5mm;
+                 align-items:stretch; margin-bottom:4mm; }
+.material-hero figure img { width:100%; height:78mm; object-fit:cover; border-radius:1.5mm; }
+.spec-strip { background:var(--blue-soft); border-radius:1.5mm; padding:4mm;
+              display:flex; flex-direction:column; justify-content:space-between; }
+.spec { border-bottom:1px solid #bad2e1; padding-bottom:3mm; }
+.spec:last-child { border:0; padding-bottom:0; }
+.spec strong { display:block; color:var(--blue-dark); font-size:15pt; line-height:1.1; }
+.spec span { color:var(--muted); font-size:7.7pt; }
+.parts-table { width:100%; border-collapse:collapse; }
+.parts-table th { background:var(--ink); color:#fff; text-align:left; padding:2mm 2.5mm;
+                  font-size:7.3pt; text-transform:uppercase; letter-spacing:.6px; }
+.parts-table td { border-bottom:1px solid var(--line); padding:2.2mm 2.5mm;
+                  vertical-align:top; font-size:8.4pt; }
+.parts-table .qty { width:22mm; color:var(--blue-dark); font-weight:700; white-space:nowrap; }
+.parts-table .item { width:49mm; font-weight:700; }
+.process-line { display:grid; grid-template-columns:repeat(4, 1fr); gap:2mm;
+                margin:1mm 0 4mm; }
+.process-line div { background:var(--blue); color:#fff; border-radius:1mm; padding:2.6mm;
+                    text-align:center; font-size:7.8pt; font-weight:700; position:relative; }
+.process-line div:not(:last-child)::after { content:"›"; position:absolute; right:-2.1mm;
+                    top:1.2mm; z-index:2; color:var(--blue-dark); font-size:15pt; }
+.material-cards { display:grid; grid-template-columns:1fr 1fr; gap:3mm; }
+.material-card { border:1px solid var(--line); border-radius:1.5mm; padding:3mm;
+                 break-inside:avoid; min-height:44mm; }
+.material-card .role { color:var(--blue); font-size:7.2pt; font-weight:800;
+                       letter-spacing:.65px; text-transform:uppercase; }
+.material-card .amount { float:right; color:var(--muted); font-size:7.4pt; }
+.material-card .product { font-size:10.2pt; font-weight:700; line-height:1.23;
+                          margin:1.2mm 0 1.5mm; }
+.material-card .why { color:var(--muted); font-size:8.2pt; line-height:1.38; }
+.material-card:last-child { grid-column:1 / -1; min-height:34mm; }
+.qualification { margin-top:3mm; }
 
-/* Material-Tabelle */
-table { width:100%; border-collapse:collapse; margin: 0 0 3mm; }
-th, td { text-align:left; vertical-align:top; padding:1.8mm 2.4mm;
-         border-bottom:1px solid var(--line); font-size:10pt; }
-th { background:#eef1f5; font-size:9pt; text-transform:uppercase;
-     letter-spacing:.3px; color:var(--muted); }
-tr { page-break-inside: avoid; }
-td.menge { white-space:nowrap; font-weight:600; width:22mm; }
+/* Arbeitsschritte: eine abgeschlossene Orientierungseinheit pro Seite. */
+.step-page { break-before:page; page-break-before:always; break-after:page;
+             page-break-after:always; min-height:258mm; break-inside:avoid; }
+.step-page.step-7 { break-after:auto; page-break-after:auto; min-height:0; }
+.step-page.step-8 { break-before:auto; page-break-before:auto; min-height:0;
+                    break-after:auto; page-break-after:auto;
+                    margin-top:6mm; padding-top:5mm; border-top:1px solid var(--line); }
+.step-head { display:grid; grid-template-columns:12mm 1fr auto; gap:3mm;
+             align-items:center; border-top:2.2mm solid var(--blue);
+             padding-top:3.5mm; margin-bottom:4mm; }
+.step-no { width:10mm; height:10mm; border-radius:50%; background:var(--blue);
+           color:#fff; display:flex; align-items:center; justify-content:center;
+           font-size:12pt; font-weight:700; }
+.step-kicker { color:var(--muted); font-size:7.4pt; font-weight:700;
+               letter-spacing:.6px; text-transform:uppercase; }
+.step-layout { display:grid; grid-template-columns:1.12fr .88fr; gap:5mm;
+               align-items:start; }
+.step-hero img { width:100%; max-height:102mm; aspect-ratio:4/3; object-fit:cover;
+                 border-radius:1.5mm; }
+.actions { list-style:none; margin:0; padding:0; counter-reset:action; }
+.actions li { counter-increment:action; position:relative; padding:0 0 3mm 8mm;
+              margin:0 0 3mm; border-bottom:1px solid var(--line); }
+.actions li:last-child { border-bottom:0; margin-bottom:0; }
+.actions li::before { content:counter(action); position:absolute; left:0; top:.2mm;
+                      width:5.5mm; height:5.5mm; border-radius:50%;
+                      background:var(--quiet); color:var(--blue-dark); font-size:7pt;
+                      font-weight:800; display:flex; align-items:center; justify-content:center; }
+.callouts { display:grid; grid-template-columns:1fr; gap:2.5mm; margin-top:4mm; }
+.callouts.two { grid-template-columns:1fr 1fr; }
+.box { border-left:1.4mm solid; border-radius:1mm; padding:2.6mm 3mm;
+       font-size:8.2pt; line-height:1.4; break-inside:avoid; }
+.box.warn { border-color:var(--amber); background:var(--amber-soft); }
+.box.hinweis { border-color:var(--blue); background:var(--blue-soft); }
+.box .tag { display:block; font-size:7pt; font-weight:800; letter-spacing:.7px;
+            text-transform:uppercase; margin-bottom:.8mm; }
+.box.warn .tag { color:#8a6200; }
+.box.hinweis .tag { color:var(--blue-dark); }
+.thumb-grid { display:grid; gap:3mm; margin-top:4mm; }
+.thumb-grid.count-2 { grid-template-columns:repeat(2, 1fr); }
+.thumb-grid.count-3 { grid-template-columns:repeat(3, 1fr); }
+.thumb-grid img { width:100%; height:51mm; object-fit:cover; border-radius:1.2mm; }
+.step-2 .thumb-grid img { height:43mm; }
+.step-7 .step-hero img { max-height:79mm; }
+.step-8 .step-layout { display:block; }
+.step-8 .actions { display:grid; grid-template-columns:repeat(3, 1fr); gap:3mm; }
+.step-8 .actions li { border:0; background:var(--quiet); border-radius:1mm;
+                      padding:3mm 3mm 3mm 9mm; margin:0; min-height:25mm; }
+.step-8 .actions li::before { left:2.5mm; top:3mm; background:#fff; }
 
-/* Hinweis-/Warnboxen */
-.box { border-radius:5px; padding:2.6mm 3.4mm; margin:2.5mm 0 0; font-size:9.8pt; }
-.box.warn { background:#fdf4d6; border:1.4px solid #e2b53a; }
-.box.hinweis { background:#eaf1fb; border:1.4px solid #9dbbe6; }
-.box .tag { font-weight:700; text-transform:uppercase; font-size:8.6pt;
-            letter-spacing:.4px; margin-right:1.5mm; }
-.box.warn .tag { color:#9a6d05; }
-.box.hinweis .tag { color:#2a548f; }
-ul { margin:0 0 2.4mm; padding-left:5mm; }
-
-.section { page-break-inside: avoid; margin-bottom: 6mm; }
-
-/* Laufende Fusszeile auf jeder gedruckten Seite */
-.fuss { position: fixed; left:0; right:0; bottom:0; height:7mm;
-        font-size:7.6pt; color:var(--muted);
+/* Laufende Fußzeile. */
+.fuss { position:fixed; left:0; right:0; bottom:0; height:6mm;
+        border-top:.5px solid var(--line); background:#fff; color:var(--muted);
         display:flex; justify-content:space-between; align-items:center;
-        border-top:0.6px solid var(--line); background:#fff; padding:0 1mm; }
+        font-size:6.7pt; padding-top:1mm; }
 """
 
 
@@ -385,6 +466,7 @@ def render_html(m):
 <section class="titel">
   <div class="kicker">Montageanleitung</div>
   <h1>Adapterrahmen Belluna-Dachlüfter<br>Challenger X150</h1>
+  <p class="subtitle">Vier identische FDM-Segmente · 28 mm Erhöhung · schwarzes ASA-GF mit weißer Schutzlackierung</p>
   {_img("01_titel_explosion.png", "Bild 1: Explosionsansicht der Baugruppe – vier Segmente, Belluna-Platte, Dichtring und Clips.")}
   <div class="banner">
      <span class="tag">Vorabversion</span>
@@ -392,56 +474,108 @@ def render_html(m):
      und einem PLA-Passform-Probedruck. Stand: PASS mit Vorbehalt.
   </div>
   <div class="meta">
-     Parameterstand <b>{h}</b> (GEOM_REV {m['geom_rev']}) &nbsp;&bull;&nbsp;
-     Erzeugungsdatum <b>{datum}</b>
+     <span>Parameterstand<b>{h}</b></span>
+     <span>Geometrie<b>GEOM_REV {m['geom_rev']}</b></span>
+     <span>Erzeugt<b>{datum}</b></span>
   </div>
 </section>
 """
 
-    # Material & Werkzeug
-    rows = "".join(f'<tr><td class="menge">{html.escape(mng)}</td>'
-                   f'<td>{html.escape(txt)}</td></tr>'
-                   for mng, txt in m["material"])
-    material = f"""
-<section class="section">
-  <h2>Material und Werkzeug</h2>
-  {_img("02_teile_uebersicht.png", "Bild 2: Einzelteile – Druckteil-Segment, Belluna-Platte mit Metallclips und Dichtring (Referenz).")}
-  <table>
-    <thead><tr><th>Menge</th><th>Position</th></tr></thead>
+    # Vorbereitung 1/2: Bauteile und Hardware
+    rows = "".join(
+        f'<tr><td class="qty">{html.escape(mng)}</td>'
+        f'<td class="item">{html.escape(item)}</td>'
+        f'<td>{html.escape(detail)}</td></tr>'
+        for mng, item, detail in m["material_parts"])
+    material_parts = f"""
+<section class="page material-parts">
+  <header class="page-head">
+    <span class="eyebrow">Vorbereitung · 1 von 2</span>
+    <h2>Bauteile und Befestigung</h2>
+    <p class="lead">Ein Universalteil, viermal gleich gedruckt. Die 16 Belluna-Schrauben bleiben eindeutig auf zwei Ebenen verteilt.</p>
+  </header>
+  <div class="material-hero">
+    {_img("02_teile_uebersicht.png", "Bild 2: Universal-Segment und Belluna-Originalplatte mit Metallclips und Dichtring.")}
+    <div class="spec-strip">
+      <div class="spec"><strong>4×</strong><span>identisches Universal-Segment</span></div>
+      <div class="spec"><strong>28 mm</strong><span>Erhöhung einschließlich Klebespalt</span></div>
+      <div class="spec"><strong>8 + 8</strong><span>ST4,2×25 aus dem Belluna-Lieferumfang</span></div>
+    </div>
+  </div>
+  <table class="parts-table">
+    <thead><tr><th>Menge</th><th>Position</th><th>Festlegung</th></tr></thead>
     <tbody>{rows}</tbody>
   </table>
+</section>
+"""
+
+    # Vorbereitung 2/2: chemische Prozesskette mit Auswahlgrund
+    cards = "".join(
+        '<article class="material-card">'
+        f'<span class="amount">{html.escape(x["menge"])}</span>'
+        f'<div class="role">{html.escape(x["rolle"])}</div>'
+        f'<div class="product">{html.escape(x["produkt"])}</div>'
+        f'<div class="why">{html.escape(x["warum"])}</div>'
+        '</article>' for x in m["material_system"])
+    material_system = f"""
+<section class="page material-system">
+  <header class="page-head">
+    <span class="eyebrow">Vorbereitung · 2 von 2</span>
+    <h2>Kleb-, Dicht- und Lacksystem</h2>
+    <p class="lead">Jede Chemie hat genau eine Aufgabe. Produkte werden nicht durch generische Alternativen ersetzt oder untereinander gemischt.</p>
+  </header>
+  <div class="process-line">
+    <div>Segmente fügen</div><div>Weiß lackieren</div>
+    <div>Holzrahmen setzen</div><div>Dach abdichten</div>
+  </div>
+  <div class="material-cards">{cards}</div>
+  <div class="box warn qualification"><span class="tag">Freigabebedingung</span>
+    ASA-GF ist weder bei RK-1300 noch beim Mipa-Primer ausdrücklich gelistet. Deshalb zuerst Originaldruck-Coupons aufbauen und zerstörend prüfen; Carloflex zusätzlich auf Mipa-Lack und dem realen X150-GFK-Dach testen.
+  </div>
 </section>
 """
 
     # Schritte
     schritte = []
     for s in m["steps"]:
-        absaetze = "".join(f"<p>{html.escape(a)}</p>" for a in s["absaetze"])
-        bild = _img(*s["bild"]) if s.get("bild") else ""
+        absaetze = ("<ol class=\"actions\">"
+                    + "".join(f"<li>{html.escape(a)}</li>" for a in s["absaetze"])
+                    + "</ol>")
+        bild = f'<div class="step-hero">{_img(*s["bild"])}</div>' if s.get("bild") else ""
         extra = ""
         if s.get("bilder2"):
-            extra = ('<div class="grid2">'
+            count = len(s["bilder2"])
+            extra = (f'<div class="thumb-grid count-{count}">'
                      + "".join(_img(src, cap) for src, cap in s["bilder2"])
                      + "</div>")
+        callouts = ""
+        if s["warn"]:
+            extra_class = " two" if len(s["warn"]) == 2 else ""
+            callouts = f'<div class="callouts{extra_class}">{_boxes(s["warn"])}</div>'
         schritte.append(f"""
-<section class="schritt">
-  <div class="schritt-kopf"><div class="nr">{s['nr']}</div>
-    <h2>{html.escape(s['titel'])}</h2></div>
-  {bild}
-  {absaetze}
-  {_boxes(s['warn'])}
+<section class="step-page step-{s['nr']}">
+  <header class="step-head">
+    <div class="step-no">{s['nr']}</div>
+    <h2>{html.escape(s['titel'])}</h2>
+    <span class="step-kicker">Montage</span>
+  </header>
+  <div class="step-layout">
+    {bild}
+    <div class="step-copy">{absaetze}</div>
+  </div>
+  {callouts}
   {extra}
 </section>
 """)
 
-    body = titel + material + "".join(schritte)
+    body = titel + material_parts + material_system + "".join(schritte)
     return f"""<!doctype html>
 <html lang="de"><head><meta charset="utf-8">
 <title>Montageanleitung Adapterrahmen {h}</title>
 <style>{CSS}</style></head>
 <body>
 {body}
-<div class="fuss"><span>{fuss}</span><span>Belluna-Adapterrahmen &middot; Challenger X150</span></div>
+<div class="fuss"><span>{fuss}</span><span>Belluna-Adapterrahmen &nbsp;·&nbsp; Challenger X150</span></div>
 </body></html>
 """
 

@@ -120,9 +120,13 @@ Primärquellen: [Würth ASA GF15](https://eshop.wuerth.de/ASA-GF15-filament-PRNT
   (Liste von `dict(nr, titel, bild, bilder2, absaetze, warn)`). `warn`-Einträge
   sind `("warn"|"hinweis", "Text")`. Variable Werte über `t["…"]` aus dem
   Manifest ziehen (nicht hartkodieren); `de(x)` formatiert mit Dezimalkomma.
-- **Layout/Druck-CSS**: `build_pdf.py::CSS` — A4, 14 mm Rand, Schrittkreise,
-  gelbe Warnbox, blaue Hinweisbox, rotes Vorbehaltsbanner, laufende Fußzeile
-  (fixed), `page-break-inside: avoid` je Schritt/Tabellenzeile.
+- **Layout/Druck-CSS**: `build_pdf.py::CSS` — A4 mit 14-mm-Seitenrand,
+  humanistische Avenir-Next-Typografie, Blau als Leitsystem, Gelb nur für
+  Warnungen und Rot nur für echte Freigabesperren. Die zehn Seiten sind als
+  stabile Orientierungseinheiten gebaut: Titel, zwei Vorbereitungsseiten,
+  Schritte 1–6 jeweils vollständig auf einer Seite sowie Schritt 7+8 als
+  gemeinsame Abschlussseite. Damit entstehen keine verwaisten Bilder,
+  Tabellenfortsetzungen oder Hinweisboxen mehr.
 - **Neues Bild**: Geometrie/STL in `build_stls.py`, ggf. Marker/Filtergrößen
   ins Manifest; Renderfunktion `imgNN_*` in `render_steps.py` (Kamera, Material,
   `highlight(obj, farbe, praedikat)`, `marker(p1, p2, radius)`); Bildreferenz
