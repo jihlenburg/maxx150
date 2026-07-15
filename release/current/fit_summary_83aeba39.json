@@ -1,0 +1,32 @@
+{
+  "schema": 2,
+  "parameter_hash": "83aeba39",
+  "source_commit": "1a7bd3289a95c4659ffbc3401632c657e754ba49",
+  "belluna_model": "MEASURED_RECONSTRUCTION",
+  "belluna_source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
+  "nominal_collision_mm3": 0.0,
+  "nominal_radial_clearance_mm_per_side": 1.5,
+  "offset_collision_mm3": {
+    "0.5": 0.0,
+    "1.0": 0.0,
+    "1.5": 0.0,
+    "2.0": 3292.149019
+  },
+  "support_ratio": {
+    "innen": 1.0,
+    "mitte": 1.0,
+    "aussen": 1.0
+  },
+  "screw_corridor_ratio": {
+    "0": 1.5,
+    "140": 1.5,
+    "165": 1.5
+  },
+  "checks": {
+    "nominal_collision": true,
+    "nominal_radial_clearance": true,
+    "support": true,
+    "screw_corridors": true
+  },
+  "PASS": true
+}
