@@ -21,8 +21,10 @@ def write_report(fem_results: dict, joint_result: dict,
                  f"H_RAISE {p.H_RAISE} mm · Wandstärke effektiv "
                  f"{PRM.effective_wall(p)} mm · **Vierkantwelle "
                  f"{PRM.select_shaft(p):.0f} mm**")
+    hdt_text = (f"HDT(1,82 MPa) {p.HDT_182:.0f} °C" if p.HDT_182 is not None
+                else f"HDT/B(0,45 MPa) {p.HDT_045:.0f} °C; 1,82-MPa-Wert fehlt")
     lines.append(f"Material: **{p.MATERIAL_NAME}** · E {p.E_BASE:.0f} MPa · "
-                 f"ρ {p.RHO:.0f} kg/m³ · HDT(1,82 MPa) {p.HDT_182:.0f} °C")
+                 f"ρ {p.RHO:.0f} kg/m³ · {hdt_text}")
     lines.append("")
     ok = True
 
@@ -70,10 +72,16 @@ def write_report(fem_results: dict, joint_result: dict,
     lines.append(f"- Elastikfugen-Auslastung (Thermik, LF5; vollständig gefügter "
                  f"{max(PRM.outer_dims(p)):.0f}-mm-Rahmen): {u*100:.0f} % "
                  f"→ {'PASS' if u_ok else 'FAIL'}")
-    temp_margin = p.HDT_182 - p.T_MAX
-    lines.append(f"- Materialtemperatur: T_MAX {p.T_MAX:.0f} °C, "
-                 f"HDT(1,82 MPa) {p.HDT_182:.0f} °C, Marge {temp_margin:.0f} K; "
-                 f"Temperatur-Abminderung {p.DERATE_TEMP:.2f} angewendet")
+    if p.HDT_182 is None:
+        lines.append(f"- Materialtemperatur: T_MAX {p.T_MAX:.0f} °C; Würth nennt nur "
+                     f"HDT/B(0,45 MPa) {p.HDT_045:.0f} °C, keinen 1,82-MPa-Wert. "
+                     f"Weißer RAL-9003-Decklack ist Pflicht; Temperatur-Abminderung "
+                     f"{p.DERATE_TEMP:.2f} angewendet")
+    else:
+        temp_margin = p.HDT_182 - p.T_MAX
+        lines.append(f"- Materialtemperatur: T_MAX {p.T_MAX:.0f} °C, "
+                     f"HDT(1,82 MPa) {p.HDT_182:.0f} °C, Marge {temp_margin:.0f} K; "
+                     f"Temperatur-Abminderung {p.DERATE_TEMP:.2f} angewendet")
     j = A.joint_checks(p, PRM.wind_force(p))
     ok &= j["PASS"]
     lines.append(f"- Stoß analytisch: τ {j['tau_MPa']:.2f}/{j['tau_zul_MPa']:.2f} MPa, "

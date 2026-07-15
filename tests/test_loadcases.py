@@ -22,9 +22,9 @@ def _face_by_name(shape, name):
 
 def test_materialkarte():
     m = fem_material_dict(PRM.P)
-    # Lokales unverstärktes ASA: Datenblatt-E 1726 MPa, geometrische Kammern,
-    # kein Slicer-Infill; NU weiterhin konservative Annahme.
-    assert m["YoungsModulus"] == "1726.0 MPa"
+    # Würth ASA GF15: konservative Projektannahme E=3000 MPa, weil Würth nur
+    # Halbzeugwerte und keine gedruckten XY/Z-Probekörper veröffentlicht.
+    assert m["YoungsModulus"] == "3000.0 MPa"
     assert m["PoissonRatio"] == "0.35"
 
 

@@ -22,17 +22,19 @@ def test_windlast():
     assert abs(PRM.wind_force() - 480.0) < 1.0
 
 def test_zulaessigkeiten():
-    # Lokales Standard-ASA: 40*0.35*0.6 = 8.4 kurz, *0.4 = 3.36 lang.
+    # Würth ASA GF15 Projektannahme: 45*0.5*0.5 = 11.25 kurz, *0.4 = 4.5 lang.
     lang, kurz = PRM.allowables()
-    assert abs(lang - 3.36) < 0.01
-    assert abs(kurz - 8.40) < 0.01
+    assert abs(lang - 4.50) < 0.01
+    assert abs(kurz - 11.25) < 0.01
 
-def test_lokales_asa_datenblatt_abgebildet():
+def test_wuerth_asa_gf15_planstand_abgebildet():
     p = PRM.P
-    assert p.RHO == 1070.0
-    assert p.E_BASE == 1726.0 and p.SIGMA_BASE == 40.0
-    assert p.HDT_045 == 96.0 and p.HDT_182 == 86.0
-    assert p.T_MAX < p.HDT_182
+    assert "Würth ASA GF15" in p.MATERIAL_NAME
+    assert "4954641200" in p.MATERIAL_NAME
+    assert p.RHO == 1100.0
+    assert p.E_BASE == 3000.0 and p.SIGMA_BASE == 45.0
+    assert p.HDT_045 == 99.0 and p.HDT_182 is None
+    assert p.T_MAX < p.HDT_045
 
 
 def test_universal_segment_schraubraster():

@@ -70,35 +70,38 @@ Parametern und schreibt sie in die Montagenotiz.
    Kantenlänge (`SEG_MAX_BBOX`; Ist ~277 mm — die ursprünglich konservativen 250 mm
    wurden mit der Bauraum-Klärung angehoben, Bambu H2D 350 mm verfügbar; Drift-Fix
    2026-07-14); stützenfrei druckbar.
-5. **Material & Prozess (§3.5):** unverstärktes, weißes/helles **Standard-ASA**
-   aus lokaler FDM-Fertigung (User-Entscheidung 2026-07-14). Übernommene
-   Datenblattwerte: Dichte 1,07 g/cm³, E-Modul 1726 MPa, Zugfestigkeit 40 MPa,
-   Biegemodul 1814 MPa, Biegefestigkeit 62 MPa, Bruchdehnung 35 %, HDT
-   96 °C bei 0,45 MPa bzw. 86 °C bei 1,82 MPa, UV-beständig. Das Bauteil wird
-   ohne Faserfüllung und ohne gehärtete Düse vorausgesetzt. Drucklage ist
-   Deckfläche nach unten; 47°-Kammerdächer, 47°-Entwässerungsfase und Ø4-
-   Querkanäle sind supportfrei ausgelegt. Geschlossener, möglichst beheizter
-   Bauraum, Brim ≥10 mm und langsames Abkühlen sind Pflicht. Pauschales Tempern
-   ohne Fixierlehre ist wegen Verzug unzulässig.
-   **Offene Daten:** CTE fehlt und bleibt mit 90e-6 1/K konservativ angesetzt;
-   Z-Schichthaftung fehlt und wird mit Faktor 0,6 abgemindert. Die HDT-Marge
-   bei 1,82 MPa gegenüber T_MAX=85 °C beträgt nur 1 K; deshalb gilt der starke
-   Temperaturfaktor 0,35 und die Vorgabe weiß/hell. Verfügbares schwarzes
-   PC/ABS (ρ 1,09, E 1900 MPa, Zug 41 MPa, HDT 110/96 °C) bleibt Rückfalloption,
-   ist ohne UV-/CTE-Nachweis und wegen solarer Aufheizung aber nicht Default.
-6. **Befestigung:** Adapter ↔ Dach verklebt (Carloflex/Sika, Elastikfuge); Platte ↔ Adapter
-   verklebt (Ringklebenut). Zusätzlich werden die 16 beiliegenden Belluna-ST4.2×25
+5. **Material & Prozess (§3.5):** **Würth ASA GF15 Verkehrsschwarz ähnlich
+   RAL 9017, 1,75 mm, Art.-Nr. 4954641200** aus lokaler FDM-Fertigung
+   (Plan-of-Record 2026-07-15). 15 % Glasfaser; gehärtete Düse und geschlossener,
+   temperierter Bauraum sind Projektpflicht. Drucklage ist Deckfläche nach unten;
+   47°-Kammerdächer, 47°-Entwässerungsfase und Ø4-Querkanäle sind supportfrei.
+   Brim ≥10 mm und langsames Abkühlen bleiben Pflicht. Würth nennt Dichte
+   1,1 g/cm³ und HDT/B 99 °C bei 0,45 MPa, aber keinen HDT-Wert bei 1,82 MPa.
+   Die publizierten mechanischen Werte stammen ausdrücklich aus Halbzeug, nicht
+   aus FDM-Probekörpern. Deshalb bleiben E=3000 MPa, Zug=45 MPa, CTE=60e-6 1/K
+   und Z-Faktor 0,5 konservative Projektannahmen bis zu XY-/Z-Coupons aus dem
+   realen Druckprozess. Pauschales Tempern ist nicht freigegeben.
+   Der schwarze Rohling wird vor dem Dacheinbau zwingend weiß beschichtet:
+   Mipa 1K-Plastic-Grundierfiller-Spray (Art.-Nr. 213390000) plus Mipa PUR HS
+   2K-PUR-Acryl-Fahrzeuglack RAL 9003 Signalweiß glänzend und Mipa 2K-MS-Härter
+   MS 25 (2:1 Volumen). Weiß ist Teil der Thermikauslegung; Primerhaftung auf
+   ASA-GF wird per Originaldruck-Coupon qualifiziert.
+6. **Befestigung:** Adapter ↔ Dach und Platte ↔ Adapter mit **Carloflex 410 UV
+   weiß** verklebt/abgedichtet (Elastikfuge bzw. Ringklebenut). Zusätzlich werden
+   die 16 beiliegenden Belluna-ST4.2×25
    auf zwei entkoppelte Interfaces verteilt: 8 äußere Belluna-Seitenlöcher
    Platte→lokale Universalrippen (jede Seite hält ±140 und ±165 vor, ohne
    offene Vorratslöcher) und 8 umlaufend gleiche ±140-Löcher
-   Unterkragen→nachgerüsteter, PU-verklebter Holzrahmen im XPS.
+   Unterkragen→nachgerüsteter Holzrahmen im XPS. Der Holzrahmen wird mit
+   **KLEIBERIT 501.0 1K-PUR-Leim** (D4) vollflächig eingesetzt.
    Die zwei Belluna-Mittellöcher an den Segmentstößen bleiben frei. Keine Verschraubung
    von oben durch eine Dichtfläche.
    **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
    Lüfter geklebt + Kragen formschlüssig im Schacht, von unten nur die Zierblende.
    LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle); die mechanische
    Redundanz trägt allein die seitliche Verschraubung + Formschluss.
-7. **Dichtheit:** definierte Elastikkleber-Schichtdicke 2–3 mm (Thermodehnung), Sika-Kehlnaht außen.
+7. **Dichtheit:** definierte Carloflex-Schichtdicke 3 mm (Thermodehnung),
+   Carloflex-Kehlnaht außen und abgedichtete Schraubdurchtritte.
 
 ## 4. Bauteilgeometrie
 
@@ -117,7 +120,7 @@ Parametern und schreibt sie in die Montagenotiz.
   aus; dadurch bleiben die 43-mm-Kammerzellen weitgehend erhalten und der
   Druck bleibt supportfrei. Kollidierende Ventkanäle werden innerhalb ihrer
   Zelle aus der Rippe verschoben.
-- **Außenwand:** geschlossen, unten gefast für die Sika-Kehlnaht zum Dach.
+- **Außenwand:** geschlossen, unten gefast für die Carloflex-Kehlnaht zum Dach.
 - **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
   Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 47°-Chevron
   (stützenfrei in Druckorientierung), horizontale Ø4-Druckausgleichsbohrungen je Zelle
@@ -139,24 +142,25 @@ Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindu
 Kopien werden nur um Z gedreht, nie gespiegelt; ein starker Geometrietest
 prüft die Rotationsidentität über die symmetrische Differenz.
 
-**Thermik konstruktiv:** Standard-ASA α = 90 µm/(m·K), konservative
-Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit Epoxid und M5 vollständig
+**Thermik konstruktiv:** ASA-GF α = 60 µm/(m·K), konservative
+Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit RK-1300 und M5 vollständig
 gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
-Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 2,11 mm
-Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 70 %
+Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
+Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 38 %
 Auslastung der 3-mm-Elastikfuge.
 Aufnahme ausschließlich durch die elastische Klebschicht
-(Bewegungsaufnahme MS-Polymer ≥ 20 % bei 2–3 mm Fuge) — deshalb sind die Klebespalt-Noppen und
+(Carloflex 410 UV, elastisches 1K-PU) — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
 
 **Dichtheitskonzept (Mehrteiligkeit):** Dichtheit kommt von durchgehenden Elastomer-Ebenen,
 nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt. Barrierenkette:
-(1) Sika-Kehlnaht außen, umlaufend geschlossen über alle Stöße; (2) Carloflex-Ring in der
+(1) Carloflex-Kehlnaht außen, umlaufend geschlossen über alle Stöße; (2) Carloflex-Ring in der
 unteren Kleberille, geschlossen über die Stöße; (3) Ringklebenut der Belluna-Platte auf der
 Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
-2K-Epoxid-Verklebung der Fügeflächen (M5 = Verpressung der Klebung, nicht Dichtung).
-FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; 2K-PU/Epoxid-Versiegelung der
-Außenflächen ist PFLICHT (Porenschluss + UV; DA-Review 2026-07-12). Validierung praktisch (Flutungstest, dann Hochdruck aus
+WEICON-RK-1300-Verklebung der Fügeflächen (M5 = Verpressung/Redundanz, nicht Dichtung).
+FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; der festgelegte Mipa-Primer +
+RAL-9003-2K-PUR-Decklack ist PFLICHT (Solarreflexion, Porenschluss, Wetterschutz).
+Validierung praktisch (Flutungstest, dann Hochdruck aus
 ISO-20653-9K-Abstand am verbauten Sockel); eine normative IP6K9K-Zertifizierung wäre
 Prüfstandssache. Systemgrenze: der Belluna selbst ist nur IPX4 — Ziel ist die dichte
 Dachdurchdringung, nicht ein dichter Lüfter.
@@ -207,10 +211,11 @@ statt fehlerhafte Artefakte zu exportieren.
 | LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |
 | LF5 | Thermik | ΔT −20…+85 °C, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch) + Verformungscheck (FEM) |
 
-**Materialabminderung Standard-ASA:** Basis 40 MPa / E 1726 MPa aus dem
-User-Datenblatt. Faktoren: Temperatur 0,35 · Z-Schichthaftung 0,6 (geschätzt,
-bis Coupon-Test) · Kriechen 0,4. → zulässig **3,36 MPa dauerhaft**,
-**8,40 MPa kurzzeitig**. Drucklage so, dass
+**Materialabminderung Würth ASA GF15:** Projektbasis 45 MPa / E 3000 MPa;
+keine Behauptung gedruckter Herstellerwerte, da Würth nur Halbzeugdaten nennt.
+Faktoren: Temperatur 0,5 · Z-Schichthaftung 0,5 (geschätzt, bis Coupon-Test) ·
+Kriechen 0,4. → zulässig **4,50 MPa dauerhaft**, **11,25 MPa kurzzeitig**.
+Drucklage so, dass
 Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 
 **Bestehenskriterien (Pipeline-Gate, automatisch):**
@@ -225,7 +230,8 @@ Hauptspannungen in der XY-Ebene liegen (Z sieht überwiegend Druck).
 **Export:** STEP gesamt + genau eine Universal-Segmentdatei (`universal_segment_x4`)
 als STEP, STL und 3MF; Dateinamen mit Parameter-Hash.
 Auto-generierte Fertigungs-/Montagenotiz: Druckorientierung (liegend auf Deckfläche),
-≥4 Perimeter, 100 % Infill (Kammern tragen die Gewichtsreduktion), Tempern-Empfehlung, Schraubenliste, Carloflex-Bedarf (aus
+≥4 Perimeter, 100 % Infill (Kammern tragen die Gewichtsreduktion), kein
+pauschales Tempern, Schraubenliste, exakte Kleb-/Dicht-/Lackprodukte und Carloflex-Bedarf (aus
 Raupenlänge/-querschnitt berechnet), berechnete Wellenwahl (140 mm bei 35+28).
 
 **DFM als Code-Invarianten:** Überhänge ≤ 45° (stützenfrei), Mindestwand 2,4 mm, Rippen 1,6 mm,
@@ -265,7 +271,7 @@ jede Messung ersetzt einen Default.
 | Entscheidung | Wahl | Alternativen (verworfen) |
 |---|---|---|
 | Pipeline | A: vollparametrisch, headless FreeCAD + CalculiX | B: GUI+Spreadsheet (nicht reproduzierbar) · C: CadQuery-Stack (Werkzeugvorgabe FreeCAD) |
-| Material | **lokal verfügbares Standard-ASA weiß/hell** (User-Datenblatt 2026-07-14) | PC/ABS schwarz (thermisch besser, UV/CTE/Solar ungünstig bzw. offen) · GF/CF-ASA (lokal nicht nötig) |
+| Material | **Würth ASA GF15 Verkehrsschwarz, Art.-Nr. 4954641200 + Pflichtlackierung Mipa RAL 9003** | weißes Filament ist nicht verfügbar · PC/ABS erfordert neue UV-/CTE-/Klebe-/Lackqualifikation |
 | Befestigung | Kleben + seitliche Schrauben | nur Kleben (keine Redundanz) · Klemmen (Kriechen der Klemmstelle) |
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | — wird per Messkampagne Punkt 7 verifiziert |
@@ -276,12 +282,13 @@ jede Messung ersetzt einen Default.
 
 | Risiko | Gegenmaßnahme |
 |---|---|
-| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 3,36 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
-| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,6 bis Coupon-Test; kein pauschales Tempern ohne Fixierlehre |
-| Thermodehnung reißt Klebfuge | 2–3 mm Elastikfuge erzwungen (Noppen), MS-Polymer ≥ 20 % Bewegungsaufnahme, LF5 |
+| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
+| Schichthaftung (Z) versagt | Drucklage: Lasten in XY; Knockdown 0,5 bis Coupon-Test; kein pauschales Tempern |
+| Thermodehnung reißt Klebfuge | 3-mm-Carloflex-Elastikfuge erzwungen (Noppen), LF5 |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | Messkampagne Punkt 7 + geometrischer Freigang-Check im Modell vor Export |
-| UV-Versprödung | Lokales ASA-Datenblatt nennt UV-Beständigkeit; Außenflächen dennoch gegen FDM-Porosität versiegeln |
+| Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Gitterschnitt-/Abreißcoupon auf Originaldruck; jährliche Lackkontrolle |
+| Klebstoff haftet nicht auf realem Compound/Dach | RK-1300- und Carloflex-Coupons auf rohem ASA-GF, Mipa-Lack und realem X150-GFK vor Serienmontage |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Schätzwerten (EDGE_DIST/EDGE_H) und meldet inf | Report kennzeichnet Freigang als OFFEN bis Messkampagne 7; Druckfreigabe erst nach Messung + PLA-Passform-Probedruck [DA-Review] |

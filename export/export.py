@@ -49,85 +49,82 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
 ## Druck (1 Universal-Segment, **4x identisch drucken**)
-- Material: **{p.MATERIAL_NAME}, weiß/hell** — keine GF-/CF-Füllung
-  vorausgesetzt. Hell = geringere Solaraufheizung; die Thermik-Auslegung setzt
-  das voraus. Düsen-/Bett-/Trocknungswerte nach Datenblatt der tatsächlich
-  gewählten Filamentcharge, zunächst mit Herstellerprofil kalibrieren.
-- Temperaturvorbehalt: HDT bei 1,82 MPa = **{p.HDT_182:.0f} °C**, angesetzte
-  maximale Bauteiltemperatur = **{p.T_MAX:.0f} °C**. Diese knappe 1-K-Marge
-  ist in den zulässigen Spannungen stark abgemindert; ein schwarzes Teil oder
-  ein unkalibrierter Hochtemperatur-Einbau ist damit nicht abgedeckt.
-- Orientierung: **Deckfläche nach unten**; damit liegen die Hauptlasten in XY
-  und alle 47°-Flächen sind supportfrei. Keine Supports in Kammern oder
-  Schraubkanälen zulassen. Layerhöhe 0,20 mm als Ausgangspunkt, 0,4-mm-Düse.
-- Alle vier Teile kommen aus derselben Datei `universal_segment_x4`: beim
-  Zusammenbau ausschließlich um Z drehen, **nicht spiegeln oder umdrehen**.
-  Jede Halbüberlappung greift dann zyklisch in den nächsten identischen Stoß.
-- Mindestens **4 Perimeter**, **100 % Infill** (die geschlossenen Rippenkammern
-  übernehmen die Gewichtsreduktion; volle Dichte = definierte Festigkeit +
-  Porenschluss), 0,4er Düse.
-- **PFLICHT gegen Verzug**: geschlossener, möglichst beheizter Bauraum,
-  **Brim ≥ 10 mm**, keine Zugluft, Teil nach Druckende langsam im geschlossenen
-  Bauraum abkühlen lassen. Erst ein Segment drucken und Ebenheit/Öffnungsmaß
-  prüfen; Slicer-Kompensation erst aus diesem realen ASA-Druck ableiten.
-- Kein pauschales Tempern: bei Standard-ASA kann es die 275-mm-Segmente ohne
-  Lehre nachträglich verziehen. Nur mit Materialdatenblatt und Fixierlehre.
-- **Spulenlogistik**: **3× 1-kg-Spule derselben Charge/Farbe** (Nettobedarf
-  wird aus RHO {p.RHO:.0f} kg/m³ berechnet; dritte Spule ist Fehldruckreserve).
+- Material: **{p.MATERIAL_NAME}**, 1,75 mm, 750-g-Spule. Schwarz ist nur die
+  Rohteilfarbe; vor dem Dacheinbau ist RAL 9003 Signalweiß zwingend.
+- Datenlage: Würths mechanische Werte stammen aus Halbzeug, nicht aus
+  FDM-Probekörpern. E={p.E_BASE:.0f} MPa und Zug={p.SIGMA_BASE:.0f} MPa sind
+  konservative Projektannahmen; XY-/Z-Coupons aus Maschine, Düse und Charge
+  bleiben Freigabebedingung.
+- Würth-Profil: Düse **250–270 °C**, max. **12 mm³/s**, geschlossener
+  temperierter Bauraum und **gehärtete Düse** (15 % GF, abrasiv). Bett und
+  Trocknung nach dem der Charge beiliegenden Datenblatt kalibrieren.
+- Würth nennt nur HDT/B(0,45 MPa) **{p.HDT_045:.0f} °C**, keinen
+  1,82-MPa-Wert. T_MAX **{p.T_MAX:.0f} °C** bleibt mit Abminderung angesetzt;
+  der weiße Decklack ist Teil der Thermikauslegung.
+- Orientierung: **Deckfläche nach unten**; Layerhöhe 0,20 mm als Startwert,
+  mindestens **4 Perimeter**, **100 % Infill**, keine Supports in Kammern oder
+  Schraubkanälen. Alle vier Teile aus `universal_segment_x4`, nur um Z drehen,
+  **nicht spiegeln oder umdrehen**.
+- **PFLICHT gegen Verzug**: geschlossener Bauraum, **Brim ≥ 10 mm**, keine
+  Zugluft, im geschlossenen Bauraum abkühlen. Erst ein Segment drucken und
+  Ebenheit/Öffnungsmaß prüfen. Kein pauschales Tempern: Würth nennt für diesen
+  Artikel keinen allgemeinen Temperprozess.
+- **Spulenlogistik**: **4× 750-g-Spule derselben Charge** (Nettobedarf ca.
+  1,86 kg bei RHO {p.RHO:.0f} kg/m³ plus Coupon-/Fehldruckreserve).
 
-## Fügen
-- 4 Stöße: Halbüberlappung, je 1x M5x{_m5_bolt_length(p)}
-  Zylinderkopf (DIN 912) + Mutter in der Tasche, Fügeflächen VOLLFLÄCHIG mit
-  2K-Epoxid benetzen, verschrauben (0,8 Nm). Die Epoxid-Fügung ist Teil des
-  Dichtheitskonzepts (Spec §4) — nicht weglassen.
-- Nach dem Anziehen die vier M5-Kopftaschen bündig mit 2K-Epoxid versiegeln;
-  offene Taschen wären Wasserreservoirs auf der bewitterten Oberseite.
+## Fügen — WEICON RK-1300
+- Rohes ASA-GF K240 anschleifen. **WEICON RK-1300, 60-g-Set,
+  Art.-Nr. 10000118** verwenden. Wegen der rauen/porösen FDM-Flächen den
+  Aktivator beidseitig auftragen, mindestens 5 min ablüften, RK-1300 auf eine
+  Seite geben, fügen und je Stoß mit M5x{_m5_bolt_length(p)} DIN 912 + Mutter
+  bei 0,8 Nm sichern. Endfestigkeit nach 24 h.
+- Die M5-Kopftaschen bündig mit RK-1300 versiegeln. RK-1300 wurde gewählt,
+  weil WEICON den MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau sowie
+  hohe Schlag-, Schäl- und Scherfestigkeit spezifiziert. ASA-GF ist nicht
+  einzeln gelistet: Stoßcoupon am Originaldruck ist Pflicht.
 
-## Dichtheit
-- Beide Kleber-Ringe (untere Rille, Belluna-Ringklebenut) laufen GESCHLOSSEN über
-  alle vier Stöße — nicht an Stößen absetzen.
-- Die äußere 47°-Fase ist der Ablauf der frei bewitterten Adapterkante; beim
-  Versiegeln nicht mit einer Dichtstoffraupe oder Beschichtungskante aufstauen.
-- PFLICHT: Außenflächen mit 2K-PU oder Epoxid versiegeln (Porenschluss + UV).
-- Lüfter-Verschraubung mit Feder-/Sicherungselementen montieren; nach der ersten
-  Hitzeperiode nachziehen; Nähte jährlich sichtprüfen (Relaxation/Zyklik).
-- Wassertest nach Einbau: erst drucklos fluten (Gießkanne, 10 min, Innenkontrolle),
-  dann Hochdruck nur aus ISO-20653-9K-Abstand auf den Sockelbereich — nie direkt
-  auf die Lüfterhaube (Belluna ist IPX4).
+## Weiße Schutzlackierung — Pflicht
+- Nach dem Fügen spätere Klebezonen roh lassen und abkleben: untere
+  Kleberille/Noppenfeld und obere Belluna-Auflage. Lack ist kein Klebgrund.
+- Haftgrund: **Mipa 1K-Plastic-Grundierfiller-Spray**, hellgrau, 400 ml,
+  Art.-Nr. **213390000**. Mipa-Untergrundvorbereitung befolgen; 2–3 dünne
+  Spritzgänge, 15–40 µm, nach 15–20 min überlackierbar.
+- Decklack: **Mipa PUR HS 2K-PUR-Acryl-Fahrzeuglack, RAL 9003 Signalweiß,
+  glänzend**, mit **Mipa 2K-MS-Härter MS 25**, **2:1 nach Volumen**.
+  1–2 Spritzgänge, 50–60 µm, 5–8 min Zwischenablüftung; bei 20 °C nach
+  12–24 h montagefest. Verarbeitung im Lackierfachbetrieb/Spritzkabine.
+- Wahlgrund: Der füllende Primer ist für u. a. ABS, PC/ABS und GFK sowie
+  2K-Decklacke ausgewiesen; der PUR-HS-Decklack für Nutzfahrzeuge ist wetter-
+  und vergilbungsfest sowie chemisch/mechanisch beständig. ASA-GF fehlt in der
+  Primerliste: Gitterschnitt-/Abreißcoupon am Originaldruck ist Pflicht.
 
-## Verkleben auf dem Dach
-- Untergrund: Mini-Heki-Altbett vollständig entfernen, mit Isopropanol reinigen.
-- Der **Unterkragen** taucht in den Dachausschnitt ({p.BOT_KRAGEN_CLEAR} mm
-  Radialluft je Seite) und zentriert den Rahmen. Nach dem Ausrichten:
-  **8 der beiliegenden ST {p.BOT_KRAGEN_SCREW_D:.1f}×{p.BOT_KRAGEN_SCREW_L:.0f}**
-  durch die zwei Kragenlöcher je Seite bei **±140 mm** seitlich in den
-  Ausschnittsrand —
-  dieselbe optionale Holzrahmen-Methode wie Belluna, nicht von oben durch die
-  Dichtfläche schrauben. Vorbohrdurchmesser am realen Holz per Probeschraube
-  festlegen. **EINBAUSCHRITT Holzrahmen** (User-
-  Entscheid 2026-07-14; Bestand: Mini-Heki nur geklebt, KEIN Holz im
-  35-mm-XPS-Kern): Nach der Demontage rund um den 400×400-Ausschnitt den
-  XPS-Randstreifen ausräumen und einen wasserfest verleimten Holzrahmen
-  (Höhe = Kernstärke, Breite ≥ 30 mm) mit PU-Leim einsetzen — übliche
-  Praxis; er ist Schraubgrund UND Kompressionsschutz des Sandwichs. Die
-  8 ST4.2-Schrauben greifen dann durch den gedruckten Kragen ins Holz und
-  sind damit tragende Redundanz zum Kleber. Vor dem Einsetzen den
-  realen Ausschnitt messen (C1a, Soll 400×400) — der Unterkragen
-  ({p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR:.0f} mm)
-  braucht rundum Luft; Schnittkanten des XPS vor dem Verkleben versiegeln.
-- Carloflex/Sika-252-Raupe in die untere Kleberille: ca. **{bead_ml:.0f} ml**
-  (+ Kehlnaht außen). Noppen definieren {p.GLUE_GAP} mm Fugendicke — NICHT auspressen.
-- Karosseriebefestigungsplatte mit Carloflex in der Ringklebenut auf die
-  Deckfläche kleben. Jede Adapterseite besitzt geschlossene Vollmaterialrippen
-  für **beide** Belluna-Varianten ±140 und ±165 mm, aber keine offenen
-  Vorratslöcher. Von den zehn realen seitlichen Belluna-Löchern nur die
-  **acht äußeren** durch die Platte in die jeweils dahinterliegende Rippe
-  vorbohren und mit den übrigen 8 beiliegenden ST4.2×25 verschrauben; die zwei
-  Mittellöcher an den Segmentstößen bleiben frei. Damit werden insgesamt
-  exakt die 16 Belluna-Schrauben verwendet. Dach-±140 und Belluna-±140/±165
-  sind zwei bewusst unabhängige Schraubebenen.
-- Die vier PT4.0×12 für Lüfter-Hauptelement→Karosseriebefestigungsplatte und
-  das Belluna-Anzugsmoment 0,7 Nm bleiben gegenüber der Anleitung unverändert.
+## Dach-Sandwich und Dichtheit
+- Mini-Heki und Altbett entfernen. Den XPS-Randstreifen ausräumen und einen
+  wasserfesten Holzrahmen (Höhe Kern, Breite ≥ 30 mm) mit
+  **KLEIBERIT 501.0 1K-PUR-Leim** vollflächig einsetzen, mindestens 60 min
+  pressen/fixieren. Wahlgrund: D4 nach DIN EN 204, Holz und Hartschäume,
+  hohe Wärme- und Feuchtebeständigkeit. Der Rahmen ist Schraubgrund und
+  Kompressionsschutz.
+- Der Unterkragen ({p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR:.0f} mm) zentriert im
+  Soll-Ausschnitt {p.CUTOUT_W:.0f}×{p.CUTOUT_W:.0f} mm. **8 beiliegende
+  ST {p.BOT_KRAGEN_SCREW_D:.1f}×{p.BOT_KRAGEN_SCREW_L:.0f}** bei ±140 mm
+  seitlich ins Holz, nie von oben durch die Dichtfläche.
+- Dicht-/Klebstoff ausschließlich **Carloflex 410 UV weiß, 310 ml**: ca.
+  **{bead_ml:.0f} ml** in die untere Kleberille plus Außenkehle; Noppen halten
+  {p.GLUE_GAP} mm Fugendicke. Danach auch die Belluna-Ringklebenut mit
+  Carloflex füllen. Wahlgrund: Belluna empfiehlt genau dieses dauerelastische,
+  UV-beständige 1K-PU-Produkt für den Super Fan; es klebt und dichtet zugleich.
+  Keine generische Sika-Alternative in die Prozesskette mischen.
+- Jede Adapterseite besitzt Vollmaterialrippen ±140/±165. Von den zehn
+  Belluna-Seitenlöchern nur die **acht äußeren** mit den übrigen 8
+  ST4.2×25 setzen; Mittellöcher an den Segmentstößen frei lassen. Die vier
+  PT4.0×12 Lüfter→Platte mit Belluna-Drehmoment 0,7 Nm. Damit sind die
+  **16 Belluna-Schrauben ST 4.2×25** eindeutig auf 8× Dach und 8× Platte verteilt.
+- Vor Serienmontage Haftcoupons prüfen: RK-1300 auf rohem ASA-GF; Carloflex
+  auf rohem ASA-GF, ausgehärtetem Mipa-Lack und realem X150-GFK-Dach.
+  Beide Kleberringe geschlossen führen. Nach Einbau drucklos fluten
+  (Gießkanne, 10 min); Hochdruck nur aus ISO-20653-9K-Abstand, nie direkt auf
+  die IPX4-Lüfterhaube. Nähte und Lack jährlich prüfen.
 
 ## Lüftereinbau
 - Effektive Wandstärke: {PRM.effective_wall(p):.0f} mm →

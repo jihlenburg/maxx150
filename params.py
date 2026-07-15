@@ -63,7 +63,7 @@ class Params:
     NOPPLE_SPACING: float = 60.0
     NOPPLE_FILLET: float = 1.5   # Kerbentschärfung am Zylinderansatz (Übergangskegel,
                                   # Heatmap 2026-07-12: alle LF-Hotspots am Noppenfuß)
-    CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Sika-Kehle)
+    CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Carloflex-Kehle)
     # --- Segmentierung ---
     N_SEGMENTS: int = 4          # nur 4 unterstützt (Quadranten)
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
@@ -124,31 +124,36 @@ class Params:
     SNOW_LOAD: float = 200.0     # N auf Grundfläche
     T_MIN: float = -20.0
     T_MAX: float = 85.0
-    # --- Material: unverstärktes Standard-ASA für normalen FDM-Druck ---
-    # User-Entscheidung 2026-07-14. Die Werte sind konservative generische
-    # Projektannahmen, KEIN Ersatz für das Datenblatt der später gewählten
-    # Filamentcharge oder gedruckte XY/Z-Coupons. Weiß/hell bleibt wegen der
-    # solaren Bauteiltemperatur Pflicht. Geometrie und DFM dürfen weder eine
-    # Faserfüllung noch eine gehärtete Düse voraussetzen.
-    MATERIAL_NAME: str = "Standard-ASA lokal (User-Datenblatt 2026-07-14)"
-    E_BASE: float = 1726.0       # MPa, Datenblattwert
-    SIGMA_BASE: float = 40.0     # MPa, Datenblattwert
-    NU: float = 0.35
-    RHO: float = 1070.0          # kg/m³, Datenblatt 1.07 g/cm³
-    HDT_045: float = 96.0        # °C bei 0.45 MPa, Datenblatt
-    HDT_182: float = 86.0        # °C bei 1.82 MPa, nur 1 K über T_MAX
-    CTE_ASA: float = 90e-6       # 1/K, konservative Obergrenze Standard-ASA
+    # --- Material: Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017 ---
+    # Art.-Nr. 4954641200, 1,75 mm, 750-g-Spule. Plan-of-Record 2026-07-15.
+    # 15 % Glasfaser, daher geschlossener Bauraum und gehärtete Düse. Das
+    # schwarze Druckteil wird vor dem Dacheinbau zwingend mit dem in der
+    # Montageanleitung festgelegten weißen 2K-PUR-System RAL 9003 beschichtet.
+    #
+    # WICHTIGE DATENGRENZE: Würth weist ausdrücklich darauf hin, dass die
+    # mechanischen Kennwerte an Halbzeug und nicht an FDM-Probekörpern ermittelt
+    # wurden. E_BASE und SIGMA_BASE sind deshalb konservative Projektannahmen;
+    # XY-/Z-Coupons aus Drucker, Düse und Charge bleiben Freigabebedingung.
+    MATERIAL_NAME: str = ("Würth ASA GF15, Verkehrsschwarz RAL 9017 ähnlich "
+                          "(Art.-Nr. 4954641200)")
+    E_BASE: float = 3000.0       # MPa, Annahme für gedrucktes XY; Halbzeug 3520
+    SIGMA_BASE: float = 45.0     # MPa, Annahme für gedrucktes XY; nicht 91,2 Halbzeug
+    NU: float = 0.35             # keine chargenspezifische Herstellerangabe
+    RHO: float = 1100.0          # kg/m³, Würth-Datenblatt 1,1 g/cm³
+    HDT_045: float = 99.0        # °C, HDT/B bei 0,45 MPa laut Würth-Datenblatt
+    HDT_182: float | None = None # bei 1,82 MPa nicht angegeben; nicht erfinden
+    CTE_ASA: float = 60e-6       # 1/K, konservative Projektannahme; Datenblattlücke
     CTE_ROOF: float = 25e-6      # 1/K (GFK)
-    DERATE_TEMP: float = 0.35    # 85 °C nahe typischer ASA-Wärmeformbeständigkeit
-    DERATE_Z: float = 0.6        # konservative, bis Coupon-Test geschätzte Z-Abminderung
+    DERATE_TEMP: float = 0.5     # Abminderung trotz weißem Decklack und HDT/B 99 °C
+    DERATE_Z: float = 0.5        # streng geschätzt, da Würth keine FDM-Z-Werte nennt
     DERATE_CREEP: float = 0.4
     INFILL_FACTOR: float = 1.0   # 100 % Infill (Kammern übernehmen die Gewichtsreduktion,
                                   # kein Slicer-Infill mehr nötig)
 
     # Verfügbare Rückfalloption PC/ABS (User-Datenblatt 2026-07-14), bewusst
     # KEIN aktives Preset: rho 1090 kg/m³, E 1900 MPa, Zug 41 MPa,
-    # HDT 110/96 °C (0.45/1.82 MPa), Bruchdehnung 6 %, schwarz. Thermisch
-    # günstiger, aber solare Aufheizung/Druckbarkeit/UV/CTE nicht belegt.
+    # HDT 110/96 °C (0,45/1,82 MPa), Bruchdehnung 6 %. UV-/CTE-Eignung und
+    # Haftung des festgelegten Kleb-/Lacksystems wären neu zu qualifizieren.
     # --- Rippenkammern (geschlossene Zellen; User-Entscheidung 2026-07-12) ---
     CHAMBERS: bool = True
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest

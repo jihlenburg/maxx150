@@ -48,10 +48,11 @@ def test_montagenotiz_inhalt():
     _export()                          # Reihenfolge-unabhaengig (Ledger-Triage)
     h = PRM.params_hash()
     text = Path(f"out/test_export/montagenotiz_{h}.md").read_text(encoding="utf-8")
-    for muss in ("140", "165", "Carloflex", "Deckfläche nach unten", "Tempern",
-                 "4 Perimeter", "100 % Infill", "Dichtheit", "2K-Epoxid",
-                 "PFLICHT gegen Verzug", "beheizter Bauraum", "Brim",
-                 "PFLICHT", "ISO-20653", "M5x", "Standard-ASA",
+    for muss in ("140", "165", "Carloflex 410 UV", "Deckfläche nach unten", "Tempern",
+                 "4 Perimeter", "100 % Infill", "Dichtheit", "RK-1300",
+                 "PFLICHT gegen Verzug", "temperierter Bauraum", "Brim",
+                 "PFLICHT", "ISO-20653", "M5x", "Würth ASA GF15",
+                 "Mipa PUR HS", "KLEIBERIT 501.0", "RAL 9003",
                  "ST 4.2×25", "16 Belluna-Schrauben", "HDT", "Kammer",
                  "Universal-Segment", "4x identisch", "nicht spiegeln"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"
