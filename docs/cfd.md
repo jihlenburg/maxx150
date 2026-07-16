@@ -51,13 +51,13 @@ Modellklassifikation und SHA-256 aller Geometriedateien.
 - stationäres RANS mit k-ω-SST,
 - keine Prismenschichten.
 
-Der erste vollständige Entwicklungslauf ergab im Mittel der
-letzten 20 Ausgaben ungefähr 17,2 N Widerstand, 164,0 N Auftrieb und 7,49 Nm
-Nickmoment. Die Zeitreihe war stationär, aber das Ergebnis ist noch nicht
-physikalisch freigegeben: Das Grobnetz besitzt rund 145.500 Zellen und
-`checkMesh` markiert etwa 3,4 % konkave Cut-Cells. Der bisherige
-Strukturnachweis bleibt deshalb unverändert bei mindestens 480 N horizontaler
-Hülllast.
+Der vollständige Lauf des CFD-Hashs `5acfaf80` auf dem rechnerischen
+Quellcommit `5df2d37` ergab im Mittel der letzten 20 Ausgaben ungefähr 11,9 N
+Widerstand, 157,7 N Auftrieb und 7,98 Nm Nickmoment. Die Zeitreihe war
+stationär, aber das Ergebnis ist noch nicht physikalisch freigegeben: Das
+Grobnetz besitzt 148.448 Zellen und `checkMesh` markiert etwa 3,56 % konkave
+Cut-Cells. Der bisherige Strukturnachweis bleibt deshalb unverändert bei
+mindestens 480 N horizontaler Hülllast.
 
 ## Nächste Gates
 
