@@ -70,8 +70,9 @@ def build_model(mf):
          f"Belluna ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
          "aus dem Lieferumfang; Kernloch 3 mm."),
         ("1 Satz", "Holzrahmen",
-         f"Wasserfestes Holz, Breite ≥ {de(t['wood_frame_w'])} mm, Höhe = "
-         "real gemessener Dachkern."),
+         f"Trockenes Nadelvollholz, ρk ≥ 350 kg/m³, Breite ≥ "
+         f"{de(t['wood_frame_w'])} mm, Höhe = real gemessener Dachkern; "
+         "Faser längs zu jeder Rahmenseite."),
         ("Werkzeug", "Vorbereitung und Montage",
          f"K240, MP Softpad Superfine, 3-mm-Bohrer, Drehmomentschlüssel "
          f"({de(t['torque_nm'])} Nm), Vierkantwelle {de(t['shaft_mm'])} mm."),
@@ -83,11 +84,20 @@ def build_model(mf):
              warum="MMA-Strukturklebstoff für Hartkunststoffe und Fahrzeugbau; "
                    "hohe Schlag-, Schäl- und Scherfestigkeit. Sein "
                    "Festigkeitsoptimum bei 0,15–0,25 mm passt zur Fügepassung."),
-        dict(rolle="Dach + Belluna", menge="1× 300/310 ml",
-             produkt="Carloflex 410 UV weiß · alternativ Sikaflex-522 weiß",
-             warum="Carloflex bleibt Bellunas Referenzweg. Sikaflex-522 ist "
-                   "eine exakt benannte STP-Alternative für außen, Kunststoffe "
-                   "und 2K-Lacke – nur nach Haftprüfung und nie gemischt."),
+        dict(rolle="Dach + Belluna", menge="1× 300 ml",
+             produkt="Sikaflex-522 weiß (Standard)",
+             warum="UV-/witterungsbeständiger STP-Dichtklebstoff mit "
+                   "veröffentlichten Kennwerten. Rechnerisch stark auf 0,030 "
+                   "MPa normal und 0,050 MPa Schub abgemindert; die acht "
+                   "Seitenschrauben bleiben tragende Redundanz. Carloflex "
+                   "410 UV weiß ist mit denselben Projektwerten eine "
+                   "Belluna-konforme Alternative, sobald der passende "
+                   "Kunststoffprimer prozesssicher festgelegt ist."),
+        dict(rolle="522-Vorbehandlung", menge="je 1 Gebinde",
+             produkt="Sika Cleaner P · Primer-507 · Aktivator-205",
+             warum="Cleaner P + Primer-507 auf lackfreiem ASA-GF und Belluna-"
+                   "Kunststoff als ABS-Analogie; Cleaner P + Aktivator-205 "
+                   "auf angeschliffenem GFK-Gelcoat."),
         dict(rolle="Holzrahmen", menge="1× 1,2 kg A+B",
              produkt="SikaForce-710 L35 + SikaForce-010",
              warum="2K-PUR-Paneelklebstoff, ausdrücklich für Holz/GFK mit "
@@ -144,11 +154,10 @@ def build_model(mf):
                  "Nach dem Anziehen die vier M5-Kopftaschen bündig mit RK-1300 "
                  "versiegeln (offene Taschen wären Wasserreservoirs oben).",
              ],
-             warn=[("warn", "RK-1300 ist für ABS und GFK dokumentiert, der "
-                            "Werkstoff der gelieferten Segmente aber nicht "
-                            "ausdrücklich gelistet. Vor der Baugruppe einen "
-                            "Referenzcoupon aus derselben Fertigung mit identischer "
-                            "Oberflächenvorbereitung zerstörend prüfen.")]),
+             warn=[("warn", "RK-1300 ist für ABS und GFK dokumentiert, ASA-GF "
+                            "aber nicht ausdrücklich. Die Lastpfadrechnung setzt "
+                            "deshalb nur 0,50 statt 6 MPa auf ABS an und prüft "
+                            "zusätzlich den vollständigen 480-N-Pfad über M5.")]),
         dict(nr=3, titel="Weiße Schutzlackierung (Pflicht)",
              bild=("08_maskierung_lack.png",
                    "Bild 8: Unterseite – Kleberille und Noppenfeld (gelb) beim "
@@ -172,11 +181,11 @@ def build_model(mf):
                  "nach 12–24 h montagefest. Danach Maskierung abziehen.",
              ],
              warn=[("warn", "Der Werkstoff der gelieferten Segmente steht nicht "
-                            "ausdrücklich in der Mipa-Primerliste. Vorher an einem "
-                            "Referenzcoupon aus derselben Fertigung das komplette Lacksystem aufbauen "
-                            "und Gitterschnitt/Abreißversuch durchführen. 2K-PUR "
-                            "nur im Lackierfachbetrieb mit geeigneter Absaugung "
-                            "und Schutzmaßnahmen verarbeiten."),
+                            "ausdrücklich in der Mipa-Primerliste. Der Lack ist "
+                            "deshalb kein struktureller Lastpfad und muss jährlich "
+                            "kontrolliert und bei Schäden sofort ausgebessert "
+                            "werden. 2K-PUR nur im Lackierfachbetrieb mit "
+                            "geeigneter Absaugung und Schutzmaßnahmen verarbeiten."),
                    ("hinweis", "Warum dieses System: Der füllende Kunststoffprimer "
                                "ist für ABS, PC/ABS und GFK sowie 2K-Decklacke "
                                "ausgewiesen. PUR HS ist ein wetter- und "
@@ -192,8 +201,10 @@ def build_model(mf):
                  "und mit Isopropanol reinigen. Ausschnitt messen (Soll "
                  f"{de(t['cutout_w'])}×{de(t['cutout_w'])}).",
                  f"Rund um den Ausschnitt den XPS-Randstreifen ausräumen. Einen "
-                 f"wasserfesten Holzrahmen vorbereiten: Höhe = real gemessener "
-                 f"Dachkern, Breite ≥ {de(t['wood_frame_w'])} mm. Klebeflächen "
+                 f"Holzrahmen aus trockenem Nadelvollholz (ρk ≥ 350 kg/m³) "
+                 f"vorbereiten: Höhe = real gemessener Dachkern, Breite ≥ "
+                 f"{de(t['wood_frame_w'])} mm, Faser längs zur jeweiligen "
+                 f"Rahmenseite. Klebeflächen "
                  f"an GFK, XPS und Holz sauber, trocken, fett- und staubfrei halten.",
                  "SikaForce-710 L35 (Komponente A vorher aufrühren) mit "
                  "SikaForce-010 (Komponente B) homogen mischen: 100:25 nach "
@@ -212,8 +223,8 @@ def build_model(mf):
                                "in der geschlossenen Sandwichfuge angewiesen."),
                    ("warn", "Nur SikaForce-710 L35 mit SikaForce-010 durch "
                             "erfahrene Anwender gemäß Sicherheitsdatenblatt "
-                            "verarbeiten. Vorbehandlung, Auftragsmenge und "
-                            "Pressdruck am realen GFK/XPS/Holz-Coupon festlegen. "
+                            "verarbeiten. Gleichmäßig und hohlraumarm auftragen; "
+                            "der Pressdruck muss unter der Kern-Druckfestigkeit bleiben. "
                             f"Der {de(t['kragen_outer_w'])}-mm-Unterkragen braucht "
                             f"rundum ≥ {de(t['bot_kragen_clear'])} mm Luft; den "
                             "echten Ausschnitt vor dem Setzen kontrollieren.")]),
@@ -227,10 +238,12 @@ def build_model(mf):
                        "Bild 11: ST4,2×25-Schrauben (rot) durch den Kragen in den "
                        "Holzrahmen.")],
              absaetze=[
-                 f"Carloflex 410 UV weiß aus der 310-ml-Kartusche als Belluna-"
-                 f"Referenzweg verwenden. Alternativ ist nach bestandener "
-                 f"Haftprüfung Sikaflex-522 weiß aus der 300-ml-Kartusche zulässig. "
-                 f"Das gewählte Produkt als geschlossene Raupe (ca. "
+                 "Die lackfreie ASA-GF-Klebezone sehr fein anschleifen, mit "
+                 "Sika Cleaner P reinigen und Sika Primer-507 als konservative "
+                 "ABS-Analogie gemäß aktuellem Produktdatenblatt auftragen. "
+                 "Das angeschliffene GFK-Gelcoat mit Cleaner P reinigen und "
+                 "Sika Aktivator-205 gemäß aktuellem Produktdatenblatt auftragen.",
+                 f"Sikaflex-522 weiß als geschlossene Raupe (ca. "
                  f"{de(t['bead_ml'])} ml) in die untere Kleberille legen (Bild 12).",
                  "Rahmen mit dem Unterkragen in den Ausschnitt einsetzen (Bild 10) "
                  "und lagerichtig ausrichten.",
@@ -238,18 +251,22 @@ def build_model(mf):
                  f"{de(t['dach_screw_st_l'])} aus dem Belluna-Lieferumfang durch die "
                  f"Kragenlöcher ({de(t['dach_screw_count'])} gesamt) in den "
                  f"Holzrahmen setzen – 3-mm-Kernloch vorbohren (Bild 11). Das "
-                 f"fixiert den Rahmen lagerichtig, während der Kleber härtet.",
+                 f"Gewinde muss mindestens 18 mm wirksam im Vollholz greifen. "
+                 f"Alle acht Schrauben sind tragend erforderlich; das fixiert "
+                 f"den Rahmen zugleich lagerichtig, während der Kleber härtet.",
                  "Außen umlaufend mit demselben gewählten Produkt eine geschlossene "
                  "Kehlnaht ziehen; "
                  "Schraubdurchtritte ebenfalls abdichten.",
              ],
-             warn=[("hinweis", "Produktentscheidung: Carloflex 410 UV bleibt der "
-                               "von Belluna empfohlene Referenzweg. Sikaflex-522 "
-                               "weiß ist eine präzise dokumentierte, UV- und "
-                               "witterungsbeständige STP-Alternative für "
-                               "Kunststoffe und 2K-Lacke. Bei Wahl von 522 beide "
-                               "Dichtebenen vollständig damit ausführen – Produkte "
-                               "nicht mischen."),
+             warn=[("hinweis", "Warum 522 als Standard: Carloflex 410 UV ist "
+                               "mit >1,8 MPa Zugfestigkeit und >450 % Dehnung "
+                               "rechnerisch eine gleichwertig abgeminderte, "
+                               "Belluna-konforme Alternative. Sika dokumentiert "
+                               "den Vorbehandlungsweg jedoch namentlich; das "
+                               "Carloflex-TDS nennt den Kunststoffprimer nicht. "
+                               "Je Baugruppe nur ein vollständiges System "
+                               "verwenden. Die Rechnung addiert Kleber und "
+                               "Schrauben nicht."),
                    ("warn", f"Die Noppen definieren die {de(t['glue_gap'])} mm "
                             f"Fugendicke – den Kleber NICHT auspressen "
                             f"(Thermik-Elastikfuge).")]),
@@ -259,8 +276,11 @@ def build_model(mf):
                    "ST4,2-Schrauben (rot) seitlich durch den Platten-Kragen "
                    "in die Adapter-Innenwand."),
              absaetze=[
-                 "Das in Schritt 5 gewählte Dicht-/Klebprodukt in die Klebekanäle "
-                 "der Plattenunterseite auftragen "
+                 "Die lackfreien Klebezonen an Adapter und Belluna-Platte sehr "
+                 "fein anschleifen, mit Sika Cleaner P reinigen und mit Sika "
+                 "Primer-507 als ABS-Analogie gemäß aktuellem Datenblatt "
+                 "vorbehandeln. Sikaflex-522 in die Klebekanäle der "
+                 "Plattenunterseite auftragen "
                  "und die Platte mittig aufsetzen (der Kragen taucht in die "
                  "Öffnung).",
                  f"Die ST {de(t['plate_screw_d'])}×{de(t['plate_screw_l'])} seitlich "
@@ -269,12 +289,11 @@ def build_model(mf):
                  f"Vollmaterialrippen für beide Belluna-Varianten (±140 und "
                  f"±165 mm).",
              ],
-             warn=[("warn", "Vor der Serienmontage Haftcoupons zerstörend prüfen: "
-                               "das gewählte Dicht-/Klebprodukt auf der unlackierten Oberfläche eines "
-                               "Referenzcoupons, auf ausgehärtetem "
-                            "Mipa-Decklack und auf dem realen X150-GFK-Dach. "
-                            "Nur vollständig kohäsive bzw. substratseitig "
-                            "tragfähige Bruchbilder freigeben."),
+             warn=[("warn", "ASA-GF ist in der Sika-Tabelle nicht ausdrücklich "
+                             "genannt. Deshalb gelten die Klebwerte in der "
+                             "Lastpfadrechnung mit bis zu Faktor 60 abgemindert "
+                             "und das Ergebnis bleibt PASS_ASSUMPTION_BASED, "
+                             "nicht herstellerfreigegeben."),
                    ("hinweis", "Die zwei Mittellöcher der 3-Loch-Seiten liegen "
                                "auf den Segmentstößen – erst nach Aushärtung "
                                "des Stoßklebers setzen oder weglassen; die 8 "
@@ -287,7 +306,6 @@ def build_model(mf):
                  f"(effektive Wandstärke {de(t['effective_wall_mm'])} mm = Dach "
                  f"{de(t['roof_t'])} mm + Erhöhung {de(t['h_raise'])} mm).",
                  "Lüfter-Sockel in die Clips einsetzen, Feder-/Sicherungselemente "
-                 "montieren.",
                  "Nach der ersten Hitzeperiode alle Verschraubungen nachziehen "
                  "(Relaxation). Beim Nachziehen Lackkanten nicht beschädigen.",
              ],
@@ -541,8 +559,8 @@ def render_html(m):
     <div>Holzrahmen setzen</div><div>Dach abdichten</div>
   </div>
   <div class="material-cards">{cards}</div>
-  <div class="box warn qualification"><span class="tag">Freigabebedingung</span>
-    RK-1300 und Mipa-Primer an Referenzcoupons der gelieferten Segmente prüfen; das gewählte Dichtprodukt auf Mipa-Lack und X150-GFK sowie SikaForce-710 L35 auf dem realen GFK/XPS/Holz-Sandwich testen.
+  <div class="box warn qualification"><span class="tag">Rechenbasis und Restrisiko</span>
+    Zerstörende Originalsubstrat-Coupons stehen derzeit nicht zur Verfügung. Deshalb rechnet das Projekt mit stark abgeminderten Grenzflächenwerten, einer vollständigen Acht-Schrauben-Redundanz je Schnittstelle und nur einer angerechneten Holz/GFK-Fläche. Ergebnis: PASS_ASSUMPTION_BASED, keine Herstellerfreigabe.
   </div>
 </section>
 """

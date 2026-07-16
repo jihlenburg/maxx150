@@ -81,6 +81,12 @@ def stage_test() -> None:
 
 def stage_engineering() -> None:
     _freecad("pipeline/engineering.py", "Konstruktion, DFM, FEM, Analytik und Export")
+    stage_connections()
+
+
+def stage_connections() -> None:
+    _run([sys.executable, "-m", "analysis.load_paths"],
+         label="Klebe-, Schraub- und Dachlastpfade")
 
 
 def stage_render() -> None:
@@ -129,6 +135,7 @@ def stage_cfd() -> None:
          label="CFD-Fallmatrix und Netzsensitivität")
     _freecad("fem/cfd_load_check.py",
              "Nicht freigabewirksamer CFD→CalculiX-Strukturcheck")
+    stage_connections()
 
 
 def stage_manual() -> None:
@@ -155,6 +162,7 @@ STAGES = {
     "doctor": stage_doctor,
     "test": stage_test,
     "engineering": stage_engineering,
+    "connections": stage_connections,
     "render": stage_render,
     "fit": stage_fit,
     "cfd": stage_cfd,

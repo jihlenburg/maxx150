@@ -62,7 +62,7 @@ class Params:
     NOPPLE_SPACING: float = 60.0
     NOPPLE_FILLET: float = 1.5   # Kerbentschärfung am Zylinderansatz (Übergangskegel,
                                   # Heatmap 2026-07-12: alle LF-Hotspots am Noppenfuß)
-    CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Carloflex-Kehle)
+    CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Elastikfugen-Kehle)
     # --- Segmentierung ---
     N_SEGMENTS: int = 4          # nur 4 unterstützt (Quadranten)
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
@@ -132,7 +132,8 @@ class Params:
     # WICHTIGE DATENGRENZE: Würth weist ausdrücklich darauf hin, dass die
     # mechanischen Kennwerte an Halbzeug und nicht an FDM-Probekörpern ermittelt
     # wurden. E_BASE und SIGMA_BASE sind deshalb konservative Projektannahmen;
-    # XY-/Z-Coupons aus Drucker, Düse und Charge bleiben Freigabebedingung.
+    # Da XY-/Z-Coupons aktuell nicht realistisch verfügbar sind, bleiben die
+    # Abminderungen dauerhafte Projektannahmen und der Status PROTOTYPE_ONLY.
     MATERIAL_NAME: str = ("Würth ASA GF15, Verkehrsschwarz RAL 9017 ähnlich "
                           "(Art.-Nr. 4954641200)")
     E_BASE: float = 3000.0       # MPa, Annahme für gedrucktes XY; Halbzeug 3520

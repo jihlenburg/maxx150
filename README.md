@@ -10,10 +10,12 @@ vier bereitgestellt.
 **Aktueller Parameterstand:** `83aeba39` · **GEOM_REV:** `6`
 **Freigabestatus:** `PROTOTYPE_ONLY`
 
-Geometrie-, DFM-, FEM-, analytische und digitale Passungsnachweise sind Teil
-der Pipeline. Eine Produktionsfreigabe besteht trotzdem noch nicht: Reale
-Fertigungs-/Klebecoupons, der endgültige Dachausschnitt und der eingebaute
-Holzrahmen müssen praktisch qualifiziert werden. Die Dateien unter
+Geometrie-, DFM-, FEM-, analytische, Lastpfad- und digitale Passungsnachweise
+sind Teil der Pipeline. Eine Produktionsfreigabe besteht trotzdem noch nicht:
+Nicht verfügbare Werkstoff-/Haftversuche sind durch stark abgeminderte,
+quellenbasierte Annahmen ersetzt (`PASS_ASSUMPTION_BASED`); endgültiger
+Dachausschnitt, Schraubeneinbindung und Holzrahmen bleiben beim Einbau zu
+kontrollieren. Die Dateien unter
 [`release/current`](release/current/) sind daher ein nachvollziehbarer
 Release Candidate, keine stillschweigende Serienfreigabe.
 
@@ -23,6 +25,7 @@ Release Candidate, keine stillschweigende Serienfreigabe.
 python3 -m pipeline doctor       # Werkzeugkette prüfen
 python3 -m pipeline test         # komplette Testsuite
 python3 -m pipeline engineering  # Konstruktion + DFM + FEM + Report + Export
+python3 -m pipeline connections  # Klebe-, Schraub- und Dachsandwich-Lastpfade
 python3 -m pipeline fit          # Belluna-Rekonstruktion gegen Adapter prüfen
 python3 -m pipeline cfd          # aerodynamisches Hüllmodell + OpenFOAM
 python3 -m pipeline render       # technische Konstruktionsansichten
@@ -44,7 +47,7 @@ Candidate werden versioniert.
 | `params.py` | einzige Quelle für Geometrie-, Last- und Materialparameter |
 | `model/` | B-Rep-Rahmen, Segmentierung und DFM-Geometrie |
 | `fem/` | Lastfälle, Materialmodell, CalculiX und analytische Nachweise |
-| `analysis/` | nicht-FEM-basierte Prüfungen, derzeit Belluna-Passung |
+| `analysis/` | Belluna-Passung sowie Klebe-, Schraub- und Sandwich-Lastpfade |
 | `cfd/` | Belluna-Aerohüllmodell, OpenFOAM-Fall und Kräfteauswertung |
 | `export/` | STEP/STL/3MF und technische Montagenotiz |
 | `render/` | technische Blender-Ansichten und Heatmaps |
@@ -61,6 +64,7 @@ Candidate werden versioniert.
 - [Aktuelles Design](docs/design.md)
 - [Pipeline und Artefakte](docs/pipeline.md)
 - [Nachweise und Freigabestatus](docs/verification.md)
+- [Klebe-, Schraub- und Dachlastpfade](docs/load-paths.md)
 - [CFD-Modell und Windlasten](docs/cfd.md)
 - [Generator der Montageanleitung](docs/assembly-manual.md)
 - [Referenz- und Datenblattkatalog](references/README.md)

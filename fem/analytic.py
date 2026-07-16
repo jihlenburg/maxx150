@@ -29,11 +29,12 @@ def glue_shear_utilization(p: PRM.Params = PRM.P) -> float:
 
 def glue_load_shear(p: PRM.Params, f_inplane: float) -> dict:
     """Spec-Kriterium 3: lastinduzierter Schub in der unteren Klebfuge
-    <= 0.1 N/mm² dauerhaft. Tragend nur die Rillenraupe (konservativ)."""
+    <= 0.05 N/mm². Tragend nur die Rillenraupe (konservativ); der Wert ist
+    die stark abgeminderte Elastikfugen-Annahme aus docs/load-paths.md."""
     groove_len = PRM.groove_centerline_len(p)
     a_bond = groove_len * p.GROOVE_W
     tau = f_inplane / a_bond
-    return {"tau_MPa": tau, "tau_zul_MPa": 0.1, "PASS": tau <= 0.1}
+    return {"tau_MPa": tau, "tau_zul_MPa": 0.05, "PASS": tau <= 0.05}
 
 
 def side_screw_pullout(p: PRM.Params) -> dict:
@@ -47,9 +48,13 @@ def side_screw_pullout(p: PRM.Params) -> dict:
     d, l_e = p.BOT_KRAGEN_SCREW_D, 12.0
     import math
     sig_lang, _ = PRM.allowables(p)
-    f_zul = math.pi * d * l_e * 0.5 * sig_lang
+    f_ref = math.pi * d * l_e * 0.5 * sig_lang
+    # Zusätzlicher Detailfaktor für FDM-Gewinde, Pilotloch und lokale Kerbe.
+    # Die unverminderte Kreisfläche bleibt als Referenz explizit sichtbar.
+    f_zul = 0.5 * f_ref
     f_erf = 100.0        # Anpresssicherung der Platte, real winzig
-    return {"F_zul_N": f_zul, "F_erf_N": f_erf, "PASS": f_zul >= f_erf}
+    return {"F_ref_N": f_ref, "detail_factor": 0.5,
+            "F_zul_N": f_zul, "F_erf_N": f_erf, "PASS": f_zul >= f_erf}
 
 
 def joint_checks(p: PRM.Params, f_inplane: float) -> dict:

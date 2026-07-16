@@ -80,14 +80,16 @@ Materialliste oder die Montageschritte aufgenommen werden.
 
 | Funktion | Exaktes Produkt | Warum dieses Produkt |
 |----------|-----------------|----------------------|
-| Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben Druckcoupons Pflicht. |
-| Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. ASA-GF wird über Originaldruck-Coupon qualifiziert. |
-| Dach- und Belluna-Dichtung | Carloflex 410 UV weiß, 310 ml; exakt benannte Alternative: Sikaflex-522 weiß, 300 ml | Carloflex bleibt Bellunas Referenzweg. 522 ist ein aktueller UV-/witterungsbeständiger STP-Dichtstoff für Kunststoffe und 2K-Lacke; nur nach Haftcoupon, innerhalb einer Baugruppe nicht mischen. |
-| Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Erfordert exaktes Mischen, Coupon und definierten Pressprozess. |
-| Lack-Haftgrund | Mipa 1K-Plastic-Grundierfiller-Spray, Art.-Nr. 213390000 | Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, mit 2K-Decklack überlackierbar. ASA-GF ist nicht ausdrücklich gelistet: Coupon ist Pflicht. |
+| Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben permanente FDM-Abminderungen und `PROTOTYPE_ONLY`. |
+| Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. Für ASA-GF wird rechnerisch nur 0,50 statt 6 MPa auf ABS angesetzt. |
+| Dach- und Belluna-Dichtung | Sikaflex-522 weiß, 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
+| Vorbehandlung der 522-Klebezonen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205 | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
+| Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Rechnerisch nur 0,05 MPa und eine GFK/Holz-Fläche angesetzt. |
+| Lack-Haftgrund | Mipa 1K-Plastic-Grundierfiller-Spray, Art.-Nr. 213390000 | Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, mit 2K-Decklack überlackierbar. ASA-GF ist nicht ausdrücklich gelistet; der Lack bleibt nichttragend und wird jährlich kontrolliert. |
 | Weißer Decklack | Mipa PUR HS 2K-PUR-Acryl-Fahrzeuglack RAL 9003 Signalweiß glänzend + Mipa 2K-MS-Härter MS 25, 2:1 Volumen | Wetter- und vergilbungsfester Nutzfahrzeuglack mit hoher chemischer/mechanischer Beständigkeit; Weiß reduziert die solare Aufheizung des schwarzen Rohlings. |
 
-Primärquellen und unveränderte lokale Datenblätter sind im
+Primärquellen, unveränderte lokale Datenblätter und nachvollziehbare
+Quellenprotokolle sind im
 [`references`-Katalog](../references/README.md) mit Quelle und SHA-256 geordnet.
 
 Bewusst nicht gewählt: WEICON Epoxyd-Minutenkleber für die Segmentstöße.

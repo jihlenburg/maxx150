@@ -39,6 +39,7 @@ def test_klebfugen_schub_aus_last():
 def test_seitenschrauben_auszug():
     r = A.side_screw_pullout(PRM.P)
     assert r["F_zul_N"] > 150.0            # je Schraube, dauerfest
-    # ASA GF15: pi*4.2*12*0.5*4.50 = 356.26 N.
-    assert abs(r["F_zul_N"] - 356.26) < 1.0
+    # Kreisflächenreferenz 356 N, zusätzlicher FDM-/Detailfaktor 0,5.
+    assert abs(r["F_ref_N"] - 356.26) < 1.0
+    assert abs(r["F_zul_N"] - 178.13) < 1.0
     assert r["PASS"]

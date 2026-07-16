@@ -40,6 +40,10 @@ def cfd_matrix_dir(matrix_hash: str) -> Path:
     return BUILD_ROOT / "analysis" / "cfd" / "matrix" / matrix_hash
 
 
+def load_path_dir(parameter_hash: str) -> Path:
+    return BUILD_ROOT / "analysis" / "load_paths" / parameter_hash
+
+
 def manual_dir(parameter_hash: str) -> Path:
     return BUILD_ROOT / "documentation" / parameter_hash
 

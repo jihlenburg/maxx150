@@ -62,6 +62,7 @@ def test_montagenotiz_inhalt():
                  "PFLICHT gegen Verzug", "temperierter Bauraum", "Brim",
                  "PFLICHT", "ISO-20653", "M5x", "Würth ASA GF15",
                  "Mipa PUR HS", "SikaForce-710 L35", "Sikaflex-522", "RAL 9003",
+                 "Primer-507", "Aktivator-205", "PASS_ASSUMPTION_BASED",
                  "ST 4.2×25", "16 Belluna-Schrauben", "HDT", "Kammer",
                  "Universal-Segment", "4x identisch", "nicht spiegeln"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"

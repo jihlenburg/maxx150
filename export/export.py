@@ -77,8 +77,8 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Rohteilfarbe; vor dem Dacheinbau ist RAL 9003 Signalweiß zwingend.
 - Datenlage: Würths mechanische Werte stammen aus Halbzeug, nicht aus
   FDM-Probekörpern. E={p.E_BASE:.0f} MPa und Zug={p.SIGMA_BASE:.0f} MPa sind
-  konservative Projektannahmen; XY-/Z-Coupons aus Maschine, Düse und Charge
-  bleiben Freigabebedingung.
+  konservative Projektannahmen. Da XY-/Z-Coupons aktuell nicht realistisch
+  verfügbar sind, werden diese Werte nicht hochgestuft; Status PROTOTYPE_ONLY.
 - Würth-Profil: Düse **250–270 °C**, max. **12 mm³/s**, geschlossener
   temperierter Bauraum und **gehärtete Düse** (15 % GF, abrasiv). Bett und
   Trocknung nach dem der Charge beiliegenden Datenblatt kalibrieren.
@@ -94,7 +94,7 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Ebenheit/Öffnungsmaß prüfen. Kein pauschales Tempern: Würth nennt für diesen
   Artikel keinen allgemeinen Temperprozess.
 - **Spulenlogistik**: **4× 750-g-Spule derselben Charge** (Nettobedarf ca.
-  1,86 kg bei RHO {p.RHO:.0f} kg/m³ plus Coupon-/Fehldruckreserve).
+  1,86 kg bei RHO {p.RHO:.0f} kg/m³ plus Fehldruckreserve).
 
 ## Fügen — WEICON RK-1300
 - Rohes ASA-GF K240 anschleifen. **WEICON RK-1300, 60-g-Set,
@@ -105,7 +105,8 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Die M5-Kopftaschen bündig mit RK-1300 versiegeln. RK-1300 wurde gewählt,
   weil WEICON den MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau sowie
   hohe Schlag-, Schäl- und Scherfestigkeit spezifiziert. ASA-GF ist nicht
-  einzeln gelistet: Stoßcoupon am Originaldruck ist Pflicht.
+  einzeln gelistet; die Rechnung setzt deshalb nur 0,50 statt 6 MPa an und
+  prüft den vollständigen 480-N-Pfad zusätzlich über M5.
 
 ## Weiße Schutzlackierung — Pflicht
 - Nach dem Fügen spätere Klebezonen roh lassen und abkleben: untere
@@ -120,40 +121,51 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Wahlgrund: Der füllende Primer ist für u. a. ABS, PC/ABS und GFK sowie
   2K-Decklacke ausgewiesen; der PUR-HS-Decklack für Nutzfahrzeuge ist wetter-
   und vergilbungsfest sowie chemisch/mechanisch beständig. ASA-GF fehlt in der
-  Primerliste: Gitterschnitt-/Abreißcoupon am Originaldruck ist Pflicht.
+  Primerliste. Der Lack ist deshalb kein struktureller Lastpfad; jährlich
+  kontrollieren und Schäden sofort fachgerecht ausbessern.
 
 ## Dach-Sandwich und Dichtheit
 - Mini-Heki und Altbett entfernen. Den XPS-Randstreifen ausräumen und einen
-  wasserfesten Holzrahmen (Höhe Kern, Breite ≥ 30 mm) mit
+  Rahmen aus trockenem Nadelvollholz (ρk ≥ 350 kg/m³, Höhe Kern, Breite ≥
+  30 mm, Faser längs zu jeder Rahmenseite) mit
   **SikaForce-710 L35 + SikaForce-010** vollflächig einsetzen. A:B = 100:25
   nach Volumen bzw. 100:19 nach Gewicht; A vorher aufrühren, homogen mischen,
   bei 23 °C vor der halben Topfzeit auftragen und mindestens 125 min mit
-  ebenen Zulagen pressen. Den realen Pressdruck am GFK/XPS/Holz-Coupon
-  festlegen und unter der Druckfestigkeit des Kerns halten. Wahlgrund: Sika
+  ebenen Zulagen pressen. Den Pressdruck gleichmäßig und unter der
+  Druckfestigkeit des Kerns halten. Wahlgrund: Sika
   spezifiziert genau Holz/GFK mit EPS/XPS für Sandwichpaneele; das 2K-System
   härtet auch in der geschlossenen Dachfuge kontrolliert aus. Nur durch
   erfahrene Anwender gemäß aktuellem Sicherheitsdatenblatt verarbeiten.
 - Der Unterkragen ({p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR:.0f} mm) zentriert im
   Soll-Ausschnitt {p.CUTOUT_W:.0f}×{p.CUTOUT_W:.0f} mm. **8 beiliegende
   ST {p.BOT_KRAGEN_SCREW_D:.1f}×{p.BOT_KRAGEN_SCREW_L:.0f}** bei ±140 mm
-  seitlich ins Holz, nie von oben durch die Dichtfläche.
-- Dicht-/Klebstoff: **Carloflex 410 UV weiß, 310 ml** bleibt der von Belluna
-  empfohlene Referenzweg. Als exakt benannte Alternative ist nach bestandenem
-  Haftcoupon **Sikaflex-522 weiß, 300 ml** zulässig: ca. **{bead_ml:.0f} ml**
+  seitlich ins Holz, mindestens 18 mm wirksamer Gewindeeingriff, nie von oben
+  durch die Dichtfläche. Alle acht sind tragend erforderlich: Bei nur sieben
+  steigt die konservative 480-N-Auslastung auf bis zu 97 %, bei sechs liegt
+  bereits die günstigste Anordnung über 100 %.
+- Dicht-/Klebstoff: **Sikaflex-522 weiß, 300 ml**: ca. **{bead_ml:.0f} ml**
   in die untere Kleberille plus Außenkehle; Noppen halten {p.GLUE_GAP} mm
-  Fugendicke. Danach auch die Belluna-Ringklebenut mit demselben gewählten
-  Produkt füllen. Sikaflex-522 ist ein UV-/witterungsbeständiger STP-Dichtstoff
-  für Kunststoffe und 2K-Lacke. Nicht mischen oder innerhalb der Baugruppe
-  wechseln.
+  Fugendicke. Danach auch die Belluna-Ringklebenut mit 522 füllen. Strukturelle
+  Klebezonen bleiben lackfrei. ASA-GF/Belluna-Kunststoff sehr fein schleifen,
+  mit **Sika Cleaner P** reinigen und **Sika Primer-507** als ABS-Analogie
+  einsetzen; GFK-Gelcoat sehr fein schleifen, Cleaner P und **Sika
+  Aktivator-205**. Jeweils aktuelle Produktdatenblätter beachten.
+  **Carloflex 410 UV weiß** ist eine Belluna-konforme Alternative. Das
+  Hersteller-TDS nennt >1,8 MPa Zugfestigkeit und >450 % Dehnung; deshalb
+  gelten dieselben stark abgeminderten Projektgrenzwerte von 0,030 MPa normal
+  und 0,050 MPa Schub. Das TDS benennt den erforderlichen Kunststoffprimer
+  jedoch nicht: je Baugruppe nur ein vollständig spezifiziertes System
+  verwenden, Produkte nicht mischen.
 - Jede Adapterseite besitzt Vollmaterialrippen ±140/±165. Von den zehn
   Belluna-Seitenlöchern nur die **acht äußeren** mit den übrigen 8
   ST4.2×25 setzen; Mittellöcher an den Segmentstößen frei lassen. Die vier
   PT4.0×12 Lüfter→Platte mit Belluna-Drehmoment 0,7 Nm. Damit sind die
   **16 Belluna-Schrauben ST 4.2×25** eindeutig auf 8× Dach und 8× Platte verteilt.
-- Vor Serienmontage Haftcoupons prüfen: RK-1300 auf rohem ASA-GF; das gewählte
-  Dichtprodukt auf rohem ASA-GF, ausgehärtetem Mipa-Lack und realem
-  X150-GFK-Dach; SikaForce-710 L35 auf dem realen GFK/XPS/Holz-Sandwich.
-  Beide Kleberringe geschlossen führen. Nach Einbau drucklos fluten
+- Zerstörende Originalsubstrat-Coupons stehen aktuell nicht zur Verfügung.
+  `analysis/load_paths.py` ersetzt sie für den Prototypenentscheid durch stark
+  abgeminderte Grenzflächenwerte, vollständige Schraubenlasten mit Faktor 1,5
+  und nur eine angerechnete Holz/GFK-Fläche (`PASS_ASSUMPTION_BASED`, keine
+  Herstellerfreigabe). Beide Kleberringe geschlossen führen. Nach Einbau drucklos fluten
   (Gießkanne, 10 min); Hochdruck nur aus ISO-20653-9K-Abstand, nie direkt auf
   die IPX4-Lüfterhaube. Nähte und Lack jährlich prüfen.
 

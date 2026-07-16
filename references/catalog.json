@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "checked_on": "2026-07-15",
+  "checked_on": "2026-07-16",
   "files": [
     {
       "path": "belluna/manuals/belluna-super-fan-installation.pdf",
@@ -16,7 +16,7 @@
     },
     {
       "path": "datasheets/adhesives/weicon-rk-1300.pdf",
-      "status": "selected",
+      "status": "selected_design_basis",
       "source": "https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf",
       "sha256": "da7dde7a05ac49a015a477be19374f8e2ab177e57895810f0e5e450e6a3346fa"
     },
@@ -28,9 +28,15 @@
     },
     {
       "path": "datasheets/adhesives/sikaflex-522.pdf",
-      "status": "qualified_alternative",
+      "status": "selected_design_basis",
       "source": "https://deu.sika.com/dms/getdocument.get/6e0cd83c-98d1-4c32-a8eb-a2925cd2ecf1/sikaflex-522.pdf",
       "sha256": "7efca012f57bf42d04366078873417af4429bc3b549973fe35618611056c0f87"
+    },
+    {
+      "path": "datasheets/adhesives/carloflex-410-uv-source.md",
+      "status": "evaluated_design_equivalent",
+      "source": "vom Nutzer bereitgestelltes Carlofon-TDS; Original-SHA-256 b4dbd8213e0b37fe69204cb2b18fde1ef4012a4b50a6dd25a6b8006b5342a2a5",
+      "sha256": "c89a809b31b80320152f2c282632ba4b1d262cdbf1a8844fdcc21da6bd2a0820"
     },
     {
       "path": "datasheets/adhesives/evaluated-not-selected/weicon-epoxyd-minutenkleber.pdf",
@@ -60,7 +66,7 @@
       "path": "datasheets/materials/wuerth-asa-gf15.md",
       "status": "selected_manufacturer_reference",
       "source": "https://eshop.wuerth.de/Product-categories/Filament-ASA-GF/140120024201115.cyid/1401.cgid/en/US/EUR/",
-      "sha256": "d3e777b43ed8f049eb253e3a1f7f3ae69c089636dc43c18e507de4228173df0a"
+      "sha256": "6f285d1213475c5903c14d53031aa83df6b06810807ae5bf7331ceb969951fc1"
     }
   ]
 }

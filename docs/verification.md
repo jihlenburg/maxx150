@@ -8,9 +8,11 @@ Die Engineering-Stufe prüft vor jedem Export:
 2. Wasserdichte, valide B-Reps und vier rotationsidentische Segmente.
 3. FDM-Überhänge und definierte massive Schraub-/Stoßzonen.
 4. FEM-Lastfälle Fahrtwind, Schlechtweg, Montagehüllkurve und Schnee.
-5. Stoß-Submodell, Schraubenauszug, Klebfugenschub und Thermik.
+5. Stoß-Submodell, Klebfugenschub und Thermik.
 6. Haubenfreigang und Wellenwahl.
 7. Digitalen Belluna-Passungscheck als separate `fit`-Stufe.
+8. Annahmenbasierten Lastpfadcheck für Elastikfugen-Ringe, beide
+   Acht-Schrauben-Gruppen, Segmentstöße und Holzrahmen–Dachsandwich.
 
 Der FEM-Ansatz ist bewusst konservativ: Der globale Rahmen wird monolithisch
 gerechnet, der Segmentstoß separat. Das ist kein Kontakt-/Ermüdungsmodell der
@@ -35,18 +37,30 @@ Die Release-Pipeline leitet den Status aus dem Engineering-Report ab und
 schreibt ihn in `release/current/manifest.json`. Ein Dateiname allein ist
 keine Freigabe.
 
-## Noch erforderliche physische Nachweise
+## Aktuelle Ersatzstrategie für nicht verfügbare Werkstoffversuche
 
-- XY-/Z-Prüfkörper aus realer Maschine, Düse und Charge.
-- Stoßcoupon mit RK-1300 auf dem gelieferten Segmentmaterial.
-- Haftcoupons des gewählten Dichtstoffs auf Rohteil, Mipa-Lack und X150-GFK.
-- SikaForce-Coupon auf realem GFK/XPS/Holz-Sandwich einschließlich Pressdruck.
-- Ebenheit, Öffnungsmaß und Trockenpassung eines realen Segmentsatzes.
-- Reales Ausschnittmaß und Holzrahmenprüfung bei Demontage.
-- Thermozyklus, Flutungstest und Sichtkontrolle nach der ersten Saison.
+Zerstörende Druck-, Klebe- und Sandwichcoupons stehen derzeit realistisch
+nicht zur Verfügung. Sie werden deshalb **nicht als angeblich bald
+schließbare Voraussetzung behandelt**. Für den Prototypenentscheid gilt
+stattdessen die reproduzierbare Abschätzung in [`load-paths.md`](load-paths.md):
+stark abgeminderte Grenzflächenwerte, nur eine angerechnete Holz/GFK-Fläche,
+1,5-fache Schrauben-Lastkonzentration und keine Addition von Kleber- und
+Schraubentragfähigkeit.
 
-Bis diese Punkte dokumentiert geschlossen sind, bleibt das Projekt
-`PROTOTYPE_ONLY`, unabhängig davon, wie groß die rechnerischen Reserven sind.
+Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
+
+- Ebenheit, Öffnungsmaß und Trockenpassung des realen Segmentsatzes.
+- Reales Ausschnittmaß und Zustand des Dachkerns bei Demontage.
+- Mindestens 18 mm wirksame Schraubeneinbindung in einen durchgehenden,
+  vollflächig gebundenen 30-mm-Rahmen aus Nadelvollholz mit ρk ≥ 350 kg/m³;
+  Faser längs zur jeweiligen Rahmenseite.
+- Flutungstest nach Montage sowie jährliche Sicht-/Handprüfung aller Nähte,
+  Schrauben und Lackkanten.
+
+Ohne Werkstoffversuche bleibt das Ergebnis ehrlich
+`PASS_ASSUMPTION_BASED` und der Projektstatus `PROTOTYPE_ONLY`; die Rechnung
+ist keine Zulassung. Das ist eine benannte Erkenntnisgrenze, kein verstecktes
+Versprechen späterer Prüfwerte.
 
 ## Nachvollziehbarkeit
 

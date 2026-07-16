@@ -6,6 +6,7 @@
 params.py
    ├─ model/ ── DFM ── FEM + Analytik ── export/ ── build/engineering/<hash>/
    ├─ reference_models/ + model/ ── Passung ─────── build/analysis/fit/<hash>/
+   ├─ Lasten + Verbindungsannahmen ─────────────── build/analysis/load_paths/<hash>/
    ├─ Belluna-Anleitung + Dach ── OpenFOAM ──────── build/analysis/cfd/<cfd-hash>/
    ├─ fem/ ── Spannungsfelder ── Blender ───────── build/analysis/heatmap/<hash>/
    ├─ model/ ── Blender ────────────────────────── build/render/<hash>/
@@ -20,7 +21,8 @@ params.py
 |---|---|---|
 | `doctor` | FreeCAD, Blender, Chrome, pdfinfo und Pfade | bricht bei fehlendem Werkzeug ab |
 | `test` | Geometrie-, FEM-, Export-, Referenz- und Toolchaintests | alle Tests müssen bestehen |
-| `engineering` | Rahmen, Segmente, DFM, vier globale Lastfälle, Stoßmodell, Analytik, Export | Report darf nicht `FAIL` sein |
+| `engineering` | Rahmen, Segmente, DFM, vier globale Lastfälle, Stoßmodell, Analytik, Export; ruft danach `connections` auf | Reports dürfen nicht `FAIL` sein |
+| `connections` | Elastikfugen-Ringe, beide Acht-Schrauben-Gruppen, RK-1300/M5 und Holzrahmen–Dachsandwich | `PASS_ASSUMPTION_BASED`; JSON + Markdown |
 | `fit` | Belluna-Rekonstruktion gegen Adapter | Kollision, Radialspiel, Auflage, Schraubpfade |
 | `cfd` | Aerohüllmodell, `snappyHexMesh`, stationäres RANS und Kräfteauswertung | vorläufige Kräfte/Momente; derzeit kein Release-Gate |
 | `render` | Standardansichten und Schnitte | PNG + Render-STL |
@@ -44,6 +46,7 @@ sondern stets über den Parameter-Hash:
 build/
 ├── engineering/<hash>/
 ├── analysis/fit/<hash>/
+├── analysis/load_paths/<hash>/
 ├── analysis/cfd/<cfd-hash>/
 ├── analysis/heatmap/<hash>/
 ├── render/<hash>/

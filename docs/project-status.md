@@ -1,6 +1,6 @@
 # Projektstatus
 
-Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
+Stand: 16.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 
 ## Abgeschlossen
 
@@ -10,6 +10,8 @@ Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 - Digital vermessene Belluna-Rekonstruktion mit 397-mm-Unterkragen und
   1,5-mm-Wand; Metallclips und Dichtring als getrennte Referenzteile.
 - DFM-, FEM-, analytische, Passungs-, Export- und Referenztests.
+- Quellenbasierte Lastpfadabschätzung für Klebungen, beide Schraubengruppen,
+  Segmentstöße und das Dachsandwich (`PASS_ASSUMPTION_BASED`).
 - Definiertes Kleb-/Dicht-/Lacksystem und reproduzierbarer Montagegenerator.
 - Einheitliche Pipeline und geordneter Build-/Release-/Referenzaufbau.
 - Reproduzierbarer erster OpenFOAM-Grobfall für die geschlossene Belluna-
@@ -20,7 +22,6 @@ Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 - Reale Fahrzeugmaße `B1a`, `B1b` und `B2` für das Haubenfreigang-Gate.
 - Reales Ausschnittmaß und Zustand des Dachkerns bei Heki-Demontage.
 - Ausführung und Dokumentation des wasserfesten Holzrahmens.
-- Material-, Klebe-, Lack- und Sandwichcoupons gemäß `verification.md`.
 - Vollständiger Trocken-Fit und Dichtheitstest am Fahrzeug.
 
 ## Technische Weiterentwicklung, nicht Freigabeblocker
@@ -28,6 +29,9 @@ Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 - FEM-Netzkonvergenz 20/10/5 mm automatisieren.
 - Elastische Noppenbettung statt starrer Lagerung untersuchen.
 - Stoßmodell um expliziten Bolzenkontakt und zyklische Lasten erweitern.
+- Werkstoff-, Haft- und Sandwichcoupons nur dann nachholen, wenn später reale
+  Originalsubstrate und ein sinnvoller Prüfaufbau verfügbar werden; bis dahin
+  bleiben sie dokumentierte Modellunsicherheit, kein kurzfristiges Gate.
 - CFD-Netzkonvergenz sowie offene Haube, Schräg- und Seitenwind ergänzen.
 - Zusammenhängenden Massivquerschnitt als quantitative Warp-Metrik ergänzen.
 

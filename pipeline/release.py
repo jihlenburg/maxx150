@@ -127,7 +127,8 @@ def main() -> int:
         "stl_orientation": "Drucklage, Deckfläche auf Z=0",
         "files": {path.name: {"sha256": _sha256(path), "bytes": path.stat().st_size}
                   for path in copied},
-        "open_gates": (["physische Coupon- und Einbauqualifikation laut Report"]
+        "open_gates": (["reale Einbaukontrollen; Werkstoffpfade nur "
+                         "PASS_ASSUMPTION_BASED laut docs/load-paths.md"]
                        if status == "PROTOTYPE_ONLY" else []),
     }
     (target / "manifest.json").write_text(
@@ -141,8 +142,9 @@ def main() -> int:
         f"- `verification_report_{h}.md`: zugehöriger rechnerischer Nachweis.\n"
         f"- `fit_summary_{h}.json`: digitaler Passungscheck gegen die Belluna-Rekonstruktion.\n"
         f"- `manifest.json`: Prüfsummen, Quellcommit und offene Gates.\n\n"
-        f"`PROTOTYPE_ONLY` ist keine Produktionsfreigabe. Offene physische Gates "
-        f"stehen im Report und in `docs/verification.md`.\n",
+        f"`PROTOTYPE_ONLY` ist keine Produktionsfreigabe. Reale Einbaukontrollen "
+        f"und die Erkenntnisgrenze der annahmenbasierten Werkstoffpfade stehen "
+        f"in `docs/verification.md` und `docs/load-paths.md`.\n",
         encoding="utf-8",
     )
     print(f"RELEASE-ENDE: {target} ({status}, Parameterstand {h})", flush=True)

@@ -11,5 +11,6 @@ Herstellerquelle:
 Für die Berechnung sind ausschließlich die konservativen Projektwerte in
 `params.py` verbindlich. Der Hersteller weist darauf hin, dass die publizierten
 mechanischen Werte von Halbzeugproben und nicht von gedruckten Prüfkörpern
-stammen. Der reale FDM-Prozess muss deshalb über XY-/Z-Coupons qualifiziert
-werden.
+stammen. Da XY-/Z-Coupons derzeit nicht realistisch verfügbar sind, gelten
+dauerhaft die konservativen Projektwerte in `params.py`; das Projekt
+behauptet deshalb keine Serienfreigabe.
