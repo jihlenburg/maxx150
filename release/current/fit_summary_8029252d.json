@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "parameter_hash": "78f560c8",
-  "source_commit": "ba09897ac3e3d130885a5d73a99a6a0cf9d9c3fd",
+  "parameter_hash": "8029252d",
+  "source_commit": "b224eed3f4fdb7dfa360ae11a0f2bf594303b0f3",
   "belluna_model": "MEASURED_RECONSTRUCTION",
   "belluna_source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
   "nominal_collision_mm3": 0.0,
@@ -10,7 +10,7 @@
     "0.5": 0.0,
     "1.0": 0.0,
     "1.5": 0.0,
-    "2.0": 3291.635467
+    "2.0": 3292.149019
   },
   "support_ratio": {
     "innen": 1.0,

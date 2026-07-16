@@ -1,29 +1,29 @@
 {
   "schema": 2,
   "status": "PROTOTYPE_ONLY",
-  "parameter_hash": "78f560c8",
-  "geom_rev": 7,
-  "source_commit": "ba09897ac3e3d130885a5d73a99a6a0cf9d9c3fd",
-  "source_commit_time": "2026-07-16T08:24:15+02:00",
+  "parameter_hash": "8029252d",
+  "geom_rev": 9,
+  "source_commit": "b224eed3f4fdb7dfa360ae11a0f2bf594303b0f3",
+  "source_commit_time": "2026-07-16T16:35:52+02:00",
   "part": "Universal-L-Ecksegment",
   "quantity": 4,
   "step_orientation": "Einbaulage",
   "stl_orientation": "Drucklage, Deckfläche auf Z=0",
   "files": {
-    "Belluna_Adapter_Universal_x4_78f560c8.step": {
-      "sha256": "f54fac9d938024ee968cdcbafd0c21590dab2a4dfad13f640df0d0502dcc0c0f",
-      "bytes": 436160
+    "Belluna_Adapter_Universal_x4_8029252d.step": {
+      "sha256": "5b2707d6e7cda031cc10c3faa3dbab6a0c4a2a158b8332821f41b6b269fe21b5",
+      "bytes": 316585
     },
-    "Belluna_Adapter_Universal_x4_PRINT_78f560c8.stl": {
-      "sha256": "99a6daa78f7949ad72dc71a743594d3c7efd53fdc8623c0e1e66e0658a15adfd",
-      "bytes": 498384
+    "Belluna_Adapter_Universal_x4_PRINT_8029252d.stl": {
+      "sha256": "4339eed4810c076efb53e4fb9191e71e3b5ee448a528f7d5a467ec71be1a9193",
+      "bytes": 246084
     },
-    "verification_report_78f560c8.md": {
-      "sha256": "e6d8e7c274160d27dc4756c7ee5c169812603db8dd943bbb289d4f6eec729ab5",
-      "bytes": 2572
+    "verification_report_8029252d.md": {
+      "sha256": "26989122fa1017d5da213b155398d36b18bba15b68b52f4589b1832ec0fdc43c",
+      "bytes": 2585
     },
-    "fit_summary_78f560c8.json": {
-      "sha256": "2804a22ea330736adf69648ab89c5b0392790c01688584fa3f8f620077534f5d",
+    "fit_summary_8029252d.json": {
+      "sha256": "06d80f51f9ca29ac99a1958e056a70f22335511804ef962f5ffcb7cbec319d9d",
       "bytes": 748
     }
   },
