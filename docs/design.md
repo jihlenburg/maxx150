@@ -1,6 +1,6 @@
 # Design: 3D-gedruckter Adapterrahmen — Belluna Super Fan im Mini-Heki-Ausschnitt (Challenger X150 / Chausson X550)
 
-Stand: 2026-07-16 · Parameterstand `8029252d` · Status `PROTOTYPE_ONLY`
+Stand: 2026-07-16 · Parameterstand `8eb8b79f` · Status `PROTOTYPE_ONLY`
 
 ## 1. Ziel und Kontext
 
@@ -171,7 +171,7 @@ Parametern und schreibt sie in die Montagenotiz.
   (druckprofil-unabhängig); die FEM rechnet auf der echten Kammergeometrie mit vollem
   E-Modul (INFILL_FACTOR = 1,0). [Entscheidung mit User 2026-07-12, ersetzt
   Slicer-Infill-Ansatz]
-- **Unterseite:** 16 längliche Abstandspads (2,5×10×3 mm), jeweils innen und
+- **Unterseite:** 16 längliche Abstandspads (2,5×20×3 mm), jeweils innen und
   außen nahe den acht unteren Schraubachsen. Sie liegen vollständig in den
   trockenen 3-mm-Randstreifen über dem Holzrahmen und greifen nicht in die
   Klebefläche ein. Zwei umlaufende, nur 0,6 mm tiefe und 10 mm breite
@@ -332,7 +332,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | am realen Haubenfreigang zu verifizieren |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
+| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 2,5×20×3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
 
 ## 10. Risiken und Gegenmaßnahmen
 

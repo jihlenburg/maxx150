@@ -39,7 +39,7 @@ def test_wuerth_asa_gf15_planstand_abgebildet():
 
 def test_universal_segment_schraubraster():
     p = PRM.P
-    assert p.GEOM_REV == 9
+    assert p.GEOM_REV == 10
     assert p.PLATE_KRAGEN_W == 397.0 and p.PLATE_KRAGEN_MEASURED
     assert p.ROOF_SIDE_SCREWS
     assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
@@ -52,6 +52,8 @@ def test_universal_segment_schraubraster():
     assert abs(PRM.groove_adhesive_volume_ml(p) - 119.9277868423386) < 1e-6
     assert PRM.spacer_pad_radial_centers(p) == (1.5, 28.5)
     assert PRM.spacer_pad_count(p) == 16
+    assert p.SPACER_PAD_RADIAL == 2.5 and p.SPACER_PAD_TANGENTIAL == 20.0
+    assert abs(PRM.spacer_pad_contact_area(p) - 786.2654824574367) < 1e-9
     assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
     assert p.PLATE_SCREW_BOSS_L == 25.0
 

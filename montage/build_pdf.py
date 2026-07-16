@@ -256,7 +256,9 @@ def build_model(mf):
                  f"{de(t['glue_gap'])}-mm-Dachabstand definieren. In den "
                  f"{de(t['groove_d'])}-mm-Führungen beträgt die wirksame "
                  f"Raupenhöhe damit {de(t['bondline_thickness'])} mm; anschließend mit einer ebenen, nicht "
-                 "beschädigenden Montagehilfe gegen Verschieben sichern.",
+                 "beschädigenden Montagehilfe gegen Verschieben sichern. Keine "
+                 "Zwingen, Spanngurte oder vertikale Verschraubung verwenden; "
+                 "die Pads sind Anschläge, keine Klemmpunkte.",
                  f"Je Seite zwei ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
                  f"durch die Kragenlöcher in den Holzrahmen setzen – insgesamt "
                  f"{de(t['dach_screw_count'])}, Kernloch 3 mm, "
@@ -278,7 +280,9 @@ def build_model(mf):
                                "Carloflex-TDS nennt den Kunststoffprimer nicht. "
                                "Je Baugruppe nur ein vollständiges System "
                                "verwenden."),
-                   ("warn", f"Die Abstandspads definieren {de(t['glue_gap'])} mm "
+                   ("warn", f"Die {de(t['spacer_pad_count'])} Abstandspads mit "
+                            f"{de(t['spacer_pad_radial'])} × {de(t['spacer_pad_tangential'])} mm Kontaktmaß definieren "
+                            f"{de(t['glue_gap'])} mm "
                             f"Dachabstand und {de(t['bondline_thickness'])} mm Raupenhöhe – den Kleber NICHT auspressen "
                             f"(Thermik-Elastikfuge). Äußere Dichtungsraupe, "
                             f"Mittelkanal und innere Ventöffnungen vor dem "

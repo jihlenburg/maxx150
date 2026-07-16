@@ -8,6 +8,7 @@ def test_ringflaechen_stammen_aus_der_konstruktionsgeometrie():
     roof = result["geometry"]["roof_elastic_ring"]
     assert abs(roof["area_mm2"] - 33313.27412287184) < 1e-6
     assert roof["inner_vent_count"] == 8
+    assert abs(roof["spacer_pad_contact_area_mm2"] - 786.2654824574367) < 1e-9
     # Nur eine der zwei 30-mm-Holz/GFK-Flächen wird angerechnet.
     assert result["geometry"]["wood_frame_one_face_only"]["area_mm2"] == 51600.0
 

@@ -1,9 +1,9 @@
 """Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
 die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
 Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
-Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-9-Anker enthalten den
-kompakten 50-mm-Hybridrahmen mit zwei Kammerringen: EIN 1671916.7934465497,
-AUS 1719454.8776221767 mm³ (siehe test_eckkammern_default_anker und
+Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-10-Anker enthalten den
+kompakten 50-mm-Hybridrahmen mit zwei Kammerringen: EIN 1673116.7934465515,
+AUS 1720654.8776221776 mm³ (siehe test_eckkammern_default_anker und
 test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
 Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
 selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
@@ -122,13 +122,13 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 
 
 def test_eckkammern_default_anker():
-    """GEOM_REV-9-Anker des kompakten Hybridrahmens.
+    """GEOM_REV-10-Anker des kompakten Hybridrahmens.
 
     Flache Raupenführungen und 16 Pads ersetzen die tiefen Rillen und 68
     Rundnoppen; der größere verbleibende Boden erklärt die Volumenzunahme.
     """
     v = _frame_default().Volume
-    assert abs(v - 1671916.7934465497) < 1.0, \
+    assert abs(v - 1673116.7934465515) < 1.0, \
         f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
@@ -136,9 +136,9 @@ def test_eckkammern_default_anker():
 
 
 def test_eckkammern_ausschalt_anker():
-    """GEOM_REV-9-AUS-Anker ohne Eckkammern."""
+    """GEOM_REV-10-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 1719454.8776221767) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 1720654.8776221776) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):

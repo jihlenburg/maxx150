@@ -14,8 +14,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Abstandshalter) ---
-    GEOM_REV: int = 9            # 9: flache Doppelraupen-Führungen und 16
-                                  # schmale Abstandspads über dem Holzrahmen
+    GEOM_REV: int = 10           # 10: flache Doppelraupen-Führungen und 16
+                                  # druckverteilende Abstandspads über dem Holzrahmen
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung; Messpunkt C1)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -69,7 +69,7 @@ class Params:
     GROOVE_VENT_OFFS: tuple = (-100.0, 100.0)  # zwei Trockenraum-Vents je Seite
     GROOVE_D: float = 0.6        # 3×0,2-mm-Layer; mit 3-mm-Pad = 3,6-mm-Raupe
     SPACER_PAD_RADIAL: float = 2.5      # vollständig in den je 3-mm-trockenen Randstreifen
-    SPACER_PAD_TANGENTIAL: float = 10.0 # längliches Pad statt punktförmiger Rundnoppe
+    SPACER_PAD_TANGENTIAL: float = 20.0 # größere GFK-Auflage; etwa halbe Flächenpressung
     SPACER_PAD_RADIUS: float = 1.0      # verrundete senkrechte Pad-Ecken (FDM/Spannung)
     SPACER_PAD_OFFS: tuple = (-140.0, 140.0)  # je Schraubachse innen + außen
     CHAMFER_OUT: float = 4.0     # Fase Außenkante unten (Elastikfugen-Kehle)
@@ -274,6 +274,15 @@ def spacer_pad_radial_centers(p: Params = P) -> tuple[float, float]:
 def spacer_pad_count(p: Params = P) -> int:
     """Zwei radiale Pads an jeder der acht unteren Schraubachsen."""
     return 4 * len(p.SPACER_PAD_OFFS) * len(spacer_pad_radial_centers(p))
+
+
+def spacer_pad_contact_area(p: Params = P) -> float:
+    """Gesamte nominale GFK-Kontaktfläche der gerundeten Montagepads."""
+    area_each = (
+        p.SPACER_PAD_RADIAL * p.SPACER_PAD_TANGENTIAL
+        - (4.0 - math.pi) * p.SPACER_PAD_RADIUS**2
+    )
+    return spacer_pad_count(p) * area_each
 
 
 def drainage_start(p: Params, side_width: float) -> float:

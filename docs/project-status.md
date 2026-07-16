@@ -1,6 +1,6 @@
 # Projektstatus
 
-Stand: 16.07.2026 · GEOM_REV 9 · Parameterstand `8029252d`
+Stand: 16.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
 
 ## Abgeschlossen
 
@@ -9,11 +9,12 @@ Stand: 16.07.2026 · GEOM_REV 9 · Parameterstand `8029252d`
 - Kompakter 500×500-mm-Hybridrahmen mit zwei getrennten 10-mm-Dachraupen
   vollständig über dem 30-mm-Holzrahmen: äußere Raupe geschlossen,
   4-mm-Mittelkanal und acht definierte Entlüftungen an der inneren Raupe.
-- 16 längliche Abstandspads statt 68 Rundnoppen. 3 mm Dachabstand plus
+- 16 längliche Abstandspads mit 2,5×20 mm Kontaktmaß statt 68 Rundnoppen.
+  3 mm Dachabstand plus
   0,6-mm-Applikationsführung ergeben 3,6 mm wirksame Raupenhöhe und etwa
   120 ml Nennvolumen; kein Pad greift in die Klebefläche ein.
-- Zwei 17-mm-Kammerringe statt eines massiven Außenbands; Universalteil ca.
-  529 g und 275×250×47 mm im theoretischen CAD-Modell.
+- Zwei 17-mm-Kammerringe statt eines massiven Außenbands; Universalteil rund
+  530 g und 275×250×47 mm im theoretischen CAD-Modell.
 - Acht Belluna-Plattenschrauben oben. Unten acht seitliche ST4.2×25 in den
   Holzrahmen als physische, mangels typgeprüftem Schraubgrund nicht
   angerechnete Rückfallebene; die Doppelraupe besteht den Primärnachweis allein.

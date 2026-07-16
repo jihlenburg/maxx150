@@ -60,9 +60,12 @@ Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
   Raupen müssen vollständig über ihm liegen. Die äußere Raupe muss rundum
   geschlossen bleiben; die acht Vents der inneren Raupe und der 4-mm-
   Mittelkanal müssen zur trockenen Öffnungsseite frei bleiben.
-- Alle 16 Abstandspads müssen gleichzeitig und ohne Kippeln aufliegen. Sie
+- Alle 16 Abstandspads (2,5×20 mm Kontaktmaß) müssen gleichzeitig und ohne
+  Kippeln auf dem vom Holzrahmen hinterfütterten GFK aufliegen. Sie
   definieren 3 mm Dachabstand; zusammen mit den 0,6-mm-Führungen entstehen
-  3,6 mm Raupenhöhe. Kein Pad darf mit Dichtstoff unterfüttert werden.
+  3,6 mm Raupenhöhe. Kein Pad darf mit Dichtstoff unterfüttert werden. Keine
+  Zwingen, Gurte oder vertikale Verschraubung verwenden: nur gleichmäßig bis
+  zum ersten Padkontakt anpressen und danach gegen Verschieben sichern.
 - Die acht seitlichen ST4.2×25 mit 3-mm-Vorbohrung und abgedichteten Köpfen;
   sie ersetzen den Klebnachweis nicht und werden rechnerisch nicht angerechnet.
 - Vollständige Durchhärtung der unteren Sikaflex-Doppelraupe nach aktuellem

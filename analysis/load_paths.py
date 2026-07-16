@@ -251,6 +251,7 @@ def _roof_double_bead(p: PRM.Params) -> dict:
         "bondline_thickness_mm": PRM.groove_bondline_thickness(p),
         "nominal_volume_ml": PRM.groove_adhesive_volume_ml(p),
         "spacer_pad_count": PRM.spacer_pad_count(p),
+        "spacer_pad_contact_area_mm2": PRM.spacer_pad_contact_area(p),
         "spacer_pad_size_mm": [
             p.SPACER_PAD_RADIAL,
             p.SPACER_PAD_TANGENTIAL,
@@ -704,10 +705,16 @@ def to_markdown(result: dict) -> str:
         f"liefern trotz acht 5-mm-Ventunterbrechungen rund "
         f"{roof_ring['area_mm2']:.0f} mm² wirksame "
         "Klebefläche und liegen vollständig über dem Holzrahmen.",
-        f"- {roof_ring['spacer_pad_count']} schmale Abstandspads sitzen in den "
+        f"- {roof_ring['spacer_pad_count']} schmale Abstandspads mit "
+        f"{roof_ring['spacer_pad_size_mm'][0]:.1f}×"
+        f"{roof_ring['spacer_pad_size_mm'][1]:.1f} mm Kontaktmaß sitzen in den "
         "trockenen Randstreifen nahe den acht Dachschrauben. Sie definieren "
         "nur den Montagespalt, greifen nicht in die Klebefläche ein und "
         "werden nicht als Lastpfad angerechnet.",
+        f"  Nominale Gesamtkontaktfläche {roof_ring['spacer_pad_contact_area_mm2']:.0f} mm²; "
+        f"100 N gleichmäßige Montagekraft entsprechen "
+        f"{100.0 / roof_ring['spacer_pad_contact_area_mm2']:.3f} MPa. "
+        "Zwingen, Gurte und vertikale Klemmverschraubung bleiben verboten.",
         "- Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere "
         "Raupe wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, "
         "damit der 4-mm-Mittelkanal Feuchte nachführen kann.",

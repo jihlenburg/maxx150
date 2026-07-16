@@ -1,6 +1,6 @@
 # Abschätzung der Klebe-, Schraub- und Dachlastpfade
 
-Stand: 2026-07-16 · Parameterstand `8029252d` · **PASS_ASSUMPTION_BASED**
+Stand: 2026-07-16 · Parameterstand `8eb8b79f` · **PASS_ASSUMPTION_BASED**
 
 > Konservative Plausibilisierung, keine Bauteilzulassung. Die untere
 > Doppelraupe trägt den Primärnachweis allein; acht seitliche Holzschrauben
@@ -48,7 +48,7 @@ nicht reduziert.
 
 - Der Adapter bleibt bei 500 mm Außenmaß. Zwei getrennte 10-mm-Raupen liefern
   trotz acht 5-mm-Ventunterbrechungen rund 33.313 mm² wirksame Klebefläche.
-- 16 schmale Abstandspads sitzen in den trockenen inneren und äußeren
+- 16 schmale Abstandspads mit 2,5×20 mm Kontaktmaß sitzen in den trockenen inneren und äußeren
   Randstreifen nahe den acht Dachschrauben. Sie definieren nur den
   Montagespalt und werden weder von der Klebefläche abgezogen noch als
   struktureller Lastpfad angerechnet.

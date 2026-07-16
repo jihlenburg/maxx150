@@ -64,9 +64,9 @@ Alle Fälle verwenden:
 Der OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
 Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Die
 äußere 500-mm-Aerogeometrie stimmt wieder mit dem aktuellen Hybridadapter
-`8029252d` überein. Doppelraupe, Abstandspads, Entlüftungen und seitliche Schraubpfade liegen
+`8eb8b79f` überein. Doppelraupe, Abstandspads, Entlüftungen und seitliche Schraubpfade liegen
 im Dachinterface und verändern die umströmte Hülle nicht. Der nachgeschaltete
-CalculiX-Strukturcheck wurde für `8029252d` neu gerechnet. Unabhängig davon
+CalculiX-Strukturcheck wurde für `8eb8b79f` neu gerechnet. Unabhängig davon
 bleibt nur die analytische 480-N-Hülle freigabewirksam. Die Tabelle summiert
 jeweils **Belluna plus direkt angeströmte Adapteroberfläche**; alle Momente
 sind auf die Mitte der Adapterbasis `(0, 0, 0)` transformiert. Gemittelt werden

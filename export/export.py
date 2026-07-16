@@ -144,6 +144,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   unteren Kleberführungen plus Außenkehle und obere Belluna-Fuge; {PRM.spacer_pad_count(p)}
   Abstandspads halten {p.GLUE_GAP} mm Dachabstand. Zusammen mit der {p.GROOVE_D:.1f}-mm-
   Führung entstehen {PRM.groove_bondline_thickness(p):.1f} mm wirksame Raupenhöhe.
+  Die Pads haben {p.SPACER_PAD_RADIAL:.1f}×{p.SPACER_PAD_TANGENTIAL:.1f} mm Kontaktmaß.
+  Keine Zwingen, Spanngurte oder vertikale Klemmverschraubung: nur bis zum
+  ersten gleichmäßigen Padkontakt anpressen und gegen Verschieben sichern.
   Danach auch die Belluna-Ringklebenut mit 522 füllen. Strukturelle
   Klebezonen bleiben lackfrei. ASA-GF/Belluna-Kunststoff sehr fein schleifen,
   mit **Sika Cleaner P** reinigen und **Sika Primer-507** als ABS-Analogie

@@ -276,6 +276,8 @@ manifest = {
         "groove_channel_w": P.GROOVE_CHANNEL_W,
         "groove_vent_count": 4 * len(P.GROOVE_VENT_OFFS),
         "spacer_pad_count": PRM.spacer_pad_count(P),
+        "spacer_pad_radial": P.SPACER_PAD_RADIAL,
+        "spacer_pad_tangential": P.SPACER_PAD_TANGENTIAL,
         "shaft_mm": round(PRM.select_shaft(P)),
         "effective_wall_mm": round(PRM.effective_wall(P)),
         "dach_screw_st_d": P.BOT_KRAGEN_SCREW_D,
