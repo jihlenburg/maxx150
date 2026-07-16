@@ -66,6 +66,9 @@ def build_model(mf):
         ("8×", "Belluna-Platte → Adapter",
          f"Belluna ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
          "aus dem Lieferumfang; Kernloch 3 mm."),
+        (de(t["dach_screw_count"]) + "×", "Adapter → Holzrahmen",
+         f"Belluna ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
+         "aus dem Lieferumfang; seitlich durch den Unterkragen, Kernloch 3 mm."),
         ("1 Satz", "Holzrahmen",
          f"Trockenes Nadelvollholz, ρk ≥ 350 kg/m³, Breite ≥ "
          f"{de(t['wood_frame_w'])} mm, Höhe = real gemessener Dachkern; "
@@ -85,9 +88,9 @@ def build_model(mf):
              produkt="Sikaflex-522 weiß (Standard)",
              warum="UV-/witterungsbeständiger STP-Dichtklebstoff mit "
                    "veröffentlichten Kennwerten. Rechnerisch stark auf 0,030 "
-                   "MPa normal und 0,050 MPa Schub abgemindert. Die 25 mm "
-                   "breite Dachfuge trägt den vollständigen Lastfall ohne "
-                   "mechanische Rückfallebene. Carloflex "
+                   "MPa normal und 0,050 MPa Schub abgemindert. Zwei 10-mm-"
+                   "Raupen tragen den vollständigen Lastfall ohne Anrechnung "
+                   "der acht seitlichen Rückfallschrauben. Carloflex "
                    "410 UV weiß ist mit denselben Projektwerten eine "
                    "Belluna-konforme Alternative, sobald der passende "
                    "Kunststoffprimer prozesssicher festgelegt ist."),
@@ -137,19 +140,19 @@ def build_model(mf):
                       ("06_m5_mutter.png",
                        "Bild 6: Muttertasche mit M5-Achse (von unten)."),
                       ("07_rahmen_komplett.png",
-                       "Bild 7: Gefügter Rahmen, alle acht M5-Positionen.")],
+                       f"Bild 7: Gefügter Rahmen, alle {de(t['m5_count'])} M5-Positionen.")],
              absaetze=[
                  "WEICON RK-Aktivator auf BEIDE rauen Fügeflächen "
                  "auftragen und mindestens 5 min ablüften. Anschließend RK-1300 "
                  "auf eine Fügefläche geben. Im Bild kennzeichnet Blau den "
                  "Aktivatorschritt, Grün den danach aufgetragenen Klebstoff.",
-                 f"Segmente fügen und SOFORT je Stoß zwei M5×{de(t['m5_length'])} "
+                 f"Segmente fügen und SOFORT je Stoß {de(t['m5_per_joint'])}× M5×{de(t['m5_length'])} "
                  f"(DIN 912) mit Muttern einsetzen und mit {de(t['torque_nm'])} Nm "
                  f"anziehen. Die konstruktive Spaltbreite darf die 0,4-mm-Grenze "
                  f"des RK-1300 nicht überschreiten.",
                  "Reihenfolge: erst 2+2 Segmente zu zwei Halbrahmen fügen, dann "
                  "die beiden Halbrahmen. Anschließend 24 h aushärten lassen.",
-                 "Nach dem Anziehen die acht M5-Kopftaschen bündig mit RK-1300 "
+                 f"Nach dem Anziehen die {de(t['m5_count'])} M5-Kopftaschen bündig mit RK-1300 "
                  "versiegeln (offene Taschen wären Wasserreservoirs oben).",
              ],
              warn=[("warn", "RK-1300 ist für Referenzkunststoffe dokumentiert, "
@@ -158,15 +161,15 @@ def build_model(mf):
                             "zusätzlich den vollständigen 480-N-Pfad über M5.")]),
         dict(nr=3, titel="Weiße Schutzlackierung (Pflicht)",
              bild=("08_maskierung_lack.png",
-                   "Bild 8: Unterseite – Kleberille und Noppenfeld (gelb) beim "
+                   "Bild 8: Unterseite – Doppelraupe, Mittelkanal und Noppenfeld (gelb) beim "
                    "Lackieren abkleben."),
              absaetze=[
                  "Die Segmente werden mit schwarzer Rohteiloberfläche geliefert; "
                  "die weiße Lackierung ist deshalb immer erforderlich. Nach dem Fügen die Baugruppe "
                  "für 60 min bei 60 °C ausgasen lassen, wie es Mipa für die "
                  "Kunststoffvorbereitung fordert, und vollständig abkühlen lassen.",
-                 "Alle späteren Klebezonen abkleben: untere Kleberille und "
-                 "Noppenfeld sowie die obere Auflage der Belluna-Platte. Mit "
+                 "Alle späteren Klebe- und Belüftungszonen abkleben: beide "
+                 "Kleberillen, Mittelkanal, Noppenfeld sowie die obere Auflage der Belluna-Platte. Mit "
                  "Mipa Kunststoffreiniger antistatisch reinigen, MP Softpad "
                  "Superfine schleifen, nachreinigen, trocknen und Benetzungsprobe "
                  "durchführen.",
@@ -227,35 +230,41 @@ def build_model(mf):
                             f"Der {de(t['kragen_outer_w'])}-mm-Unterkragen braucht "
                             f"rundum ≥ {de(t['bot_kragen_clear'])} mm Luft; den "
                             "echten Ausschnitt vor dem Setzen kontrollieren.")]),
-        dict(nr=5, titel="Adapter kleben und setzen",
+        dict(nr=5, titel="Adapter kleben, setzen und sichern",
              bild=("12_kleberaupe.png",
-                   "Bild 12: Kleberaupe kommt in die grün markierte Rille der "
-                   "Unterseite."),
+                   "Bild 12: Zwei grüne Kleberillen; die äußere bleibt geschlossen, "
+                   "die innere besitzt acht geformte Belüftungsbrücken."),
              bilder2=[("10_aufsetzen.png",
                        "Bild 10: Rahmen mit Unterkragen über dem Ausschnitt."),
-                      ("11_dach_klebeflaeche.png",
-                       "Bild 11: Die 25-mm-Dachfuge (grün) liegt vollständig "
-                       "über dem eingeklebten Holzrahmen.")],
+                      ("11_hybrid_dachinterface.png",
+                       "Bild 11: Acht seitliche Rückfallschrauben (rot) gehen "
+                       "geschützt durch den Unterkragen in den Holzrahmen.")],
              absaetze=[
                  "Die lackfreie Kunststoff-Klebezone sehr fein anschleifen, mit "
                  "Sika Cleaner P reinigen und Sika Primer-507 als konservative "
                  "ABS-Analogie gemäß aktuellem Produktdatenblatt auftragen. "
                  "Das angeschliffene GFK-Gelcoat mit Cleaner P reinigen und "
                  "Sika Aktivator-205 gemäß aktuellem Produktdatenblatt auftragen.",
-                 f"Sikaflex-522 weiß als geschlossene Raupe (ca. "
-                 f"{de(t['bead_ml'])} ml) in die untere Kleberille legen (Bild 12).",
+                 f"Sikaflex-522 weiß nominal ca. {de(t['bead_ml'])} ml in die "
+                 f"beiden {de(t['groove_w'])}-mm-Kleberillen legen (Bild 12). "
+                 "Die äußere Raupe muss wasserdicht und ohne Unterbrechung geschlossen sein. "
+                 f"Die innere Raupe an den {de(t['groove_vent_count'])} geformten "
+                 "Brücken sauber unterbrechen; den Mittelkanal nicht überfüllen.",
                  "Rahmen mit dem Unterkragen in den Ausschnitt einsetzen (Bild 10) "
                  "und lagerichtig ausrichten. Gleichmäßig nur so weit anpressen, "
                  f"bis die Noppen die vorgesehene {de(t['glue_gap'])}-mm-Fuge "
                  "definieren; anschließend mit einer ebenen, nicht "
                  "beschädigenden Montagehilfe gegen Verschieben sichern.",
-                 "Es werden keine Schrauben durch Adapter oder Dach gesetzt. "
-                 "Die 25 mm breite Fuge muss rundum vollständig geschlossen "
-                 "sein und vollständig über dem eingeklebten Holzrahmen liegen "
-                 "(Bild 11). Bis zur vollständigen Durchhärtung gemäß aktuellem "
+                 f"Je Seite zwei ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
+                 f"durch die Kragenlöcher in den Holzrahmen setzen – insgesamt "
+                 f"{de(t['dach_screw_count'])}, Kernloch 3 mm, "
+                 f"Drehmoment {de(t['torque_nm'])} Nm (Bild 11). Die Schrauben "
+                 "sichern mechanisch, werden aber rechnerisch nicht zur Klebung addiert. "
+                 "Schraubdurchtritte nach dem Anziehen mit Sikaflex-522 abdichten. "
+                 "Bis zur vollständigen Durchhärtung gemäß aktuellem "
                  "Sikaflex-522-Produktdatenblatt weder weiter montieren noch "
-                 "fahren oder belasten; Temperatur, Luftfeuchte und die breite "
-                 "Fugengeometrie bei der Wartezeit berücksichtigen.",
+                 "fahren oder belasten; Temperatur, Luftfeuchte und die zwei "
+                 "Raupen bei der Wartezeit berücksichtigen.",
                  "Außen umlaufend mit demselben gewählten Produkt eine geschlossene "
                  "Kehlnaht ziehen.",
              ],
@@ -269,9 +278,12 @@ def build_model(mf):
                                "verwenden."),
                    ("warn", f"Die Noppen definieren die {de(t['glue_gap'])} mm "
                             f"Fugendicke – den Kleber NICHT auspressen "
-                            f"(Thermik-Elastikfuge). Eine Fehlstelle oder "
-                            f"mangelhafte Vorbehandlung besitzt an dieser "
-                            f"Schnittstelle keine mechanische Rückfallebene.")]),
+                            f"(Thermik-Elastikfuge). Äußere Dichtungsraupe, "
+                            f"Mittelkanal und innere Ventöffnungen vor dem "
+                            f"Aushärten visuell vollständig kontrollieren. "
+                            "Die unteren Schrauben sind eine physische "
+                            "Rückfallebene, aber ohne typgeprüften Holz-/Dachpfad "
+                            "kein angerechneter Tragfähigkeitsnachweis.")]),
         dict(nr=6, titel="Belluna-Platte montieren",
              bild=("13_platte_schrauben.png",
                    "Bild 13: Belluna-Platte mit silbernen Metallclips; "
@@ -296,10 +308,10 @@ def build_model(mf):
                              "Lastpfadrechnung mit bis zu Faktor 60 abgemindert "
                              "und das Ergebnis bleibt PASS_ASSUMPTION_BASED, "
                              "nicht herstellerfreigegeben."),
-                   ("hinweis", "Die zwei Mittellöcher der 3-Loch-Seiten liegen "
-                               "auf den Segmentstößen – erst nach Aushärtung "
-                               "des Stoßklebers setzen oder weglassen; die 8 "
-                               "Außenschrauben genügen.")]),
+                   ("hinweis", "Nur die acht äußeren Belluna-Positionen "
+                               "verwenden. Die zwei Mittellöcher der "
+                               "3-Loch-Seiten liegen auf Segmentstößen und "
+                               "bleiben frei.")]),
         dict(nr=7, titel="Lüfter einsetzen",
              bild=("14_fertig.png",
                    "Bild 14: Fertige Baugruppe – Adapter, Platte und Dichtring."),
@@ -525,7 +537,7 @@ def render_html(m):
   <header class="page-head">
     <span class="eyebrow">Vorbereitung · 1 von 2</span>
     <h2>Bauteile und Befestigung</h2>
-    <p class="lead">Vier fertig gedruckt gelieferte Universal-Segmente. Die Montage beginnt mit der Wareneingangsprüfung; acht Belluna-Schrauben verbinden die Originalplatte mit dem Adapter. Der Adapter wird nicht in den Holzrahmen geschraubt.</p>
+    <p class="lead">Vier fertig gedruckt gelieferte Universal-Segmente. Die Montage beginnt mit der Wareneingangsprüfung; je acht Belluna-Schrauben verbinden Originalplatte und Holzrahmen mit dem Adapter. Die unteren Schrauben bleiben rechnerisch unberücksichtigte Reserve.</p>
   </header>
   <div class="material-hero">
     {_img("02_teile_uebersicht.png", "Bild 2: Universal-Segment und Belluna-Originalplatte mit Metallclips und Dichtring.")}
@@ -563,7 +575,7 @@ def render_html(m):
   </div>
   <div class="material-cards">{cards}</div>
   <div class="box warn qualification"><span class="tag">Rechenbasis und Restrisiko</span>
-    Zerstörende Originalsubstrat-Coupons stehen derzeit nicht zur Verfügung. Deshalb rechnet das Projekt mit stark abgeminderten Grenzflächenwerten, einer vollständigen Acht-Schrauben-Redundanz je Schnittstelle und nur einer angerechneten Holz/GFK-Fläche. Ergebnis: PASS_ASSUMPTION_BASED, keine Herstellerfreigabe.
+    Zerstörende Originalsubstrat-Coupons stehen derzeit nicht zur Verfügung. Deshalb rechnet das Projekt mit stark abgeminderten Grenzflächenwerten: oben trägt die vollständige Acht-Schrauben-Gruppe, unten die Doppelraupe allein; die acht Holzschrauben werden nicht angerechnet. Für den Holzrahmen zählt nur eine Holz/GFK-Fläche. Ergebnis: PASS_ASSUMPTION_BASED, keine Herstellerfreigabe.
   </div>
 </section>
 """

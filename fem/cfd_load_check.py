@@ -98,7 +98,7 @@ def main() -> dict:
     horizontal = math.hypot(force[0], force[1])
     uplift = max(force[2], 0.0)
     resultant = math.sqrt(sum(value * value for value in force))
-    groove_area = PRM.groove_centerline_len(p) * p.GROOVE_W
+    groove_area = PRM.groove_bond_area(p)
     joints = A.joint_checks(p, horizontal)
     glue = A.glue_load_shear(p, horizontal)
     side_screw = A.side_screw_pullout(p)
@@ -131,7 +131,7 @@ def main() -> dict:
             "segment_joint_horizontal_check": joints,
             "belluna_screw_uplift_share_N_each_assuming_8": uplift / 8.0,
             "belluna_screw_pullout_reference": side_screw,
-            "roof_interface": "wide_elastic_bond_without_side_screws",
+            "roof_interface": "double_elastic_bead_with_uncredited_side_screws",
         },
         "omitted_moment_components": {
             "Mx_free_at_top_Nm": moment_at_top[0],
@@ -149,7 +149,8 @@ def main() -> dict:
             "nur My explizit als Kräftepaar; Mx und Mz nicht in CalculiX eingeleitet",
             "CFD selbst ist weder vollständig netzkonvergiert noch experimentell korreliert",
             "Belluna-Schraubenwert ist ein Gleichverteilungsindikator; die "
-            "schraubenlose Dachklebung wird in analysis/load_paths.py geprüft",
+            "Doppelraupen-Dachklebung und unqualifizierte Rückfallschrauben "
+            "werden in analysis/load_paths.py getrennt ausgewiesen",
         ],
     }
     result_path = matrix_dir / "structural_check.json"
@@ -183,15 +184,15 @@ def main() -> dict:
         "",
         "## Einfache Lastpfad-Indikatoren",
         "",
-        f"- Kleberille: {groove_area:.0f} mm²; mittlere Schubspannung "
+        f"- Untere Doppelraupe: {groove_area:.0f} mm²; mittlere Schubspannung "
         f"{horizontal / groove_area:.4f} MPa; mittlere Zugspannung "
         f"{uplift / groove_area:.4f} MPa",
         f"- Segmentstoß unter voller Horizontallast: "
         f"{'PASS' if joints['PASS'] else 'FAIL'}",
         f"- Belluna-Schraube bei ideal 8-facher Aufteilung der Zuglast: "
         f"{uplift / 8.0:.1f} N je Schraube",
-        "- Dachschnittstelle: verbreiterte Elastikfuge ohne seitliche "
-        "Holzschrauben; vollständiger Ringnachweis in `analysis/load_paths.py`",
+        "- Dachschnittstelle: zwei Elastikraupen als Primärpfad plus acht "
+        "nicht angerechnete Rückfallschrauben; Nachweis in `analysis/load_paths.py`",
         "",
         "Diese Rechnung ergänzt LF1–LF4, ändert sie aber nicht. Kontakte, "
         "Dachnachgiebigkeit, Beschichtungszustand und reale Lastverteilung "

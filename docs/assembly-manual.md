@@ -58,8 +58,8 @@ Prozess erzeugt bewusst kein scheinbar vollständiges PDF.
 - `params_hash`, `geom_rev`, `erzeugt` (Datum);
 - `geometrie` — abgeleitete Maße für die Blender-Polygon-Filter (Deckhöhe
   `top_z`, Lap-Ebene, Kleberille, Noppenradien, Maskierzone, Holzrahmen);
-- `marker` — Markerachsen als Endpunktpaare: `m5` (8×) und
-  `plate_screws` (16 mögliche Positionen), jeweils exakt aus den
+- `marker` — Markerachsen als Endpunktpaare: `m5` (4×), `dach_screws` (8×)
+  und `plate_screws` (16 mögliche Positionen), jeweils exakt aus den
   `params`-Positionen und dem
   gleichen 90°-Rotationsschema wie `model/segments.py`/`model/frame.py`;
 - `explosion` — Explosions-Offsets;
@@ -83,7 +83,7 @@ Materialliste oder die Montageschritte aufgenommen werden.
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben permanente FDM-Abminderungen und `PROTOTYPE_ONLY`. |
 | Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. Für ASA-GF wird rechnerisch nur 0,50 statt 6 MPa auf ABS angesetzt. |
-| Dach- und Belluna-Dichtung | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Die 25-mm-Dachfuge trägt ohne mechanische Rückfallebene. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
+| Dach- und Belluna-Dichtung | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Zwei 10-mm-Raupen tragen den unteren Primärnachweis allein; die äußere bleibt geschlossen, die innere belüftet den Mittelkanal an acht definierten Stellen. Acht Seitenschrauben bleiben eine rechnerisch nicht angerechnete Reserve. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
 | Vorbehandlung der 522-Klebezonen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205 | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
 | Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Rechnerisch nur 0,05 MPa und eine GFK/Holz-Fläche angesetzt. |
 | Lack-Haftgrund | Mipa 1K-Plastic-Grundierfiller-Spray, Art.-Nr. 213390000 | Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, mit 2K-Decklack überlackierbar. ASA-GF ist nicht ausdrücklich gelistet; der Lack bleibt nichttragend und wird jährlich kontrolliert. |
@@ -107,14 +107,14 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 | 02 teile_uebersicht | Universalteil + Belluna-Platte; Dichtring bereits eingelegt | — |
 | 03 fuegeflaechen | Lappenende, Fügeflächen | **grün** (Schulter + Stirn) |
 | 04 kleber_aktivator | Zwei Segmente am Stoß getrennt | **blau** (Aktivator auf beiden Flächen) / **grün** (danach RK-1300 einseitig) |
-| 05 m5_montage | Stoß von oben | 2× roter M5-Achsmarker (Senkungen) |
-| 06 m5_mutter | Stoß von unten | 2× roter M5-Achsmarker (Muttertaschen) |
-| 07 rahmen_komplett | Gefügter Rahmen | 8× dezent rote M5-Marker |
-| 08 maskierung_lack | moderate 20°-Unteransicht | **gelb** (gleichmäßige Kleberille + Noppen-Auflageflächen) |
+| 05 m5_montage | Stoß von oben | 1× roter M5-Achsmarker (Senkung) |
+| 06 m5_mutter | Stoß von unten | 1× roter M5-Achsmarker (Muttertasche) |
+| 07 rahmen_komplett | Gefügter Rahmen | 4× dezent rote M5-Marker |
+| 08 maskierung_lack | moderate 20°-Unteransicht | **gelb** (gleichmäßige Doppelraupe, Mittelkanal und Noppen-Auflageflächen) |
 | 09 dach_holzrahmen | Dach-Halbschnitt | Holzrahmen eindeutig holzfarben, ohne Bauteil-fremden Marker |
 | 10 aufsetzen | Rahmen über Dach, Kragen sichtbar | — |
-| 11 dach_klebeflaeche | Angehobener Rahmen über Dach und Holzrahmen | **grün** (25-mm-Dachfuge, vollständig über Holz) |
-| 12 kleberaupe | Unterseite | **grün** (nur Kleberille) |
+| 11 hybrid_dachinterface | Eingesetzter Rahmen mit transparentem Dach und Holzrahmen | 8× rote Achsen der seitlichen, nicht angerechneten Rückfallschrauben |
+| 12 kleberaupe | Unterseite | **grün** (zwei Rillenböden; acht Unterbrechungen der inneren Raupe sichtbar) |
 | 13 platte_schrauben | Rahmen+Platte (halbtransparent) | 16 mögliche rote ST4,2-Achsmarker; 8 werden gesetzt |
 | 14 fertig | Kompletter Stapel | — |
 
@@ -126,14 +126,13 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
   Manifest ziehen (nicht hartkodieren); `de(x)` formatiert mit Dezimalkomma.
 - **Layout/Druck-CSS**: `build_pdf.py::CSS` — A4 mit 14-mm-Seitenrand,
   humanistische Avenir-Next-Typografie, Blau als Leitsystem, Gelb nur für
-  Warnungen und Rot nur für echte Freigabesperren. Die zehn Seiten sind als
-  stabile Orientierungseinheiten gebaut: Titel, zwei Vorbereitungsseiten,
-  Schritte 1–6 jeweils vollständig auf einer Seite sowie Schritt 7+8 als
-  gemeinsame Abschlussseite. Damit entstehen keine verwaisten Bilder,
-  Tabellenfortsetzungen oder Hinweisboxen mehr.
+  Warnungen und Rot nur für echte Freigabesperren. Die elf Seiten sind als
+  stabile Orientierungseinheiten mit festen Seitenumbrüchen gebaut. Damit
+  entstehen keine verwaisten Bilder, Tabellenfortsetzungen oder
+  Hinweisboxen.
 - **Automatische Abnahme**: `pipeline.checks.validate_manual()` verlangt nach
   jedem `manual`-Lauf genau 14 Bilder in 1500×1125 px, den aktuellen
-  Parameterhash und genau zehn PDF-Seiten. Ein unbeabsichtigter Umbruch ist
+  Parameterhash und genau elf PDF-Seiten. Ein unbeabsichtigter Umbruch ist
   damit ein Pipeline-Fehler statt einer stillen Layoutänderung.
 - **Neues Bild**: Geometrie/STL in `build_stls.py`, ggf. Marker/Filtergrößen
   ins Manifest; Renderfunktion `imgNN_*` in `render_steps.py` (Kamera, Material,

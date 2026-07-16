@@ -16,25 +16,26 @@ def test_haubenfreigang_mit_ueberlapp():
 
 def test_fugenauslastung():
     u = A.glue_shear_utilization()
-    # Vollständig verklebter Rahmen: 540 mm statt Drucksegment-Länge.
-    # ASA-GF-CTE-Annahme 60e-6: delta=(60-25)e-6*540*65=1.2285 mm;
-    # je Ende /2, durch 3-mm-Fuge und 50-%-Grenze => 40.95 %.
-    assert abs(u - 0.4095) < 1e-8
+    # Vollständig verklebter Hybridrahmen: 500 mm.
+    # delta=(60-25)e-6*500*65=1.1375 mm; je Ende /2,
+    # durch 3-mm-Fuge und 50-%-Grenze => 37,9167 %.
+    assert abs(u - 0.37916666666666665) < 1e-8
 
 
 def test_stossnachweis_traegt_windlast():
     r = A.joint_checks(PRM.P, PRM.wind_force())
     assert r["tau_MPa"] < r["tau_zul_MPa"]
-    assert r["m5_count_per_joint"] == 2
-    assert r["lochleibung_MPa"] < r["lochleibung_ein_rest_MPa"]
+    assert r["m5_count_per_joint"] == 1
+    assert r["lochleibung_MPa"] == r["lochleibung_ein_rest_MPa"]
     assert r["lochleibung_ein_rest_MPa"] < r["lochleibung_zul_MPa"]
     assert r["PASS"]
 
 
 def test_klebfugen_schub_aus_last():
     r = A.glue_load_shear(PRM.P, PRM.wind_force())
-    # 25-mm-Rillenfläche 43.500 mm² -> 480 N ergeben ~0,011 MPa.
-    assert abs(r["tau_MPa"] - 480 / 43500) < 1e-12
+    # Zwei abgerundete 10-mm-Raupen minus acht innere 5-mm-Vents:
+    # 33.438,94 mm² (exakte R5-Parallelkurven, keine Quadratnäherung).
+    assert abs(r["tau_MPa"] - 480 / 33438.93782901543) < 1e-12
     assert r["PASS"]
 
 

@@ -19,7 +19,7 @@ def test_hauptmasse():
     s = _frame()
     bb = s.BoundBox
     p = PRM.P
-    assert abs(bb.XLength - 540.0) < 0.01 and abs(bb.YLength - 540.0) < 0.01
+    assert abs(bb.XLength - 500.0) < 0.01 and abs(bb.YLength - 500.0) < 0.01
     zmin = -(p.GLUE_GAP + (p.BOT_KRAGEN_DEPTH if p.BOT_KRAGEN else 0.0))
     assert abs(bb.ZMin - zmin) < 1e-6     # Noppen bis -3 bzw. Unterkragen-Kante
     assert abs(bb.ZMax - top_z()) < 1e-6                 # Deckfläche bei 25
@@ -48,7 +48,7 @@ def test_volumen_plausibel():
     # Band seit GEOM_REV 4 + Messwertübernahme: +Unterkragen (~174 cm³),
     # +Freistellungs-Entfall (~90 cm³), +CELL_L 43 (etwas mehr Stege)
     v = _frame().Volume
-    assert 2.5e6 < v < 2.9e6, f"Volumen {v/1e6:.2f} l unplausibel"
+    assert 1.8e6 < v < 2.0e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
     """Ebene Belluna-Auflage bis zum Beginn der Entwässerungsfasen."""
@@ -151,5 +151,5 @@ def test_kammern_wirken():
     from model.frame import build_frame
     v_solid = build_frame(PRM.Params(CHAMBERS=False, CORNER_CHAMBERS=False)).Volume
     v_cham = build_frame().Volume
-    assert 6.0e5 < (v_solid - v_cham) < 7.5e5, \
+    assert 4.0e5 < (v_solid - v_cham) < 4.7e5, \
         f"Kammervolumen {v_solid - v_cham:.0f}"

@@ -22,7 +22,7 @@ EXPECTED_MANUAL_IMAGES = (
     "08_maskierung_lack.png",
     "09_dach_holzrahmen.png",
     "10_aufsetzen.png",
-    "11_dach_klebeflaeche.png",
+    "11_hybrid_dachinterface.png",
     "12_kleberaupe.png",
     "13_platte_schrauben.png",
     "14_fertig.png",

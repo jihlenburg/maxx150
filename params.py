@@ -14,8 +14,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
-    GEOM_REV: int = 7            # 7: 70-mm-Rahmen, zwei M5 je Stoß und
-                                  # schraubenlose, verbreiterte Dachklebung
+    GEOM_REV: int = 8            # 8: kompakter Hybridrahmen, Doppelraupe und
+                                  # acht unqualifizierte Rückfallschrauben
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung; Messpunkt C1)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -33,10 +33,10 @@ class Params:
     GLUE_SHEAR_CAP: float = 0.5  # zulässige Schubverzerrung der Fuge (50 %, Sika-Klasse)
     T_CURE: float = 20.0         # Verklebetemperatur
     # --- Deckflächenbreiten je Seite (aus A1/A2 abgeleitete Designwahl) ---
-    W_TOP_FRONT: float = 70.0
-    W_TOP_REAR: float = 70.0
-    W_TOP_LEFT: float = 70.0
-    W_TOP_RIGHT: float = 70.0
+    W_TOP_FRONT: float = 50.0
+    W_TOP_REAR: float = 50.0
+    W_TOP_LEFT: float = 50.0
+    W_TOP_RIGHT: float = 50.0
     R_OUT: float = 12.0          # Außeneckenradius
     # --- Obere Plattenschnittstelle / Entwässerung ---
     PLATE_OUTER_W: float = 450.0     # Belluna-Flansch, A1a/A1b bestätigt
@@ -46,7 +46,7 @@ class Params:
     PLATE_BOND_W: float = 8.0        # unveränderte obere Elastikfuge
     TOP_DRAIN_RUN: float = 13.0      # max. Breite der äußeren Entwässerungsfase
     TOP_DRAIN_DEG: float = 47.0      # selbsttragend in Druckorientierung
-    TOP_DRAIN_SUPPORT_MARGIN: float = 4.5  # hält M5-Zone und äußeren Kammer-Ventdeckel eben
+    TOP_DRAIN_SUPPORT_MARGIN: float = 2.0  # ebene Reserve hinter der einzelnen M5-Kopftasche
     # --- Freistellung Gussets oben innen (Messpunkt A4) ---
     REC_GUSSET_W: float = 18.0
     REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (A4 erledigt):
@@ -57,8 +57,16 @@ class Params:
                                   # Deckfläche); der digitale Passungscheck
                                   # belegt die vollständige Stegauflage.
     # --- Unterseite: Kleberille + Noppen ---
-    GROOVE_OFF: float = 5.0      # Rillenbeginn ab Öffnungskante; über Holzrahmen
-    GROOVE_W: float = 25.0       # Bond-only-Dachlastpfad, außen bei 30 mm
+    # Zwei getrennte Raupen innerhalb des 30-mm-Holzrahmens. Die äußere
+    # Raupe bleibt als Wassersperre geschlossen. Die innere Raupe besitzt
+    # definierte Trockenraum-Unterbrechungen, die den 4-mm-Mittelkanal für
+    # die feuchtigkeitsabhängige Durchhärtung belüften.
+    GROOVE_OFF: float = 4.0      # Beginn der inneren Raupe ab Öffnungskante
+    GROOVE_W: float = 10.0       # Breite der inneren Raupe
+    GROOVE_CHANNEL_W: float = 4.0
+    GROOVE_OUTER_W: float = 10.0
+    GROOVE_VENT_W: float = 5.0   # Unterbrechung nur der inneren Raupe
+    GROOVE_VENT_OFFS: tuple = (-100.0, 100.0)  # zwei Trockenraum-Vents je Seite
     GROOVE_D: float = 2.0
     NOPPLE_R: float = 4.0
     NOPPLE_SPACING: float = 60.0
@@ -70,7 +78,7 @@ class Params:
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
     TOL_JOINT: float = 0.25      # Passungsluft je Fügefläche
     JOINT_BOLT_D: float = 5.5    # M5-Durchgang (M4 fiel bei 480 N Lochleibungs-Nachweis durch)
-    JOINT_BOLT_OFFS: tuple = (40.0, 58.0)  # zwei M5 radial je Stoß
+    JOINT_BOLT_OFFS: tuple = (40.0,)  # eine M5 radial je Stoß; trägt 480 N allein
     JOINT_CB_D: float = 10.0     # Zylindersenkung Kopf (DIN912 M5)
     JOINT_CB_T: float = 6.0
     JOINT_NUT_AF: float = 8.0    # Sechskant-Schlüsselweite Muttertasche (M5)
@@ -78,14 +86,16 @@ class Params:
     SEG_MAX_BBOX: float = 300.0  # zulässige Segment-Boundingbox (Druckservice)
     # --- Unterkragen (User-Entscheidung 2026-07-13): dupliziert den Belluna-
     # Einbaukragen nach UNTEN -- taucht in den Dachausschnitt und wird dort
-    # und zentriert den Rahmen formschlüssig im Ausschnitt. Seit GEOM_REV 7
-    # bleibt er geschlossen: Der Dachlastpfad läuft über die verbreiterte,
-    # vollständig vom verklebten Holzrahmen unterlegte Elastikfuge; es gibt
-    # keine seitliche Holzverschraubung. Die Belluna-Platte nutzt oben weiterhin ihre realen
+    # und zentriert den Rahmen formschlüssig im Ausschnitt. GEOM_REV 8 führt
+    # acht geschützte seitliche Schrauben in den bewusst eingesetzten
+    # Holzrahmen als mechanische Rückfallebene zurück. Rechnerischer
+    # Primärpfad bleibt die Doppelraupenverklebung; ihre Kapazität wird nicht
+    # mit den unqualifizierten Holzschrauben addiert. Die Belluna-Platte nutzt oben weiterhin ihre realen
     # ±140/±165-Positionen, dort aber universelle lokale Vollmaterialrippen.
     # So bleibt jedes der vier Druckteile rotationsidentisch. Acht der
-    # beiliegenden ST4.2x25 verbinden Platte und Adapter; die übrigen werden
-    # nicht eingesetzt. KEIN Loch bei 0 (Segmentstoß).
+    # beiliegenden ST4.2x25 verbinden Platte und Adapter; acht weitere gehen
+    # seitlich durch den Unterkragen in den Holzrahmen. KEIN Loch bei 0
+    # (Segmentstoß).
     # Druckorientierung kopfüber -> Kragen zeigt im Druck nach oben,
     # 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
     BOT_KRAGEN: bool = True
@@ -97,8 +107,8 @@ class Params:
     BOT_KRAGEN_HOLE_Z: float = 10.0  # Lochmitte unter Dachoberfläche (wie Belluna)
     BOT_KRAGEN_SCREW_D: float = 4.2  # Belluna-Lieferumfang: ST 4.2x25
     BOT_KRAGEN_SCREW_L: float = 25.0
-    ROOF_SIDE_SCREWS: bool = False
-    BOT_KRAGEN_HOLE_OFFS: tuple = ()  # nur bei optionaler Schraubvariante
+    ROOF_SIDE_SCREWS: bool = True
+    BOT_KRAGEN_HOLE_OFFS: tuple = (-140.0, 140.0)
     # Obere Belluna-Platte: jede Segmenthälfte bietet BEIDE möglichen
     # Außenloch-Abstände. Nur das am realen Plattenloch liegende Paar wird
     # verschraubt; es entstehen keine ungenutzten offenen Löcher.
@@ -161,8 +171,8 @@ class Params:
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
     BOTTOM_T: float = 4.0      # Bodenplatte: enthält Kleberille (Tiefe 2)
     INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
-    CHAMBER_W: float = 17.0    # radiale Kammerbreite; 3 Ringe lassen 3-mm-Außenwand
-    CHAMBER_RING_COUNT: int = 3  # dritter Ring hält den 70-mm-Bandquerschnitt leicht
+    CHAMBER_W: float = 17.0    # radiale Kammerbreite
+    CHAMBER_RING_COUNT: int = 2  # zwei Ringe im kompakten 50-mm-Bandquerschnitt
     CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
     CELL_L: float = 43.0       # Zellenteilung entlang der Seite. Vent-Kanäle,
                                 # die einer Universal-Schraubrippe zu nahe
@@ -224,6 +234,25 @@ def side_top_widths(p: Params = P) -> tuple:
     return (p.W_TOP_REAR, p.W_TOP_RIGHT, p.W_TOP_FRONT, p.W_TOP_LEFT)
 
 
+def groove_specs(p: Params = P) -> tuple[tuple[float, float, float], ...]:
+    """Untere Raupen als ``(Offset, Breite, tangentiale Lückenlänge)``.
+
+    Die innere Raupe ist an ``GROOVE_VENT_OFFS`` auf allen vier Seiten
+    unterbrochen. Die äußere Raupe bleibt als Wassersperre durchgehend.
+    """
+    inner_gaps = 4.0 * len(p.GROOVE_VENT_OFFS) * p.GROOVE_VENT_W
+    outer_off = p.GROOVE_OFF + p.GROOVE_W + p.GROOVE_CHANNEL_W
+    return (
+        (p.GROOVE_OFF, p.GROOVE_W, inner_gaps),
+        (outer_off, p.GROOVE_OUTER_W, 0.0),
+    )
+
+
+def groove_outer_offset(p: Params = P) -> float:
+    """Radiales Ende der Doppelraupen-Zone ab Öffnungskante."""
+    return p.GROOVE_OFF + p.GROOVE_W + p.GROOVE_CHANNEL_W + p.GROOVE_OUTER_W
+
+
 def drainage_start(p: Params, side_width: float) -> float:
     """Radialkoordinate, ab der die äußere Entwässerungsfase beginnt.
 
@@ -276,12 +305,41 @@ def lap_height(p: Params = P) -> float:
     return (p.H_RAISE - p.GLUE_GAP) / 2
 
 
+def _groove_effective_centerline(p: Params, off: float, width: float,
+                                 gap_length: float) -> float:
+    """Wirksamer Umfang einer einzelnen abgerundeten Raupe."""
+    return (
+        4.0 * (p.CUTOUT_W + 2.0 * off - 2.0 * (p.CUTOUT_R + off))
+        + 2.0 * math.pi * (p.CUTOUT_R + off + width / 2.0)
+        - gap_length
+    )
+
+
 def groove_centerline_len(p: Params = P) -> float:
-    """Umfangslänge der unteren Kleberille (4 Seiten, konservativ mit der
-    AUSSENkante der Rille statt der echten Mittellinie gerechnet -- M1/
-    Ledger 23/30/33: konsolidiert die früher doppelt kopierte Formel in
-    fem/analytic.py::glue_load_shear und export/export.py::_montagenotiz)."""
-    return 4 * (p.CUTOUT_W + 2 * p.GROOVE_OFF + p.GROOVE_W)
+    """Summe der wirksamen Mittellinienlängen beider unteren Raupen.
+
+    Die Ecken sind echte Parallelkurven der R5-Ausschnittkontur. Deshalb wird
+    der Umfang als gerade Abschnitte plus Kreisbögen berechnet; die frühere
+    Quadratnäherung hätte die gerundeten Ecken und damit Fläche/Volumen um
+    rund zwei Prozent überschätzt.
+    """
+    return sum(
+        _groove_effective_centerline(p, off, width, gap_length)
+        for off, width, gap_length in groove_specs(p)
+    )
+
+
+def groove_bond_area(p: Params = P) -> float:
+    """Projizierte wirksame Klebefläche beider Raupen in mm²."""
+    return sum(
+        _groove_effective_centerline(p, off, width, gap_length) * width
+        for off, width, gap_length in groove_specs(p)
+    )
+
+
+def groove_adhesive_volume_ml(p: Params = P) -> float:
+    """Nominales Füllvolumen der Rillen bis zum 3-mm-Dachspalt."""
+    return groove_bond_area(p) * (p.GLUE_GAP + p.GROOVE_D) / 1000.0
 
 
 def wind_force(p: Params = P) -> float:
@@ -369,14 +427,15 @@ def validate(p: Params = P) -> None:
         if not (apex + p.VENT_D / 2 + 0.5 <= p.VENT_Z <= kammerdecke - p.VENT_D / 2 - 0.5):
             fehler.append(f"VENT_Z={p.VENT_Z} außerhalb des Kammer-z-Bands "
                           f"({apex + p.VENT_D/2 + 0.5:.1f}..{kammerdecke - p.VENT_D/2 - 0.5:.1f})")
-    groove_outer = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W
+    groove_outer = p.CUTOUT_W / 2 + groove_outer_offset(p)
     bolt_offsets = tuple(sorted(p.JOINT_BOLT_OFFS))
-    if len(bolt_offsets) != 2 or len(set(bolt_offsets)) != 2:
-        fehler.append("JOINT_BOLT_OFFS braucht genau zwei verschiedene M5-Positionen")
+    if len(bolt_offsets) not in (1, 2) or len(set(bolt_offsets)) != len(bolt_offsets):
+        fehler.append("JOINT_BOLT_OFFS braucht eine oder zwei verschiedene M5-Positionen")
     elif bolt_offsets[0] <= 0:
         fehler.append("JOINT_BOLT_OFFS müssen positiv radial außerhalb der Öffnung liegen")
     else:
-        if bolt_offsets[1] - bolt_offsets[0] < p.JOINT_CB_D + 4.0:
+        if (len(bolt_offsets) == 2
+                and bolt_offsets[1] - bolt_offsets[0] < p.JOINT_CB_D + 4.0):
             fehler.append("M5-Kopfsenkungen haben weniger als 4 mm Materialabstand")
         for bolt_off in bolt_offsets:
             joint_r = p.CUTOUT_W / 2 + bolt_off
@@ -392,8 +451,20 @@ def validate(p: Params = P) -> None:
                                   "JOINT_BOLT_OFFS/Drainage-Keepout prüfen")
     if p.GROOVE_OFF < 4.0:
         fehler.append("GROOVE_OFF < 4 mm: Kleberille erreicht Unterkragen-Übergang")
-    if p.GROOVE_OFF + p.GROOVE_W > p.ROOF_WOOD_FRAME_W:
-        fehler.append("Dach-Kleberille liegt teilweise außerhalb des Holzrahmens")
+    if p.GROOVE_W <= 0 or p.GROOVE_OUTER_W <= 0:
+        fehler.append("Beide Dachkleberaupen brauchen positive Breite")
+    if p.GROOVE_CHANNEL_W < 3.0:
+        fehler.append("GROOVE_CHANNEL_W < 3 mm: Mittelkanal nicht prozesssicher sichtbar")
+    if groove_outer_offset(p) > p.ROOF_WOOD_FRAME_W:
+        fehler.append("Doppelraupen-Zone liegt teilweise außerhalb des Holzrahmens")
+    if p.GROOVE_VENT_W < 3.0:
+        fehler.append("GROOVE_VENT_W < 3 mm: Trockenraum-Vent nicht prozesssicher offen")
+    vent_offsets = tuple(sorted(p.GROOVE_VENT_OFFS))
+    if (len(vent_offsets) != 2 or len(set(vent_offsets)) != 2
+            or abs(sum(vent_offsets)) > 1e-6):
+        fehler.append("GROOVE_VENT_OFFS braucht ein symmetrisches ±Paar")
+    elif max(abs(v) for v in vent_offsets) + p.GROOVE_VENT_W / 2 > p.CUTOUT_W / 2 - p.CUTOUT_R:
+        fehler.append("Trockenraum-Vent läuft in den Eckradius")
     if p.GLUE_GAP < 2.0:
         fehler.append("GLUE_GAP < 2 mm: Thermik-Elastikfuge und Noppen-Fixierflächen brauchen >= 2")
     if p.NOPPLE_FILLET < 0:

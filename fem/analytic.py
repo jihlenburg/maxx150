@@ -31,8 +31,7 @@ def glue_load_shear(p: PRM.Params, f_inplane: float) -> dict:
     """Spec-Kriterium 3: lastinduzierter Schub in der unteren Klebfuge
     <= 0.05 N/mm². Tragend nur die Rillenraupe (konservativ); der Wert ist
     die stark abgeminderte Elastikfugen-Annahme aus docs/load-paths.md."""
-    groove_len = PRM.groove_centerline_len(p)
-    a_bond = groove_len * p.GROOVE_W
+    a_bond = PRM.groove_bond_area(p)
     tau = f_inplane / a_bond
     return {"tau_MPa": tau, "tau_zul_MPa": 0.05, "PASS": tau <= 0.05}
 
@@ -66,8 +65,8 @@ def joint_checks(p: PRM.Params, f_inplane: float) -> dict:
     tau = f_inplane / a_lap
     _, sig_kurz = PRM.allowables(p)               # sig_lang (dauerhaft) ungenutzt hier
     tau_zul = 0.5 * sig_kurz                     # Schub ~ 0.5 * sigma (v. Mises)
-    # Zwei M5 je Stoß; zusätzlich muss ein verbliebener Bolzen den vollen
-    # Fall noch allein tragen können.
+    # Ein oder zwei M5 je Stoß. In jedem Fall muss ein einzelner Bolzen den
+    # vollen Fall allein tragen können; bei zwei Bolzen ist das der Restfall.
     bolt_count = len(p.JOINT_BOLT_OFFS)
     lochleibung = (f_inplane / bolt_count) / (p.JOINT_BOLT_D * lap_h)
     lochleibung_ein_rest = f_inplane / (p.JOINT_BOLT_D * lap_h)

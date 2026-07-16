@@ -39,8 +39,8 @@ def test_kragen_passt_in_den_ausschnitt():
     assert teil.BoundBox.YLength <= grenze
 
 
-def test_kragen_ist_geschlossen_und_hat_keine_dachschraubenloecher():
-    """Der Zentrierkragen bleibt an den früheren Lochpositionen geschlossen."""
+def test_kragen_hat_acht_seitliche_rueckfallschraubenloecher():
+    """Der Hybridkragen ist an allen acht ±140-Positionen durchbohrt."""
     p = PRM.P
     ki = p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR - 2 * p.BOT_KRAGEN_T
     z = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
@@ -51,10 +51,10 @@ def test_kragen_ist_geschlossen_und_hat_keine_dachschraubenloecher():
                                       p.BOT_KRAGEN_T + 2,
                                       Vector(off, ki / 2 - 1, z), Vector(0, 1, 0))
             material = frame.common(F.rotz(sonde, k))
-            assert material.Volume > 1.0, \
-                f"Kragen an Seite {k}, Offset {off} unerwartet offen"
-    assert p.BOT_KRAGEN_HOLE_OFFS == ()
-    assert PRM.bot_kragen_hole_count(p) == 0
+            assert material.Volume < 0.1, \
+                f"Kragenloch an Seite {k}, Offset {off} nicht durchgängig"
+    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
+    assert PRM.bot_kragen_hole_count(p) == 8
 
 
 def test_ohne_kragen_flach_und_anderer_hash():
@@ -65,7 +65,8 @@ def test_ohne_kragen_flach_und_anderer_hash():
 
 
 def test_validate_faengt_kragen_brecher():
-    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 140.0)),
+    for kaputt in (PRM.Params(ROOF_SIDE_SCREWS=False),
+                   PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0,)),
                    PRM.Params(BOT_KRAGEN_DEPTH=34.0),
                    PRM.Params(BOT_KRAGEN_HOLE_Z=17.0),
                    PRM.Params(BOT_KRAGEN_CLEAR=0.2)):
@@ -76,11 +77,11 @@ def test_validate_faengt_kragen_brecher():
             pass
 
 
-def test_unterkragen_ohne_dachschrauben_bleibt_unabhaengig_von_belluna():
+def test_unterkragen_schraubenbild_bleibt_unabhaengig_von_belluna():
     p = PRM.P
-    assert p.BOT_KRAGEN_HOLE_OFFS == ()
+    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
     assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
-    assert PRM.bot_kragen_hole_count(p) == 0
+    assert PRM.bot_kragen_hole_count(p) == 8
 
 
 def test_kragen_volumendelta_plausibel():

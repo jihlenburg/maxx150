@@ -1,127 +1,100 @@
 # Abschätzung der Klebe-, Schraub- und Dachlastpfade
 
-Stand: 2026-07-16 · Parameterstand `78f560c8` · Status
-`PASS_ASSUMPTION_BASED`
+Stand: 2026-07-16 · Parameterstand `652716b5` · **PASS_ASSUMPTION_BASED**
 
-## Kurzurteil
+> Konservative Plausibilisierung, keine Bauteilzulassung. Die untere
+> Doppelraupe trägt den Primärnachweis allein; acht seitliche Holzschrauben
+> bleiben eine physische, aber unqualifizierte Reserve.
 
-Die Baugruppe ist unter den dokumentierten Annahmen plausibel tragfähig. Die
-Schnittstellen werden bewusst unterschiedlich behandelt:
+## Ergebnisübersicht
 
-- Belluna-Platte → Adapter: acht seitliche ST4.2×25 tragen den vollständigen
-  Lastfall; der obere 8-mm-Klebering wird nicht hinzuaddiert.
-- Adapter → Dach: eine 25 mm breite, geschlossene Elastikfuge trägt den
-  vollständigen Lastfall allein. Es gibt keine Verschraubung in den
-  Holzrahmen und damit keine mechanische Rückfallebene.
-- Holzrahmen → Dachsandwich: nur eine der beiden vollflächigen
-  SikaForce-Verbindungen wird rechnerisch angesetzt.
-- Segmentstöße: RK-1300 und zwei M5 je Stoß werden getrennt geprüft; selbst
-  ein einzelner verbleibender M5 muss die volle 480-N-Hülle aufnehmen.
+| Lastfall | obere Elastikfuge allein | 8 Schrauben oben | 2×10-mm-Dachraupe allein | erforderliche Kapazität je Rückfallschraube | Holz–Dach, eine Fläche | serieller Pfad |
+|---|---:|---:|---:|---:|---:|---|
+| Windhülle 480 N | 157 % | 74 % | 76 % | 144 N (nicht qualifiziert) | 35 % | PASS |
+| Schlechtweg | 98 % | 43 % | 44 % | 81 N (nicht qualifiziert) | 18 % | PASS |
+| Schnee/Druck | 0 % | 21 % | 0 % | 38 N (nicht qualifiziert) | 0 % | PASS |
+| CFD offen, mittel ×1,5 | 71 % | 32 % | 29 % | 54 N (nicht qualifiziert) | 12 % | PASS |
 
-Der automatisch erzeugte Detailreport liegt unter
-`build/analysis/load_paths/<parameter-hash>/assessment.{md,json}`.
+Die obere Belluna-Verbindung bleibt hybrid: Kleber und acht Seitenschrauben
+werden nicht addiert; die Schraubengruppe trägt den vollständigen Fall mit
+Lastkonzentrationsfaktor 1,5. Unten müssen die beiden 10-mm-Raupen den
+vollständigen Fall allein bestehen. Die acht Holzschrauben werden weder zur
+Klebung addiert noch als PASS gewertet. Der Schubgrenzwert 0,050 MPa ist kein
+TDS-Schubkennwert, sondern eine bewusst niedrige Projektannahme. Reale
+Grenzflächenhaftung und Alterung bleiben unbekannt.
 
-## Lastfälle und Ergebnisse
+Die CFD-Zeile ist eine zusätzliche Sensitivität aus Matrix `a3a2de8c` und
+bleibt nicht freigabewirksam. Die analytische 480-N-Windhülle wird dadurch
+nicht reduziert.
 
-| Lastfall | obere Fuge allein | 8 Schrauben oben | 25-mm-Dachfuge allein | Holz–Dach, eine Fläche | serieller Pfad |
-|---|---:|---:|---:|---:|---|
-| 480 N Windhülle | 157 % | 74 % | 58 % | 35 % | PASS |
-| +4 g abhebend und 2 g quer | 98 % | 43 % | 34 % | 18 % | PASS |
-| 200 N Schnee, drückend | 0 % | 21 % | 0 % | 0 % | PASS |
+## Maßgebende Festwerte
 
-Die Werte sind Auslastungen, keine gemessenen Festigkeiten. Der obere
-Bond-only-Wert über 100 % ist kein System-Fail, weil dort die vollständige
-Schraubengruppe separat besteht. An der unteren Schnittstelle wäre ein Wert
-über 100 % dagegen ein System-Fail.
+- Obere Ringfuge: 14.016 mm²; 0,030 MPa normal / 0,050 MPa Schub, nicht allein
+  maßgebend.
+- Untere Doppelraupe: 33.439 mm² wirksam, Innenmaß 408 mm, Außenmaß 456 mm;
+  vollständig über dem 30-mm-Holzrahmen, acht innere Trockenraum-Vents,
+  0,030/0,050 MPa. Fläche und Volumen folgen den echten gerundeten
+  R5-Parallelkonturen; eine Quadratnäherung wird nicht verwendet.
+- Obere ST4.2×25 in ASA-GF: 178 N je Schraube nach Detailfaktor 0,5.
+- Segmentstoß unter vollen 480 N: RK-1300 77 %; ein M5 62 %; beide getrennt PASS.
+- Thermische Scherbewegung der 3-mm-Fuge: 38 % des 50-%-Grenzwerts; PASS.
+- Obere Schraubengruppe: Eine fehlende Schraube ergibt 83–87 %. Zwei fehlende
+  Schrauben bestehen nicht in jeder Anordnung. Alle acht Belluna-Schrauben
+  bleiben Pflicht.
 
-Zusätzliche Nachweise:
+## Konstruktive Interpretation
 
-- Segmentstoß, volle 480 N durch einen Stoß: RK-1300 55 %, zwei M5 gemeinsam
-  31 %, ein verbleibender M5 62 %.
-- Thermische Bewegung der 3-mm-Elastikfuge: 41 % des angesetzten
-  50-%-Scherbewegungsgrenzwerts.
-- Holzrahmen–Dach: nur eine 30-mm-GFK/Holz-Fläche wird angerechnet; XPS und
-  zweite Fläche liefern keine rechnerische Reserve.
-- Obere Schraubengruppe: Mit einer fehlenden Schraube 83–87 %; bei zwei
-  fehlenden Schrauben bestehen nicht alle Anordnungen. Alle acht oberen
-  Schrauben bleiben Montage- und Inspektionspflicht.
+- Der Adapter bleibt bei 500 mm Außenmaß. Zwei getrennte 10-mm-Raupen liefern
+  trotz acht 5-mm-Ventunterbrechungen rund 33.439 mm² wirksame Klebefläche.
+- Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere Raupe
+  wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, damit der
+  4-mm-Mittelkanal Feuchte nachführen kann. Die Unterbrechungen und der Kanal
+  dürfen bei der Montage nicht mit Dichtstoff überbrückt werden.
+- Acht seitliche ST4.2×25 sichern den Unterkragen im Holzrahmen. Ohne
+  typgeprüften Schraubgrund wird nur der je Lastfall erforderliche Wert
+  ausgewiesen; die Schrauben werden nicht angerechnet.
+- Ein M5 je Stoß trägt die volle 480-N-Hülle allein. RK-1300 bildet einen davon
+  getrennt geprüften Fügepfad.
+- Sikaflex-522 und Carloflex 410 UV werden nur mit den stark abgeminderten
+  0,030/0,050-MPa-Werten angesetzt. Produkte innerhalb einer Baugruppe nicht
+  mischen.
 
-## Herleitung der Bemessungsannahmen
+## Oberflächenannahme für Sikaflex-522
 
-| Pfad | Hersteller-/Vergleichswert | verwendeter Projektwert | Abminderung |
-|---|---:|---:|---|
-| Sikaflex-522 / Carloflex normal | 1,8 MPa / >1,8 MPa Zugfestigkeit | 0,030 MPa | mindestens Faktor 60 |
-| Sikaflex-522 / Carloflex Schub | kein TDS-Schubwert | 0,050 MPa Projektannahme | gegenüber Zugfestigkeit mindestens Faktor 36 |
-| RK-1300 auf ASA-GF | 6 MPa auf ABS | 0,50 MPa | Faktor 12 |
-| SikaForce/Sandwich | 9 MPa Schub, 14 MPa Zug; XPS-Vergleich TR 0,20 MPa | 0,050 MPa | durch unbekanntes Dachsandwich begrenzt |
-| ST4.2×25 in ASA-GF | 356 N analytischer Gewindeauszug | 178 N je Schraube | zusätzlicher Detailfaktor 0,5 |
+Die tragenden Klebezonen bleiben lackfrei. ASA-GF und Belluna-Kunststoff
+werden sehr fein angeschliffen, mit Sika Cleaner P gereinigt und als
+ABS-Analogie mit Sika Primer-507 vorbehandelt. GFK-Gelcoat wird sehr fein
+angeschliffen, gereinigt und mit Sika Aktivator-205 vorbehandelt. ASA-GF ist
+nicht ausdrücklich in der Sika-Tabelle genannt; die Rechnung ist daher keine
+Herstellerfreigabe. Carloflex bleibt erst nach prozesssicherer Festlegung
+seines im TDS nicht namentlich genannten Kunststoffprimers eine ausführbare
+Alternative.
 
-Die Elastikfugen-Abminderung deckt 85 °C nahe der veröffentlichten
-90-°C-Grenze, Dauerlast, Ermüdung, Bewitterung und unbekannte reale
-Grenzflächen ab. Der 0,050-MPa-Schubwert ist ausdrücklich kein aus einem TDS
-abgeleiteter Kennwert, sondern eine niedrige Projektannahme.
+## Modellgrenzen
 
-## Warum die Geometrieänderung wirkt
-
-Ein lediglich nach außen verbreiterter 8-mm-Ring hätte die Windhüll-Auslastung
-nur von rund 174 % auf rund 148 % gesenkt. Entscheidend ist, dass die untere
-Fuge jetzt von 8 auf 25 mm wächst und mit Innenmaß 410 mm und Außenmaß 460 mm
-vollständig über dem 30-mm-Holzrahmen liegt. Ihre Fläche steigt dadurch auf
-43.500 mm². Der Adapter wächst außen auf 540×540 mm; die zusätzliche Breite
-schafft außerdem Platz für zwei M5 je Stoß.
-
-Der geschlossene Unterkragen dient nur der Zentrierung. Der Holzrahmen bleibt
-trotz entfallener Schrauben zwingend: Er verteilt die Dachfugenlast in beide
-GFK-Häute und schützt den XPS-Kern gegen lokale Pressung.
-
-## Festgelegter Oberflächenpfad
-
-Die tragenden Klebezonen bleiben bei der weißen Lackierung maskiert.
-
-1. ASA-GF und Belluna-Kunststoff sehr fein anschleifen, mit **Sika Cleaner P**
-   reinigen und als ABS-Analogie **Sika Primer-507** nach aktuellem
-   Produktdatenblatt auftragen.
-2. X150-GFK-Gelcoat sehr fein anschleifen, mit **Sika Cleaner P** reinigen und
-   **Sika Aktivator-205** nach aktuellem Produktdatenblatt auftragen.
-3. Sikaflex-522 weiß in der konstruktiv erzwungenen 3-mm-Fuge einsetzen, nicht
-   auspressen und die 25-mm-Dachfuge rundum hohlraumfrei schließen.
-4. Bis zur vollständigen Durchhärtung nach aktuellem Produktdatenblatt
-   bewegungsfrei halten und weder fahren noch belasten. Die breite
-   feuchtigkeitshärtende Fuge bei der Wartezeit berücksichtigen.
-
-ASA-GF ist in der Sika-Vorbehandlungstabelle nicht ausdrücklich genannt.
-Primer-507 bleibt daher eine begründete Analogie, keine Herstellerfreigabe.
-Carloflex 410 UV ist eine technisch plausible Belluna-Alternative, solange
-sein Kunststoffprimer prozesssicher festgelegt wird. Produkte innerhalb einer
-Baugruppe nicht mischen.
-
-## Erkenntnisgrenzen
-
-- Starrer Ring und linear-elastische Lastverteilung; lokale Peelspitzen,
-  Gehäusenachgiebigkeit und dynamische Ablösung werden nicht aufgelöst.
-- Die untere 25-mm-Fuge ist der einzige Adapter-Dach-Lastpfad. Fehlstellen,
-  Randablösung oder mangelhafte Vorbehandlung haben keine Rückfallebene.
-- Zwei M5 werden gleichmäßig belastet angenommen; Lochspiel und expliziter
-  Bolzenkontakt sind nicht aufgelöst.
-- Das reale X150-GFK/XPS-Sandwich ist nicht typgeprüft.
-- CFD, FEM und Lastpfadrechnung ersetzen keine Bauteilprüfung oder
-  Herstellerfreigabe.
-
-## Reproduzierbarkeit
-
-```sh
-python3 -m pipeline connections
-```
-
-Der 480-N-Windhüllfall bleibt auch dann bestehen, wenn CFD-Kräfte kleiner
-ausfallen.
+- Starrer Ring und linear-elastische Lastverteilung; lokale Peelspitzen und
+  Gehäusenachgiebigkeit sind nicht aufgelöst.
+- Die zwei unteren 10-mm-Elastikraupen sind der allein angerechnete
+  Adapter-Dach-Primärpfad. Die acht Seitenschrauben sind mangels Holz-/Dachtest
+  nur physische Reserve.
+- Die acht oberen ST4.2×25 werden mit einem abgeminderten axialen Analogiewert
+  auf den resultierenden Lastvektor geprüft.
+- Der einzelne M5 je Segmentstoß wird mit der vollen 480-N-Hülle geprüft;
+  expliziter Bolzenkontakt und Lochspiel sind nicht aufgelöst.
+- Das reale X150-GFK/XPS-Sandwich ist nicht typgeprüft; deshalb werden nur eine
+  Holz/GFK-Fläche und 0,050 MPa angerechnet.
+- CFD, FEM und Lastpfadrechnung sind Modellplausibilisierungen, keine
+  Bauteilprüfung oder Herstellerfreigabe.
 
 ## Primärquellen
 
-- [Sikaflex-522](https://industry.sika.com/en/home/transportation/sealants/adhesive-sealants/sikaflex-522.html)
-- [Sika Compendium Elastic Bonding](https://industry.sika.com/dms/getdocument.get/8ffff4cd-c90d-4d24-969d-ee4db9093cf3_global-industry/compendium-elasticbonding.pdf)
-- [Sika STP-Vorbehandlungstabelle, Version 8 (02/2026)](https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf)
-- [WEICON RK-1300](https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf)
-- [SikaForce-710 L35](https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf)
-- [URSA-XPS-Vergleich TR 200](https://ursa.de/wp-content/uploads/2023/05/DB-xps.pdf)
-- [Carloflex-Quellenprotokoll](../references/datasheets/adhesives/carloflex-410-uv-source.md)
+- [Sikaflex-522: 1,8 MPa Zugfestigkeit, 400 % Bruchdehnung, −50 bis +90 °C](https://industry.sika.com/en/home/transportation/sealants/adhesive-sealants/sikaflex-522.html)
+- [Sika-Kompendium: Abminderung und typische zulässige thermische Scherverformung](https://industry.sika.com/dms/getdocument.get/8ffff4cd-c90d-4d24-969d-ee4db9093cf3_global-industry/compendium-elasticbonding.pdf)
+- [Sika-STP-Vorbehandlungstabelle, Version 8, 02/2026](https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf)
+- [WEICON RK-1300: Zugscherwerte, Temperaturbereich und Fugendickenoptimum](https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf)
+- [SikaForce-710 L35 für Holz/GFK-Sandwich mit EPS/XPS-Kern](https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf)
+- [URSA-XPS-Vergleichswert TR 200; nicht das X150-Material](https://ursa.de/wp-content/uploads/2023/05/DB-xps.pdf)
+- [Carloflex-410-UV-Quelldokument](../references/datasheets/adhesives/carloflex-410-uv-source.md)
+
+Die maschinenlesbare Fassung wird mit `python3 -m pipeline connections` nach
+`build/analysis/load_paths/<hash>/` geschrieben.

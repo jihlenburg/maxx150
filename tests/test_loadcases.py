@@ -56,12 +56,12 @@ def test_face_selektoren():
         assert abs(_face_by_name(s, name).CenterOfMass.z - (-PRM.P.GLUE_GAP)) < 1e-3
 
     # outer_wall_faces: Front/Heck beidseitig belegt, disjunkt, auf den
-    # jeweiligen Außenwand-x-Ebenen (|x| = CUTOUT_W/2 + W_TOP_* = 270).
+    # jeweiligen Außenwand-x-Ebenen (|x| = CUTOUT_W/2 + W_TOP_* = 250).
     front = LC.outer_wall_faces(s, PRM.P, -1)
     rear = LC.outer_wall_faces(s, PRM.P, +1)
     assert front and rear and not set(front) & set(rear)
     for name in front + rear:
-        assert abs(abs(_face_by_name(s, name).CenterOfMass.x) - 270.0) < 0.5
+        assert abs(abs(_face_by_name(s, name).CenterOfMass.x) - 250.0) < 0.5
 
 
 def test_lastfaelle_vollstaendig_und_bezahlt():
@@ -76,15 +76,15 @@ def test_lastfaelle_vollstaendig_und_bezahlt():
 
 def test_lf1_zahlen():
     s = _frame()
-    # couple_force = wind_force * (H_CG + top_z) / L = 480 * 185 / 540
+    # couple_force = wind_force * (H_CG + top_z) / L = 480 * 185 / 500
     cf = LC.couple_force(s, PRM.P)
-    assert abs(cf - 164.4444) < 0.5
+    assert abs(cf - 177.6) < 0.5
 
     loads = LC.CASES["LF1_wind"].loads(s, PRM.P)
     mags = sorted(m for _, _, m in loads)
     # Erwartungswert unabhängig hingeschrieben (nicht aus demselben Aufruf
-    # abgeleitet): 480.0 (Wind) + 2 * 164.4444 (Kräftepaar) = 808.8889 N.
-    assert abs(sum(mags) - 808.8889) < 0.1
+    # abgeleitet): 480.0 (Wind) + 2 * 177.6 (Kräftepaar) = 835.2 N.
+    assert abs(sum(mags) - 835.2) < 0.1
 
 
 def test_lf2_zahlen():

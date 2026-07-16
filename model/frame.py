@@ -252,10 +252,9 @@ def _ring_radii(p: PRM.Params):
 def _ring_bands(p: PRM.Params):
     """Radiale (innen, außen)-Grenzen aller konzentrischen Kammerringe.
 
-    GEOM_REV 7 nutzt drei statt zwei Ringe: Die auf 70 mm verbreiterte
-    Adapterzone bliebe mit zwei Ringen außen 28 mm massiv. Der dritte Ring
-    stellt den leichten, verzugsarmen FDM-Querschnitt wieder her, ohne die
-    massive Segmentstoßzone mit den beiden M5 anzutasten.
+    Die Anzahl ist parametrisch: GEOM_REV 8 nutzt im kompakten 50-mm-Band
+    wieder zwei Ringe. So bleibt der Querschnitt leicht und verzugsarm, ohne
+    die massive Segmentstoßzone mit dem einzelnen M5 anzutasten.
     """
     start = p.CUTOUT_W / 2 + p.INNER_WALL
     bands = []
@@ -280,8 +279,7 @@ def _corner_chamber_cuts(p: PRM.Params):
     Kammerring-Innen-/Außenradien der geraden Seiten (_ring_radii, gemessen
     von der globalen Mittelachse) sind exakt Offsets der Öffnungskante
     (r=CUTOUT_W/2, Eckradius CUTOUT_R) -- am Eck liegen sie deshalb bei
-    (r_in1..r_out2) - off vom Eckzentrum entfernt (Defaults: 13/28/32/47,
-    siehe Brief).
+    (r_in1..r_out2) - off vom Eckzentrum entfernt.
 
     Profil: IDENTISCHES (r,z)-Pentagon wie _chamber_profile_face (gleiche
     Decke/Boden/Chevron-Apex), gebaut in der lokalen Ebene y=0 (enthält die
@@ -515,25 +513,58 @@ def _plate_screw_bosses(p: PRM.Params):
 
 
 def _nopple_positions(p):
-    """Zwei Noppenringe: innen (zwischen Öffnung und Rille) und außen
-    (zwischen Rille und Außenkante)."""
-    inner_r = p.CUTOUT_W / 2 + p.GROOVE_OFF / 2                       # ~207.5
-    # Noppen müssen außerhalb der 2-mm-tiefen Rille an der Bodenplatte
-    # angebunden bleiben. Der äußere Ring sitzt nur 6 mm jenseits der
-    # verbreiterten Rille; die tragende Klebefläche selbst endet exakt über
-    # dem 30-mm-Holzrahmen.
-    outer_r = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W + 6
+    """Noppenringe innen und außen neben der Doppelraupen-Zone."""
+    inner_r = p.CUTOUT_W / 2 + p.GROOVE_OFF / 2
+    # Die äußere Raupe endet innerhalb des 30-mm-Holzrahmens. Der Noppenring
+    # sitzt 6 mm weiter außen auf der kompakten 50-mm-Bodenplatte.
+    outer_r = p.CUTOUT_W / 2 + PRM.groove_outer_offset(p) + 6
     pts = F.rect_path_points(inner_r, inner_r, p.NOPPLE_SPACING)
     pts += F.rect_path_points(outer_r, outer_r, p.NOPPLE_SPACING)
     return pts
+
+
+def _groove_cut_tools(p):
+    """Zwei untere Kleberillen mit belüfteter innerer Raupe.
+
+    Die äußere Rille bleibt geometrisch geschlossen. Aus dem Cutter der
+    inneren Rille werden je Seite zwei 5-mm-Brücken herausgenommen. Dort
+    bleibt die Bodenfläche stehen, unterbricht die innere Kleberaupe und
+    verbindet den 4-mm-Mittelkanal mit der trockenen Öffnungsseite.
+    """
+    specs = PRM.groove_specs(p)
+    grooves = []
+    for index, (off, width, _gap_length) in enumerate(specs):
+        g_in = p.CUTOUT_W + 2 * off
+        groove = F.ring(
+            g_in + 2 * width, g_in + 2 * width,
+            p.CUTOUT_R + off + width,
+            g_in, g_in, p.CUTOUT_R + off,
+            p.GROOVE_D + 1,
+        )
+        groove.translate(Vector(0, 0, -1))
+        if index == 0:
+            bridges = []
+            x0 = p.CUTOUT_W / 2 + off - 1.0
+            for k in range(4):
+                for vent_off in p.GROOVE_VENT_OFFS:
+                    bridge = Part.makeBox(
+                        width + 2.0,
+                        p.GROOVE_VENT_W,
+                        p.GROOVE_D + 2.0,
+                        Vector(x0, vent_off - p.GROOVE_VENT_W / 2, -1.0),
+                    )
+                    bridges.append(F.rotz(bridge, k))
+            groove = groove.cut(Part.makeCompound(bridges))
+        grooves.append(groove)
+    return grooves
 
 
 def _bot_kragen_tools(p):
     """Unterkragen: dupliziert den Belluna-Einbaukragen nach unten.
 
     Er taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und zentriert den
-    Rahmen. Bei der optionalen Schraubvariante enthält er die parametrischen
-    Seitenlöcher; GEOM_REV 7 lässt ihn geschlossen. Rückgabe
+    Rahmen. Im Hybridstand enthält er acht parametrische Seitenlöcher für die
+    unqualifizierte Rückfallsicherung in den Holzrahmen. Rückgabe
     ``(fuse_teile, loch_cutter)``.
 
     Aufbau: Der Kragen (außen CUTOUT_W-2*CLEAR) liegt radial INNERHALB der
@@ -619,14 +650,9 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     if not body.isValid():
         raise RuntimeError("frame: Entwässerungsfasen ergaben ungültigen Körper")
 
-    # Kleberille unten
-    g_in = p.CUTOUT_W + 2 * p.GROOVE_OFF
-    groove = F.ring(g_in + 2 * p.GROOVE_W, g_in + 2 * p.GROOVE_W,
-                    p.CUTOUT_R + p.GROOVE_OFF + p.GROOVE_W,
-                    g_in, g_in, p.CUTOUT_R + p.GROOVE_OFF,
-                    p.GROOVE_D + 1)
-    groove.translate(Vector(0, 0, -1))
-    body = body.cut(groove)
+    # Zwei Kleberillen unten: äußere Raupe geschlossen, innere Raupe mit
+    # definierten Trockenraum-Vents zum 4-mm-Mittelkanal.
+    body = body.cut(Part.makeCompound(_groove_cut_tools(p)))
 
     # Unterkragen: VOR der Außenfase fusen/bohren -- der
     # Fasen-Kantenfilter unten greift nur nahe der Außenkontur und bleibt

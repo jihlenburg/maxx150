@@ -1,16 +1,21 @@
 # Projektstatus
 
-Stand: 16.07.2026 · GEOM_REV 7 · Parameterstand `78f560c8`
+Stand: 16.07.2026 · GEOM_REV 8 · Parameterstand `652716b5`
 
 ## Abgeschlossen
 
 - Vier rotationsidentische Universal-L-Segmente statt vier Varianten.
 - 28-mm-Erhöhung, 400-mm-Öffnung und supportfreie Kammergeometrie.
-- 540×540-mm-Rahmen mit 25-mm-Dachfuge vollständig über dem Holzrahmen.
-- Drei 17-mm-Kammerringe statt eines massiven Außenbands; Universalteil ca.
-  731 g und 295×270 mm im theoretischen CAD-Modell.
-- Acht Belluna-Plattenschrauben oben; keine Adapter-Holz-Verschraubung unten.
-- Zwei M5 je Segmentstoß einschließlich Ein-Bolzen-Restfall.
+- Kompakter 500×500-mm-Hybridrahmen mit zwei getrennten 10-mm-Dachraupen
+  vollständig über dem 30-mm-Holzrahmen: äußere Raupe geschlossen,
+  4-mm-Mittelkanal und acht definierte Entlüftungen an der inneren Raupe.
+- Zwei 17-mm-Kammerringe statt eines massiven Außenbands; Universalteil ca.
+  519 g und 275×250×47 mm im theoretischen CAD-Modell.
+- Acht Belluna-Plattenschrauben oben. Unten acht seitliche ST4.2×25 in den
+  Holzrahmen als physische, mangels typgeprüftem Schraubgrund nicht
+  angerechnete Rückfallebene; die Doppelraupe besteht den Primärnachweis allein.
+- Ein M5 je Segmentstoß; sowohl dieser einzelne Bolzen als auch RK-1300
+  bestehen die vollständige konservative 480-N-Stoßhülle getrennt.
 - Digital vermessene Belluna-Rekonstruktion mit 397-mm-Unterkragen und
   1,5-mm-Wand; Metallclips und Dichtring als getrennte Referenzteile.
 - DFM-, FEM-, analytische, Passungs-, Export- und Referenztests.

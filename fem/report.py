@@ -84,10 +84,13 @@ def write_report(fem_results: dict, joint_result: dict,
                      f"Temperatur-Abminderung {p.DERATE_TEMP:.2f} angewendet")
     j = A.joint_checks(p, PRM.wind_force(p))
     ok &= j["PASS"]
+    bolt_text = (f"{j['m5_count_per_joint']}×M5 je "
+                 f"{j['lochleibung_MPa']:.2f} MPa")
+    if j["m5_count_per_joint"] > 1:
+        bolt_text += (f", ein M5 im Restfall "
+                      f"{j['lochleibung_ein_rest_MPa']:.2f} MPa")
     lines.append(f"- Stoß analytisch: τ {j['tau_MPa']:.2f}/{j['tau_zul_MPa']:.2f} MPa, "
-                 f"2×M5 je {j['lochleibung_MPa']:.2f} MPa, "
-                 f"ein M5 im Restfall {j['lochleibung_ein_rest_MPa']:.2f}/"
-                 f"{j['lochleibung_zul_MPa']:.2f} MPa "
+                 f"{bolt_text}/{j['lochleibung_zul_MPa']:.2f} MPa "
                  f"→ {'PASS' if j['PASS'] else 'FAIL'}")
     g = A.glue_load_shear(p, PRM.wind_force(p))
     ok &= g["PASS"]
@@ -99,7 +102,7 @@ def write_report(fem_results: dict, joint_result: dict,
                  f"{sc['F_erf_N']:.0f} N erforderlich → {'PASS' if sc['PASS'] else 'FAIL'}")
     lines.append("- Fertigungslogik: 1 rotationsidentisches Universal-Segment ×4; "
                  "Belluna-Vollmaterialrippen ±140/±165 auf jeder Seite, "
-                 "zwei M5 je Segmentstoß, geschlossener Unterkragen")
+                 f"{len(p.JOINT_BOLT_OFFS)} M5 je Segmentstoß, Hybrid-Unterkragen")
     plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
     if not p.PLATE_KRAGEN_MEASURED:
         vorbehalt = True
@@ -109,9 +112,10 @@ def write_report(fem_results: dict, joint_result: dict,
                  + ("; A3a vor Druck messen" if not p.PLATE_KRAGEN_MEASURED else ""))
     if not p.ROOF_WOOD_FRAME_CONFIRMED:
         vorbehalt = True
-    lines.append(f"- Dachinterface: {p.GROOVE_W:.0f}-mm-Elastikfuge vollständig "
+    lines.append(f"- Dachinterface: 2×{p.GROOVE_W:.0f}-mm-Elastikraupe vollständig "
                  f"über nachzurüstendem Holzrahmen ≥{p.ROOF_WOOD_FRAME_W:.0f} mm; "
-                 f"keine Holzverschraubung. X150-Dach ist {p.ROOF_T:.0f} mm "
+                 f"8 seitliche Rückfallschrauben werden rechnerisch nicht angerechnet. "
+                 f"X150-Dach ist {p.ROOF_T:.0f} mm "
                  f"stark; Holzrahmen-Status "
                  f"{'bestätigt' if p.ROOF_WOOD_FRAME_CONFIRMED else 'vor Montage offen'}")
 

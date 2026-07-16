@@ -329,9 +329,16 @@ def mask_faces(c, n):
 
 
 def groove_faces(c, n):
-    """Nur die Kleberille (Bild 12): Rillenkanal auf der Unterseite."""
+    """Nur die Böden der zwei Kleberillen (Bild 12).
+
+    Die Einschränkung auf nach unten gerichtete Flächen nahe der Rillentiefe
+    lässt die ungeschnittenen Entlüftungsbrücken der inneren Raupe sichtbar.
+    Ein reiner Radialfilter würde auch deren Unterseite grün färben und damit
+    fälschlich eine geschlossene innere Raupe zeigen.
+    """
     r = _rad(c)
-    return (G["groove_inner_half"] - 1.5) <= r <= (G["groove_outer_half"] + 1.5) and -0.5 < c.z < 2.6
+    in_bead = any(lo - 1.5 <= r <= hi + 1.5 for lo, hi in G["groove_ranges"])
+    return in_bead and 1.5 < c.z < 2.6 and n.z < -0.55
 
 
 # ==========================================================================
@@ -477,19 +484,23 @@ def img10_aufsetzen():
     _render(scene, "10_aufsetzen.png")
 
 
-def img11_dach_klebeflaeche():
+def img11_hybrid_dachinterface():
     scene = _new_scene()
-    segs = load_segments()
-    for o in segs:
-        o.location = (0, 0, 55)
-        highlight(o, COL_GREEN, groove_faces, emission=1.0)
-    load_part("dach", _mat("dach", COL_DACH, rough=0.7, alpha=0.20))
-    load_part("holzrahmen", _mat("holz", COL_HOLZ, rough=0.6, alpha=0.82,
+    # Transparenter Adapter als technische Durchsicht: So bleiben alle acht
+    # radialen Schraubachsen erkennbar, auch wenn sie geometrisch im Kragen
+    # beziehungsweise im Holzrahmen liegen.
+    load_segments(alpha=0.58)
+    load_part("dach", _mat("dach", COL_DACH, rough=0.7, alpha=0.18))
+    load_part("holzrahmen", _mat("holz", COL_HOLZ, rough=0.6, alpha=0.72,
                                   emission=0.35))
     load_part("xps_kern", _mat("xps", COL_XPS, rough=0.9, alpha=0.22))
+    for m in MK["dach_screws"]:
+        p1, p2 = Vector(m["p1"]), Vector(m["p2"])
+        axis = (p2 - p1).normalized()
+        marker(p1 - axis * 10.0, p2 + axis * 5.0, radius=3.3)
     cam, target = _rig(scene)
-    _cam(cam, target, (740, -740, 410), (0, 0, 10), lens=58)
-    _render(scene, "11_dach_klebeflaeche.png")
+    _cam(cam, target, (740, -740, 360), (0, 0, -12), lens=58)
+    _render(scene, "11_hybrid_dachinterface.png")
 
 
 def img12_kleberaupe():
@@ -530,7 +541,7 @@ def img14_fertig():
 ALL = [img01_titel_explosion, img02_teile_uebersicht, img03_fuegeflaechen,
        img04_kleber_aktivator, img05_m5_montage, img06_m5_mutter,
        img07_rahmen_komplett, img08_maskierung_lack, img09_dach_holzrahmen,
-       img10_aufsetzen, img11_dach_klebeflaeche, img12_kleberaupe,
+       img10_aufsetzen, img11_hybrid_dachinterface, img12_kleberaupe,
        img13_platte_schrauben, img14_fertig]
 
 # Optionaler Filter über Env ONLY_IMG (Komma-Liste von Nummern) für gezieltes

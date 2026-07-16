@@ -1,9 +1,9 @@
 """Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
 die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
 Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
-Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-6-Anker enthalten jetzt
-Entwässerungsfase und lokale Universal-Schraubrippen: EIN 1597985.5915437404,
-AUS 1629483.1080823927 mm³ (siehe test_eckkammern_default_anker und
+Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-8-Anker enthalten den
+kompakten 50-mm-Hybridrahmen mit zwei Kammerringen: EIN 1636285.2307699774,
+AUS 1683823.3149538105 mm³ (siehe test_eckkammern_default_anker und
 test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
 Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
 selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
@@ -88,11 +88,10 @@ def test_eckkammern_frame_valide_und_wasserdicht():
 
 
 def test_eckkammern_volumendelta_plausibel():
-    # Beim 70-mm-Band ersetzen die Sektoren je Halbseite eine volle äußere
-    # Seitenzelle. Das entlastet gezielt die Ecken, lässt aber netto mehr
-    # Material in den geraden Übergangszonen: AUS minus EIN ist daher negativ.
+    # Beim kompakten 50-mm-Band entfernen die Ecksektoren netto Material aus
+    # den sonst massiven Eckblöcken: AUS minus EIN ist daher positiv.
     delta = _frame_aus().Volume - _frame_default().Volume
-    assert -1.3e5 < delta < -8.0e4, \
+    assert 4.0e4 < delta < 5.5e4, \
         f"Eckkammer-Volumendelta {delta:.0f} mm³ unplausibel"
 
 
@@ -123,13 +122,13 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 
 
 def test_eckkammern_default_anker():
-    """GEOM_REV-6-Anker mit lokalen Universal-Schraubrippen.
+    """GEOM_REV-8-Anker des kompakten Hybridrahmens.
 
     Gegenüber REV 5 bleiben die 43-mm-Kammerzellen erhalten; nur kompakte
     10-mm-Rippen werden zurückgefust. Das erklärt die bewusste Volumenabnahme.
     """
     v = _frame_default().Volume
-    assert abs(v - 2602732.525690021) < 1.0, \
+    assert abs(v - 1636285.2307699774) < 1.0, \
         f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
@@ -137,9 +136,9 @@ def test_eckkammern_default_anker():
 
 
 def test_eckkammern_ausschalt_anker():
-    """GEOM_REV-6-AUS-Anker ohne Eckkammern."""
+    """GEOM_REV-8-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 2495396.1415553167) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 1683823.3149538105) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -194,9 +193,9 @@ def test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53():
 
     plus_w, _ = frame._side_neighbor_bounds(p)[0]  # k=0 REAR, +u-Halbseite
     centers = frame._chamber_cell_centers(p, plus_w)
-    assert centers == [76.5, 132.5], \
+    assert centers == [66.5, 122.5], \
         f"REAR +u-Raster bei CELL_L=53 unerwartet: {centers} (erwartet: die " \
-        f"kollidierende dritte Zelle bei uc=188.5 muss herausgefiltert sein)"
+        f"kollidierende dritte Zelle muss herausgefiltert sein)"
 
     straight = Part.makeCompound(_side_cavities_only(p))
     corner_count = 4 * p.CHAMBER_RING_COUNT
@@ -221,10 +220,10 @@ def test_eckkammern_delta_und_keepout_exakt():
     frame._corner_keepout), die tatsächliche Reichweite der letzten Zelle
     bei Default-CELL_L=43 ist nur 193 mm, es wird also nichts gefiltert und
     das Zellraster bleibt bitidentisch zum Stand ohne Filter. Deshalb ist
-    das GEOM_REV-6-Delta AUS-EIN exakt 31497.516538652 mm³."""
+    das GEOM_REV-8-Delta AUS-EIN exakt 47538.0841838331 mm³."""
     v_eck = _frame_default().Volume
     delta = _frame_aus().Volume - v_eck
-    assert abs(delta - (-107336.38413470425)) < 1.0, \
+    assert abs(delta - 47538.0841838331) < 1.0, \
         f"Delta driftete: {delta:.3f} mm³"
     keepout = frame._corner_keepout(PRM.P)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"

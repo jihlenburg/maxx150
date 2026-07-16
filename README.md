@@ -7,15 +7,17 @@ vier bereitgestellt.
 
 ## Projektstatus
 
-**Aktueller Parameterstand:** `78f560c8` · **GEOM_REV:** `7`
+**Aktueller Parameterstand:** `652716b5` · **GEOM_REV:** `8`
 **Freigabestatus:** `PROTOTYPE_ONLY`
 
 Geometrie-, DFM-, FEM-, analytische, Lastpfad- und digitale Passungsnachweise
 sind Teil der Pipeline. Eine Produktionsfreigabe besteht trotzdem noch nicht:
 Nicht verfügbare Werkstoff-/Haftversuche sind durch stark abgeminderte,
 quellenbasierte Annahmen ersetzt (`PASS_ASSUMPTION_BASED`); endgültiger
-Dachausschnitt, breite Dachklebefuge und Holzrahmen bleiben beim Einbau zu
-kontrollieren. Die Dateien unter
+Dachausschnitt, Doppelraupe und Holzrahmen bleiben beim Einbau zu
+kontrollieren. Die acht seitlichen Dachrahmenschrauben sind eine physische,
+aber mangels typgeprüftem Schraubgrund rechnerisch nicht angerechnete Reserve.
+Die Dateien unter
 [`release/current`](release/current/) sind daher ein nachvollziehbarer
 Release Candidate, keine stillschweigende Serienfreigabe.
 

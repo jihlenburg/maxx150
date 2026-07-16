@@ -19,9 +19,12 @@ REFERENZ = {
     #   Re-Baseline aus separatem Grobnetzlauf: LF1 0.7305, LF3 1.3767 MPa;
     #   die unveränderte ±15-%-Toleranz fängt weitere Drift weiterhin ab.
     # - GEOM_REV 7: 540-mm-Band, dritter 17-mm-Kammerring, verbreiterte
-    #   Dachfuge und zwei M5 je Stoß. Bewusste Re-Baseline des Grobnetzes.
-    "LF1_wind": 1.28,
-    "LF3_klemmung": 2.68,
+    #   Hybrid-Dachfuge und ein M5 je Stoß. Bewusste Re-Baseline des Grobnetzes.
+    # - GEOM_REV 8: Rückkehr zum kompakten 500-mm-Hybridband mit zwei
+    #   Kammerringen und Doppelraupe. Bewusste Re-Baseline des Grobnetzes:
+    #   LF1 0,88 MPa, LF3 1,43 MPa.
+    "LF1_wind": 0.88,
+    "LF3_klemmung": 1.43,
 }
 
 

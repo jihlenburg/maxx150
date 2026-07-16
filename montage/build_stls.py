@@ -172,7 +172,7 @@ stl(xps.cut(halb_y), "xps_kern_ycut.stl")
 # ---------------------------------------------------------------------------
 # 4) Markerkoordinaten (aus params abgeleitet) für die Blender-Seite
 # ---------------------------------------------------------------------------
-# M5-Stoßschrauben: zwei radiale Positionen je Stoß, 4x um 90° rotiert
+# M5-Stoßschrauben: parametrische radiale Positionen, 4x um 90° rotiert
 # (deckungsgleich model/segments.py::_bolt_cuts).
 m5_y = -P.LAP_L / 2
 m5_markers = [
@@ -180,6 +180,16 @@ m5_markers = [
     for k in range(4)
     for bolt_off in P.JOINT_BOLT_OFFS
 ]
+
+# Acht seitliche Rückfallschrauben durch den Unterkragen in den Holzrahmen.
+dach_z = -(P.GLUE_GAP + P.BOT_KRAGEN_HOLE_Z)
+ki_half = ((P.CUTOUT_W - 2 * P.BOT_KRAGEN_CLEAR) / 2
+           - P.BOT_KRAGEN_T)
+dach_markers = []
+for k in range(4):
+    for off in P.BOT_KRAGEN_HOLE_OFFS:
+        dach_markers.append(marker_horiz(
+            off, ki_half - 8.0, CUT_HALF + HOLZ_W - 4.0, dach_z, k))
 
 # Belluna-Plattenschrauben ST4.2: horizontal (radial) durch den Platten-Kragen
 # in die Adapter-Innenwand, z=top_z-PLATE_SCREW_Z_FROM_TOP, an PLATE_SCREW_OFFS.
@@ -194,15 +204,17 @@ for k in range(4):
 # 5) Abgeleitete Textwerte (identische Formeln wie export/export.py)
 # ---------------------------------------------------------------------------
 groove_len = PRM.groove_centerline_len(P)
-bead_ml = groove_len * P.GROOVE_W * (P.GLUE_GAP + P.GROOVE_D) / 1000.0
+bead_ml = PRM.groove_adhesive_volume_ml(P)
 
 # Geometrie-Konstanten für die Blender-Polygon-Filter
-groove_inner_half = P.CUTOUT_W / 2 + P.GROOVE_OFF
-groove_outer_half = groove_inner_half + P.GROOVE_W
+groove_ranges = [
+    [P.CUTOUT_W / 2 + off, P.CUTOUT_W / 2 + off + width]
+    for off, width, _gap_length in PRM.groove_specs(P)
+]
 nopple_inner_r = P.CUTOUT_W / 2 + P.GROOVE_OFF / 2
-nopple_outer_r = P.CUTOUT_W / 2 + P.GROOVE_OFF + P.GROOVE_W + 6
+nopple_outer_r = P.CUTOUT_W / 2 + PRM.groove_outer_offset(P) + 6
 mask_r_in = P.CUTOUT_W / 2 + P.GROOVE_OFF - 5
-mask_r_out = P.CUTOUT_W / 2 + P.GROOVE_OFF + P.GROOVE_W + 25
+mask_r_out = P.CUTOUT_W / 2 + PRM.groove_outer_offset(P) + 18
 
 manifest = {
     "params_hash": H,
@@ -221,8 +233,10 @@ manifest = {
         "outer_half": PRM.outer_dims(P)[0] / 2,
         "roof_t": P.ROOF_T,
         "roof_top_z": ROOF_TOP_Z,
-        "groove_inner_half": groove_inner_half,
-        "groove_outer_half": groove_outer_half,
+        "groove_ranges": groove_ranges,
+        "groove_channel_w": P.GROOVE_CHANNEL_W,
+        "groove_vent_w": P.GROOVE_VENT_W,
+        "groove_vent_offs": list(P.GROOVE_VENT_OFFS),
         "groove_d": P.GROOVE_D,
         "nopple_inner_r": nopple_inner_r,
         "nopple_outer_r": nopple_outer_r,
@@ -236,6 +250,7 @@ manifest = {
     },
     "marker": {
         "m5": m5_markers,
+        "dach_screws": dach_markers,
         "plate_screws": plate_markers,
     },
     "explosion": {
@@ -252,10 +267,16 @@ manifest = {
         "bead_ml": round(bead_ml),
         "bead_ml_exact": round(bead_ml, 1),
         "groove_len_mm": round(groove_len),
+        "groove_count": len(PRM.groove_specs(P)),
+        "groove_w": P.GROOVE_W,
+        "groove_channel_w": P.GROOVE_CHANNEL_W,
+        "groove_vent_count": 4 * len(P.GROOVE_VENT_OFFS),
         "shaft_mm": round(PRM.select_shaft(P)),
         "effective_wall_mm": round(PRM.effective_wall(P)),
         "dach_screw_st_d": P.BOT_KRAGEN_SCREW_D,
         "dach_screw_st_l": P.BOT_KRAGEN_SCREW_L,
+        "dach_screw_count": PRM.bot_kragen_hole_count(P),
+        "dach_hole_offs": list(P.BOT_KRAGEN_HOLE_OFFS),
         "plate_screw_d": 4.2,
         "plate_screw_l": 25,
         "plate_screw_offs": list(P.PLATE_SCREW_OFFS),

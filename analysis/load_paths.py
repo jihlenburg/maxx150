@@ -150,6 +150,109 @@ def _square_ring(inner_side_mm: float, width_mm: float) -> dict:
     }
 
 
+def _rounded_square_ring(inner_side_mm: float, width_mm: float,
+                         inner_radius_mm: float) -> dict:
+    """Exakter Ring einer quadratischen Kontur mit gerundeten Ecken.
+
+    Fläche und Flächenträgheitsmoment entstehen als Differenz zweier
+    abgerundeter Quadrate. Das vermeidet die leicht optimistische
+    Quadratnäherung gerade bei den relativ kleinen Rillenradien.
+    """
+    outer_side = inner_side_mm + 2.0 * width_mm
+    outer_radius = inner_radius_mm + width_mm
+
+    def rounded_square(side: float, radius: float) -> tuple[float, float]:
+        area = side * side - (4.0 - math.pi) * radius * radius
+        square_i = side**4 / 12.0
+        corner_center = side / 2.0 - radius
+        corner_square_i = (
+            radius * ((corner_center + radius) ** 3 - corner_center**3) / 3.0
+        )
+        quarter_circle_i = (
+            math.pi * radius**4 / 16.0
+            + 2.0 * corner_center * radius**3 / 3.0
+            + corner_center**2 * math.pi * radius**2 / 4.0
+        )
+        inertia = square_i - 4.0 * (corner_square_i - quarter_circle_i)
+        return area, inertia
+
+    outer_area, outer_i = rounded_square(outer_side, outer_radius)
+    inner_area, inner_i = rounded_square(inner_side_mm, inner_radius_mm)
+    area = outer_area - inner_area
+    inertia = outer_i - inner_i
+    return {
+        "inner_side_mm": inner_side_mm,
+        "outer_side_mm": outer_side,
+        "width_mm": width_mm,
+        "inner_radius_mm": inner_radius_mm,
+        "outer_radius_mm": outer_radius,
+        "area_mm2": area,
+        "second_moment_mm4": inertia,
+        "section_modulus_mm3": inertia / (outer_side / 2.0),
+    }
+
+
+def _roof_double_bead(p: PRM.Params) -> dict:
+    """Gemeinsame Querschnittswerte der zwei konzentrischen Dachraupen.
+
+    Die acht Ventunterbrechungen werden als rechteckige Fehlstellen aus
+    Fläche und Flächenträgheitsmoment der inneren Raupe abgezogen. Durch die
+    vierfach rotationssymmetrische Anordnung gilt Ix = Iy.
+    """
+    rings = []
+    area = 0.0
+    inertia_x = 0.0
+    inertia_y = 0.0
+    outer_side = 0.0
+    for off, width, _gap_length in PRM.groove_specs(p):
+        ring = _rounded_square_ring(
+            p.CUTOUT_W + 2.0 * off,
+            width,
+            p.CUTOUT_R + off,
+        )
+        rings.append(ring)
+        area += ring["area_mm2"]
+        inertia_x += ring["second_moment_mm4"]
+        inertia_y += ring["second_moment_mm4"]
+        outer_side = max(outer_side, ring["outer_side_mm"])
+
+    inner_center_r = p.CUTOUT_W / 2.0 + p.GROOVE_OFF + p.GROOVE_W / 2.0
+    patch_area = p.GROOVE_W * p.GROOVE_VENT_W
+    removed_area = 0.0
+    removed_ix = 0.0
+    removed_iy = 0.0
+    for side in range(4):
+        radial_along_x = side % 2 == 0
+        for tangent in p.GROOVE_VENT_OFFS:
+            if side == 0:
+                cx, cy = inner_center_r, tangent
+            elif side == 1:
+                cx, cy = -tangent, inner_center_r
+            elif side == 2:
+                cx, cy = -inner_center_r, -tangent
+            else:
+                cx, cy = tangent, -inner_center_r
+            dim_x = p.GROOVE_W if radial_along_x else p.GROOVE_VENT_W
+            dim_y = p.GROOVE_VENT_W if radial_along_x else p.GROOVE_W
+            removed_area += patch_area
+            removed_ix += patch_area * cy * cy + dim_x * dim_y**3 / 12.0
+            removed_iy += patch_area * cx * cx + dim_y * dim_x**3 / 12.0
+
+    area -= removed_area
+    inertia = 0.5 * ((inertia_x - removed_ix) + (inertia_y - removed_iy))
+    return {
+        "type": "double_bead_with_inner_dry_side_vents",
+        "beads": rings,
+        "inner_vent_count": 4 * len(p.GROOVE_VENT_OFFS),
+        "inner_vent_width_mm": p.GROOVE_VENT_W,
+        "channel_width_mm": p.GROOVE_CHANNEL_W,
+        "outer_side_mm": outer_side,
+        "area_mm2": area,
+        "second_moment_mm4": inertia,
+        "section_modulus_mm3": inertia / (outer_side / 2.0),
+    }
+
+
 def _bond_check(load: LoadCase, moment_Nm: tuple[float, float, float],
                 ring: dict, normal_allow: float, shear_allow: float) -> dict:
     fx, fy, fz = load.force_N
@@ -182,6 +285,18 @@ def _bond_check(load: LoadCase, moment_Nm: tuple[float, float, float],
 def _plate_screw_positions(p: PRM.Params) -> tuple[tuple[float, float], ...]:
     radius = p.PLATE_KRAGEN_W / 2.0
     offset = min(abs(v) for v in p.PLATE_SCREW_OFFS)
+    return (
+        (-radius, -offset), (-radius, offset),
+        (radius, -offset), (radius, offset),
+        (-offset, -radius), (offset, -radius),
+        (-offset, radius), (offset, radius),
+    )
+
+
+def _roof_screw_positions(p: PRM.Params) -> tuple[tuple[float, float], ...]:
+    """Acht seitliche Unterkragen-Schrauben, nur als Bedarfswert."""
+    radius = (p.CUTOUT_W - 2.0 * p.BOT_KRAGEN_CLEAR - p.BOT_KRAGEN_T) / 2.0
+    offset = max(abs(v) for v in p.BOT_KRAGEN_HOLE_OFFS)
     return (
         (-radius, -offset), (-radius, offset),
         (radius, -offset), (radius, offset),
@@ -328,8 +443,7 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
            include_cfd: bool = True) -> dict:
     top_elastic_ring = _square_ring(
         p.CUTOUT_W + 2.0 * p.PLATE_BOND_OFF, p.PLATE_BOND_W)
-    roof_elastic_ring = _square_ring(
-        p.CUTOUT_W + 2.0 * p.GROOVE_OFF, p.GROOVE_W)
+    roof_elastic_ring = _roof_double_bead(p)
     wood_ring = _square_ring(p.CUTOUT_W, p.ROOF_WOOD_FRAME_W)
     asa_capacity = _asa_screw_capacity(p, a)
     cases = _base_load_cases(p)
@@ -350,6 +464,9 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         top_screws = _screw_group_check(
             case, case.moment_top_Nm,
             asa_capacity["project_capacity_per_screw_N"], p, a)
+        roof_screw_demand = _screw_group_check(
+            case, case.moment_base_Nm, 1.0, p, a,
+            positions=_roof_screw_positions(p))
         panel_bond = _bond_check(
             case, case.moment_base_Nm, wood_ring,
             a.panel_bond_normal_allow_MPa,
@@ -365,15 +482,25 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
                 "eight_side_screws_full_case": top_screws,
             },
             "adapter_to_roof": {
-                "wide_elastic_ring_primary": bottom_bond,
-                "roof_side_screws": "not_installed",
+                "double_elastic_bead_primary": bottom_bond,
+                "eight_roof_side_screws_secondary": {
+                    "installed_count": 8,
+                    "required_capacity_per_screw_N_for_full_case":
+                        roof_screw_demand["max_resultant_per_screw_N"],
+                    "capacity_credit_N": 0.0,
+                    "qualification": (
+                        "mechanische Rückfallebene; Holz/GFK, Pilotloch und "
+                        "beiliegende ST4.2 nicht typgeprüft; nicht zum PASS addiert"
+                    ),
+                    "PASS": None,
+                },
             },
             "wood_to_roof_sandwich": {
                 "sikaforce_one_face_only": panel_bond,
             },
             # Oben trägt die vollständige Schraubengruppe. Unten muss die
-            # verbreiterte Klebefuge den vollständigen Lastfall allein tragen;
-            # es gibt keine Addition mit einer Holzverschraubung.
+            # Doppelraupe den vollständigen Lastfall allein tragen. Die acht
+            # Holzschrauben sind nur unqualifizierte Rückfallebene.
             "serial_load_path_PASS": (
                 top_screws["PASS"] and bottom_bond["PASS"]
                 and panel_bond["PASS"]
@@ -385,8 +512,8 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
     rk_tau = wind / lap_area
     lap_h = PRM.lap_height(p)
     bolts_per_joint = len(p.JOINT_BOLT_OFFS)
-    pair_bearing = ((wind / bolts_per_joint)
-                    / (p.JOINT_BOLT_D * lap_h))
+    group_bearing = ((wind / bolts_per_joint)
+                     / (p.JOINT_BOLT_D * lap_h))
     one_remaining_bearing = wind / (p.JOINT_BOLT_D * lap_h)
     _, short_allow = PRM.allowables(p)
     segment = {
@@ -398,15 +525,15 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "rk1300_utilization": rk_tau / a.rk1300_lap_shear_allow_MPa,
         "rk1300_PASS": rk_tau <= a.rk1300_lap_shear_allow_MPa,
         "m5_count_per_joint": bolts_per_joint,
-        "m5_pair_bearing_MPa": pair_bearing,
+        "m5_group_bearing_MPa": group_bearing,
         "m5_one_remaining_bearing_MPa": one_remaining_bearing,
         "asa_short_allow_MPa": short_allow,
-        "m5_pair_bearing_utilization": pair_bearing / short_allow,
+        "m5_group_bearing_utilization": group_bearing / short_allow,
         "m5_one_remaining_utilization": one_remaining_bearing / short_allow,
-        "m5_redundancy_PASS": one_remaining_bearing <= short_allow,
+        "m5_single_bolt_full_case_PASS": one_remaining_bearing <= short_allow,
     }
     segment["PASS"] = (segment["rk1300_PASS"]
-                       and segment["m5_redundancy_PASS"])
+                       and segment["m5_single_bolt_full_case_PASS"])
 
     thermal_util = FEM_ANALYTIC.glue_shear_utilization(p)
     thermal = {
@@ -426,15 +553,16 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
             wind_case, wind_case.moment_top_Nm,
             asa_capacity["project_capacity_per_screw_N"], p, a),
         "design_requirement": (
-            "Alle acht Belluna-Plattenschrauben montieren und intakt halten; "
-            "an der Dachschnittstelle sind keine Schrauben vorgesehen"
+            "Alle acht Belluna-Plattenschrauben montieren und intakt halten. "
+            "Die acht unteren Schrauben montieren, aber ohne qualifizierte "
+            "Holz-/Dachkapazität nicht zum Primärnachweis addieren."
         ),
     }
     status = ("PASS_ASSUMPTION_BASED" if all_cases_pass
               and segment["PASS"] and thermal["PASS"]
               else "FAIL_ASSUMPTION_BASED")
     return {
-        "schema": 1,
+        "schema": 2,
         "status": status,
         "claim_limit": (
             "Konservative Plausibilisierung, keine Zulassung oder Garantie; "
@@ -458,14 +586,13 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "model_limitations": [
             "Starrer Ring und linear-elastische Lastverteilung; lokale "
             "Peelspitzen und Gehäusenachgiebigkeit sind nicht aufgelöst.",
-            "Die untere 25-mm-Elastikfuge ist der primäre und einzige "
-            "Adapter-Dach-Lastpfad; Fehlstellen, Randablösung oder mangelhafte "
-            "Vorbehandlung besitzen keine mechanische Rückfallebene.",
+            "Die zwei unteren 10-mm-Elastikraupen sind der allein angerechnete "
+            "Adapter-Dach-Primärpfad. Die acht seitlichen Schrauben sind eine "
+            "physische, aber mangels Holz-/Dachprüfung unqualifizierte Reserve.",
             "Die acht oberen ST4.2x25 werden mit einem abgeminderten axialen "
             "Analogiewert auf den resultierenden Lastvektor geprüft.",
-            "Zwei M5 je Segmentstoß werden gleichmäßig belastet angenommen; "
-            "der Ein-Bolzen-Restfall wird separat geprüft, expliziter "
-            "Bolzenkontakt und Lochspiel aber nicht aufgelöst.",
+            "Der einzelne M5 je Segmentstoß wird mit der vollen 480-N-Hülle "
+            "geprüft; expliziter Bolzenkontakt und Lochspiel sind nicht aufgelöst.",
             "Das reale X150-GFK/XPS-Sandwich ist nicht typgeprüft; deshalb "
             "werden nur eine Holz/GFK-Fläche und 0,050 MPa angerechnet.",
             "CFD, FEM und Lastpfadrechnung sind Modellplausibilisierungen, "
@@ -487,24 +614,28 @@ def to_markdown(result: dict) -> str:
         f"Parameterstand `{result['parameter_hash']}` · **{result['status']}**",
         "",
         "> Konservative Plausibilisierung, keine Bauteilzulassung. Die untere "
-        "Dachschnittstelle ist bewusst eine reine Klebeverbindung ohne "
-        "mechanische Rückfallebene.",
+        "Doppelraupe trägt den Primärnachweis allein; acht seitliche "
+        "Holzschrauben bleiben eine physische, aber unqualifizierte Reserve.",
         "",
         "## Ergebnisübersicht",
         "",
         "| Lastfall | obere Elastikfuge allein | 8 Schrauben oben | "
-        "25-mm-Dachfuge allein | Holz–Dach, eine Fläche | serieller Pfad |",
-        "|---|---:|---:|---:|---:|---|",
+        "2×10-mm-Dachraupe allein | erforderliche Kapazität je Rückfallschraube | "
+        "Holz–Dach, eine Fläche | serieller Pfad |",
+        "|---|---:|---:|---:|---:|---:|---|",
     ]
     for name, case in result["load_cases"].items():
         top = case["belluna_to_adapter"]
-        roof = case["adapter_to_roof"]["wide_elastic_ring_primary"]
+        roof = case["adapter_to_roof"]["double_elastic_bead_primary"]
+        fallback = case["adapter_to_roof"]["eight_roof_side_screws_secondary"]
         wood = case["wood_to_roof_sandwich"]["sikaforce_one_face_only"]
         lines.append(
             f"| `{name}` | "
             f"{_pct(top['elastic_ring_bond_only']['normalized_interaction'])} | "
             f"{_pct(top['eight_side_screws_full_case']['utilization'])} | "
             f"{_pct(roof['normalized_interaction'])} | "
+            f"{fallback['required_capacity_per_screw_N_for_full_case']:.0f} N "
+            "(nicht qualifiziert) | "
             f"{_pct(wood['normalized_interaction'])} | "
             f"{'PASS' if case['serial_load_path_PASS'] else 'FAIL'} |"
         )
@@ -519,8 +650,9 @@ def to_markdown(result: dict) -> str:
         "",
         "Die obere Belluna-Verbindung bleibt hybrid: Kleber und acht "
         "Seitenschrauben werden nicht addiert; die Schraubengruppe trägt den "
-        "vollständigen Fall mit Lastkonzentrationsfaktor 1,5. Unten muss die "
-        "25-mm-Elastikfuge den vollständigen Fall allein bestehen.",
+        "vollständigen Fall mit Lastkonzentrationsfaktor 1,5. Unten müssen die "
+        "beiden 10-mm-Raupen den vollständigen Fall allein bestehen. Die acht "
+        "Holzschrauben werden weder zur Klebung addiert noch als PASS gewertet.",
         "Der Schubgrenzwert 0,050 MPa ist kein TDS-Schubkennwert, sondern eine "
         "bewusst niedrige Projektannahme. Reale Grenzflächenhaftung und "
         "Alterung bleiben unbekannt.",
@@ -529,15 +661,16 @@ def to_markdown(result: dict) -> str:
         "",
         f"- Obere Ringfuge: {top_ring['area_mm2']:.0f} mm²; 0,030 MPa "
         "normal / 0,050 MPa Schub, nicht allein maßgebend.",
-        f"- Untere Ringfuge: {roof_ring['area_mm2']:.0f} mm², Innenmaß "
-        f"{roof_ring['inner_side_mm']:.0f} mm, Außenmaß "
+        f"- Untere Doppelraupe: {roof_ring['area_mm2']:.0f} mm² wirksam, Innenmaß "
+        f"{roof_ring['beads'][0]['inner_side_mm']:.0f} mm, Außenmaß "
         f"{roof_ring['outer_side_mm']:.0f} mm; vollständig über dem "
-        "30-mm-Holzrahmen, 0,030/0,050 MPa.",
+        f"30-mm-Holzrahmen, {roof_ring['inner_vent_count']} innere "
+        "Trockenraum-Vents, 0,030/0,050 MPa.",
         f"- Obere ST4.2x25 in ASA-GF: {asa['project_capacity_per_screw_N']:.0f} N "
         "je Schraube nach Detailfaktor 0,5.",
         f"- Segmentstoß unter vollen 480 N: RK-1300 "
-        f"{_pct(seg['rk1300_utilization'])}; zwei M5 gemeinsam "
-        f"{_pct(seg['m5_pair_bearing_utilization'])}, ein verbliebener M5 "
+        f"{_pct(seg['rk1300_utilization'])}; {seg['m5_count_per_joint']} M5 "
+        f"{_pct(seg['m5_group_bearing_utilization'])}, einzelner M5-Vollfall "
         f"{_pct(seg['m5_one_remaining_utilization'])}; "
         f"{'PASS' if seg['PASS'] else 'FAIL'}.",
         f"- Thermische Scherbewegung der 3-mm-Fuge: "
@@ -551,15 +684,18 @@ def to_markdown(result: dict) -> str:
         "",
         "## Konstruktive Interpretation",
         "",
-        "- Die Verbreiterung des Adapters allein wäre wirkungslos gewesen. "
-        "Entscheidend ist die Vergrößerung der unteren Klebefuge von 8 auf "
-        "25 mm und ihre vollständige Unterlegung durch den Holzrahmen.",
-        "- Der geschlossene Unterkragen zentriert nur noch; er besitzt keine "
-        "Dachschraubenlöcher. Der Holzrahmen bleibt als vollflächig mit beiden "
-        "GFK-Häuten verbundener Lastverteiler zwingend erforderlich.",
-        "- Zwei M5 je Stoß schaffen Segmentredundanz, ersetzen aber nicht die "
-        "frühere Holzverschraubung. Der untere Lastpfad wird ausschließlich "
-        "durch die breite Elastikfuge verbessert.",
+        "- Der Adapter bleibt bei 500 mm Außenmaß. Zwei getrennte 10-mm-Raupen "
+        f"liefern trotz acht 5-mm-Ventunterbrechungen rund "
+        f"{roof_ring['area_mm2']:.0f} mm² wirksame "
+        "Klebefläche und liegen vollständig über dem Holzrahmen.",
+        "- Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere "
+        "Raupe wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, "
+        "damit der 4-mm-Mittelkanal Feuchte nachführen kann.",
+        "- Acht seitliche ST4.2x25 sichern den Unterkragen im Holzrahmen. Ohne "
+        "typgeprüften Schraubgrund wird nur der je Lastfall erforderliche "
+        "Kapazitätswert ausgewiesen; die Schrauben werden nicht angerechnet.",
+        "- Ein M5 je Stoß trägt die volle 480-N-Hülle bereits allein. RK-1300 "
+        "bildet einen davon getrennt geprüften Fügepfad.",
         "- Sikaflex-522 und Carloflex 410 UV werden weiterhin nur mit den "
         "stark abgeminderten 0,030/0,050-MPa-Werten angesetzt. Produkte "
         "innerhalb einer Baugruppe nicht mischen.",

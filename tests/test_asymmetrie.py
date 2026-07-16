@@ -1,6 +1,6 @@
 """Asymmetrie-Smoke-Test (Finalreview I3, Ledger 21/22): W_TOP je Seite
 unterschiedlich. Deckt die seitenspezifischen Kopplungen ab, die bei den
-symmetrischen Defaults (alle W_TOP=70) unentdeckt blieben (z. B. eine
+symmetrischen Defaults (alle W_TOP=50) unentdeckt blieben (z. B. eine
 Seitenvertauschung in der k<->Seite-Kanonik in model/frame.py::_chamber_cuts
 waere bei Symmetrie unsichtbar). min(70,72,73,74)=70 >= Kammergrenze 69.4
 (INNER_WALL 8 + 2*CHAMBER_W 15 + CHAMBER_RIB 4 + 2.4), validate() akzeptiert
@@ -20,8 +20,8 @@ from model import frame
 from model.frame import build_frame
 from model.segments import build_segments
 
-P_ASYM = PRM.Params(W_TOP_FRONT=70.0, W_TOP_REAR=74.0,
-                    W_TOP_LEFT=72.0, W_TOP_RIGHT=73.0)
+P_ASYM = PRM.Params(W_TOP_FRONT=50.0, W_TOP_REAR=54.0,
+                    W_TOP_LEFT=52.0, W_TOP_RIGHT=53.0)
 
 # Achsen-Fehlbezug-Nachbesserung (Review-Critical nach Ledger 21/22): nur
 # EINE Seite (REAR) stark vergrößert, Rest Default (50) -- deckt exakt den
@@ -93,10 +93,10 @@ def test_asym_rear_band_durch_senkrechte_nachbarn_begrenzt():
     LEFT/RIGHT unverändert 70 -> die Grenze bleibt (CUTOUT_W/2+70)-
     SOLID_CORNER = 225, unabhängig von REARs eigenem Wert."""
     plus_w, minus_w = frame._side_neighbor_bounds(P_CORNER)[0]  # k=0 REAR
-    assert plus_w == P_CORNER.W_TOP_RIGHT == 70.0
-    assert minus_w == P_CORNER.W_TOP_LEFT == 70.0
-    limit = (P_CORNER.CUTOUT_W / 2 + 70.0) - P_CORNER.SOLID_CORNER
-    assert limit == 225.0
+    assert plus_w == P_CORNER.W_TOP_RIGHT == 50.0
+    assert minus_w == P_CORNER.W_TOP_LEFT == 50.0
+    limit = (P_CORNER.CUTOUT_W / 2 + 50.0) - P_CORNER.SOLID_CORNER
+    assert limit == 205.0
     for half in (frame._chamber_cell_centers(P_CORNER, plus_w),
                  frame._chamber_cell_centers(P_CORNER, minus_w)):
         assert half, "REAR-Halbseite unerwartet leer"

@@ -68,8 +68,7 @@ def _m5_bolt_length(p: PRM.Params) -> int:
 
 def _montagenotiz(p: PRM.Params, h: str) -> str:
     L, W = PRM.outer_dims(p)
-    groove_len = PRM.groove_centerline_len(p)      # M1/Ledger 23/30/33
-    bead_ml = groove_len * p.GROOVE_W * (p.GLUE_GAP + p.GROOVE_D) / 1000.0
+    bead_ml = PRM.groove_adhesive_volume_ml(p)
     return f"""# Montagenotiz Adapterrahmen (Parameterstand {h})
 
 ## Druck (1 Universal-Segment, **4x identisch drucken**)
@@ -97,17 +96,18 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
 - Rohes ASA-GF K240 anschleifen. **WEICON RK-1300, 60-g-Set,
   Art.-Nr. 10000118** verwenden. Wegen der rauen/porösen FDM-Flächen den
   Aktivator beidseitig auftragen, mindestens 5 min ablüften, RK-1300 auf eine
-  Seite geben, fügen und je Stoß mit **zwei M5x{_m5_bolt_length(p)} DIN 912 +
+  Seite geben, fügen und je Stoß mit **{len(p.JOINT_BOLT_OFFS)}× M5x{_m5_bolt_length(p)} DIN 912 +
   Muttern** bei 0,8 Nm sichern. Endfestigkeit nach 24 h.
-- Alle acht M5-Kopftaschen bündig mit RK-1300 versiegeln. RK-1300 wurde gewählt,
+- Alle {PRM.joint_bolt_count(p)} M5-Kopftaschen bündig mit RK-1300 versiegeln. RK-1300 wurde gewählt,
   weil WEICON den MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau sowie
   hohe Schlag-, Schäl- und Scherfestigkeit spezifiziert. ASA-GF ist nicht
   einzeln gelistet; die Rechnung setzt deshalb nur 0,50 statt 6 MPa an und
   prüft den vollständigen 480-N-Pfad zusätzlich über M5.
 
 ## Weiße Schutzlackierung — Pflicht
-- Nach dem Fügen spätere Klebezonen roh lassen und abkleben: untere
-  Kleberille/Noppenfeld und obere Belluna-Auflage. Lack ist kein Klebgrund.
+- Nach dem Fügen spätere Klebezonen roh lassen und abkleben: beide unteren
+  Kleberillen samt Mittelkanal/Noppenfeld und obere Belluna-Auflage. Lack ist
+  kein Klebgrund.
 - Haftgrund: **Mipa 1K-Plastic-Grundierfiller-Spray**, hellgrau, 400 ml,
   Art.-Nr. **213390000**. Mipa-Untergrundvorbereitung befolgen; 2–3 dünne
   Spritzgänge, 15–40 µm, nach 15–20 min überlackierbar.
@@ -133,15 +133,15 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   spezifiziert genau Holz/GFK mit EPS/XPS für Sandwichpaneele; das 2K-System
   härtet auch in der geschlossenen Dachfuge kontrolliert aus. Nur durch
   erfahrene Anwender gemäß aktuellem Sicherheitsdatenblatt verarbeiten.
-- Der geschlossene Unterkragen
+- Der Unterkragen
   ({p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR:.0f} mm) zentriert im Soll-Ausschnitt
-  {p.CUTOUT_W:.0f}×{p.CUTOUT_W:.0f} mm. Er besitzt bewusst keine
-  Dachschraubenlöcher. Der Holzrahmen ist vollflächig verklebter Lastverteiler
-  und Kompressionsschutz; er bleibt trotz entfallener Holzverschraubung
-  zwingend erforderlich.
+  {p.CUTOUT_W:.0f}×{p.CUTOUT_W:.0f} mm. Acht seitliche ST4.2×25 gehen durch
+  seine vorgefertigten Löcher in den Holzrahmen. Sie sind eine nicht
+  angerechnete mechanische Rückfallebene; Primärpfad bleibt die Klebung. Der
+  Holzrahmen ist vollflächig verklebter Lastverteiler und Kompressionsschutz.
 - Dicht-/Klebstoff: **Sikaflex-522 weiß, 2× 300 ml**: ca.
-  **{bead_ml:.0f} ml** in die {p.GROOVE_W:.0f} mm breite untere Kleberille
-  plus Außenkehle und obere Belluna-Fuge; Noppen halten {p.GLUE_GAP} mm
+  **{bead_ml:.0f} ml** nominal in die beiden {p.GROOVE_W:.0f} mm breiten
+  unteren Kleberillen plus Außenkehle und obere Belluna-Fuge; Noppen halten {p.GLUE_GAP} mm
   Fugendicke. Danach auch die Belluna-Ringklebenut mit 522 füllen. Strukturelle
   Klebezonen bleiben lackfrei. ASA-GF/Belluna-Kunststoff sehr fein schleifen,
   mit **Sika Cleaner P** reinigen und **Sika Primer-507** als ABS-Analogie
@@ -152,22 +152,23 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   gelten dieselben stark abgeminderten Projektgrenzwerte von 0,030 MPa normal
   und 0,050 MPa Schub. Das TDS benennt den erforderlichen Kunststoffprimer
   jedoch nicht: je Baugruppe nur ein vollständig spezifiziertes System
-  verwenden, Produkte nicht mischen. Die untere Fuge ist der einzige
-  Adapter-Dach-Lastpfad und besitzt keine mechanische Rückfallebene: rundum
-  hohlraumfrei herstellen, bis zur vollständigen Durchhärtung gemäß aktuellem
-  Produktdatenblatt bewegungsfrei halten und nicht belasten.
+  verwenden, Produkte nicht mischen. Die untere Doppelraupe ist der allein
+  angerechnete Adapter-Dach-Primärpfad: äußere Raupe wasserdicht geschlossen herstellen;
+  die definierten Unterbrechungen der inneren Raupe und den Mittelkanal nicht
+  mit Dichtstoff verschließen. Bis zur vollständigen Durchhärtung gemäß
+  aktuellem Produktdatenblatt bewegungsfrei halten und nicht belasten.
 - Jede Adapterseite besitzt Vollmaterialrippen ±140/±165. Von den zehn
   Belluna-Seitenlöchern nur die **acht äußeren** mit den übrigen 8
   ST4.2×25 setzen; Mittellöcher an den Segmentstößen frei lassen. Die vier
-  PT4.0×12 Lüfter→Platte mit Belluna-Drehmoment 0,7 Nm. Damit sind die
-  **8 Belluna-Schrauben ST 4.2×25** werden an der Platte verwendet; die übrigen
-  beiliegenden Schrauben werden nicht für eine Adapter-Holz-Verschraubung
-  eingesetzt.
+  PT4.0×12 Lüfter→Platte mit Belluna-Drehmoment 0,7 Nm. Damit werden die
+  **8 Belluna-Schrauben ST 4.2×25** an der Platte verwendet; die acht
+  übrigen beiliegenden Schrauben sichern den Adapter seitlich im Holzrahmen.
 - Zerstörende Originalsubstrat-Coupons stehen aktuell nicht zur Verfügung.
   `analysis/load_paths.py` ersetzt sie für den Prototypenentscheid durch stark
   abgeminderte Grenzflächenwerte, vollständige Schraubenlasten mit Faktor 1,5
   und nur eine angerechnete Holz/GFK-Fläche (`PASS_ASSUMPTION_BASED`, keine
-  Herstellerfreigabe). Beide Kleberringe geschlossen führen. Nach Einbau drucklos fluten
+  Herstellerfreigabe). Die äußere Raupe geschlossen führen; die innere an
+  den acht geformten Trockenraum-Vents unterbrechen. Nach Einbau drucklos fluten
   (Gießkanne, 10 min); Hochdruck nur aus ISO-20653-9K-Abstand, nie direkt auf
   die IPX4-Lüfterhaube. Die untere Klebefuge, Nähte und Lack jährlich prüfen.
 
@@ -184,8 +185,8 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
     baut nur, was NICHT übergeben wurde -- die Engineering-Stufe hat frame/segments für
     FEM/DFM-Gate ohnehin schon gebaut und reicht sie durch (spart ~20-30 s
     je Produktionslauf, keine doppelten build_frame/build_segments-Booleans
-    mehr). Ohne Argumente bleibt der Aufruf kompatibel; GEOM_REV 7 exportiert
-    jedoch bewusst nur noch das eine Universal-Segment mit Stückzahl x4."""
+    mehr). Ohne Argumente bleibt der Aufruf kompatibel; exportiert wird
+    bewusst nur das eine Universal-Segment mit Stückzahl x4."""
     PRM.validate(p)
     if len(set(PRM.side_top_widths(p))) != 1:
         raise ValueError("Universal-Segment-Export setzt vier gleiche W_TOP-Breiten voraus")
@@ -205,8 +206,8 @@ def export_all(p: PRM.Params = PRM.P, out_dir: str = "out",
         segments = build_segments(p)
     if len(segments) != 4:
         raise ValueError(f"Universal-Export erwartet 4 Montagekopien, bekam {len(segments)}")
-    # GEOM_REV 7: alle vier Shapes sind Rotationskopien desselben physischen
-    # Teils. Nur die kanonische Datei exportieren; Stückzahl steht im Namen.
+    # Alle vier Shapes sind Rotationskopien desselben physischen Teils. Nur
+    # die kanonische Datei exportieren; Stückzahl steht im Namen.
     segment = segments[0]
     stem = f"universal_segment_x4_{h}"
     sp = out / f"{stem}.step"

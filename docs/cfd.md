@@ -61,12 +61,13 @@ Alle Fälle verwenden:
 - stationäres RANS mit k-ω-SST,
 - keine Prismenschichten.
 
-Der folgende OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
-Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Er ist
-eine **historische CFD-Basis der schmaleren Vorgängergeometrie**, nicht das
-Ergebnis des aktuellen 540-mm-Adapters (`78f560c8`). Für den aktuellen Stand
-lautet die noch neu zu rechnende Matrix `74366ac7`; bis dahin darf nur die
-analytische 480-N-Hülle freigabewirksam verwendet werden. Die Tabelle summiert
+Der OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
+Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Die
+äußere 500-mm-Aerogeometrie stimmt wieder mit dem aktuellen Hybridadapter
+`652716b5` überein. Doppelraupe, Entlüftungen und seitliche Schraubpfade liegen
+im Dachinterface und verändern die umströmte Hülle nicht. Der nachgeschaltete
+CalculiX-Strukturcheck wurde für `652716b5` neu gerechnet. Unabhängig davon
+bleibt nur die analytische 480-N-Hülle freigabewirksam. Die Tabelle summiert
 jeweils **Belluna plus direkt angeströmte Adapteroberfläche**; alle Momente
 sind auf die Mitte der Adapterbasis `(0, 0, 0)` transformiert. Gemittelt werden
 die letzten 20 Kraftausgaben (100 Solveriterationen):
@@ -100,12 +101,11 @@ der Adapter-Deckfläche; das Nickmoment `My` wird als vertikales Kräftepaar an
 Front- und Heckaußenwand eingeleitet. `Mx` und `Mz` werden ausgewiesen, aber
 noch nicht in das bestehende Selektormodell übertragen.
 
-Die historische Auswertung enthält zusätzlich mittlere Spannungsindikatoren
-für die damalige Kleberille, den konservativen analytischen
-Segmentstoßnachweis und ideale Gleichverteilungen auf acht Belluna- und acht
-damals vorgesehene Dachschrauben. Diese Dachschrauben sind im aktuellen
-Entwurf entfallen; ihre nachstehenden Werte sind ausdrücklich kein Nachweis
-für den aktuellen Lastpfad.
+Die aktuelle Strukturkopplung enthält zusätzlich mittlere
+Spannungsindikatoren für die Doppelraupe, den konservativen analytischen
+Segmentstoßnachweis und eine ideale Gleichverteilung auf acht
+Belluna-Schrauben. Die acht unteren Seitenschrauben werden auch hier bewusst
+nicht als Tragfähigkeit angerechnet.
 
 Der Lauf `a3a2de8c` übergibt nach Faktor 1,5:
 
@@ -116,35 +116,30 @@ Der Lauf `a3a2de8c` übergibt nach Faktor 1,5:
 | Nickmoment `My` um Basis | −0,251 Nm | 88,8 Nm LF1-Hülle | 0,3 % |
 | Roll-/Giermoment um Basis | 0,110 / 0,320 Nm | — | ausgewiesen; äquivalentes `Mx/Mz` im CalculiX-Fall nicht eingeleitet |
 
-Der kombinierte Produktionsnetz-FEM-Fall ergibt 0,241 MPa von Mises bei
-11,25 MPa Kurzzeitzulässigkeit und 0,00060 mm Deckflächenverformung bei
-0,5 mm Grenzwert. Das ist nur 2,1 % Spannungs- und 0,12 %
+Der kombinierte Produktionsnetz-FEM-Fall ergibt 0,227 MPa von Mises bei
+11,25 MPa Kurzzeitzulässigkeit und 0,00070 mm Deckflächenverformung bei
+0,5 mm Grenzwert. Das ist nur 2,0 % Spannungs- und 0,14 %
 Verformungsauslastung im idealisierten monolithischen Rahmenmodell.
 
-Historische Lastpfad-Indikatoren nach Modellfaktor:
+Lastpfad-Indikatoren nach Modellfaktor:
 
-- Kleberille 14.016 mm²: 0,00454 MPa mittlere Schubspannung gegenüber
-  0,1 MPa Projektgrenze; 0,02003 MPa mittlere Zugspannung ohne im Projekt
-  qualifizierte Zugzulässigkeit.
+- Doppelraupe 33.439 mm²: 0,00190 MPa mittlere Schubspannung und
+  0,00840 MPa mittlere Zugspannung. Maßgebend bleiben die strengeren
+  0,050/0,030-MPa-Projektwerte unter der analytischen 480-N-Hülle.
 - Konservativ ein einzelner Segmentstoß unter der vollen Horizontallast:
-  0,0509/5,625 MPa Schub und 0,926/11,25 MPa Lochleibung.
+  0,0509/5,625 MPa Schub und 0,926/11,25 MPa Lochleibung mit einem M5.
 - Ideale Verteilung der Auftriebslast auf acht Belluna-Schrauben: 35,1 N je
   Schraube gegenüber 356 N rechnerischer ASA-Wand-Auszugreferenz.
-- Die damalige ideale Verteilung der Resultierenden auf acht Dachschrauben
-  betrug 36,0 N je Schraube. Dieser Pfad existiert in `78f560c8` nicht mehr.
-
-Der aktuelle Entwurf verwendet stattdessen eine 25 mm breite, rechnerisch
-43.500 mm² große untere Elastikfuge, vollständig über einem 30-mm-Holzrahmen.
-Sie ist der **alleinige** Lastpfad zwischen Adapter und Dach; es gibt keine
-mechanische Rückfallebene. Ihr vollständiger, annahmenbasierter Nachweis steht
-in [Lastpfade](load-paths.md). Erst die neu gerechnete Matrix `74366ac7` darf
-diese Geometrie in der CFD-Strukturkopplung auswerten.
+- Die zwei 10-mm-Raupen sind der allein angerechnete Adapter-Dach-Primärpfad.
+  Acht seitliche ST4.2×25 sind physisch vorhanden, bleiben mangels geprüfter
+  Holz-/GFK-/Gewindetragfähigkeit jedoch unbewertete Reserve. Der vollständige
+  annahmenbasierte Nachweis steht in [Lastpfade](load-paths.md).
 
 Die kleine Rahmenauslastung bedeutet deshalb nicht, dass die Gesamtmontage
 mit demselben Sicherheitsfaktor freigegeben wäre. Die derzeit plausibel
 schwächeren beziehungsweise unsichereren Glieder sind Haftung des gewählten
 Dichtstoffs auf Lack und X150-GFK, der nachgerüstete Holzrahmen, das lokale
-GFK-Dach und die reale Lastverteilung in der breiten Klebfuge. Die bestehende
+GFK-Dach und die reale Lastverteilung in der Doppelraupe. Die bestehende
 480-N-Horizontallast bleibt unverändert freigabewirksam.
 
 ## Nächste Gates
