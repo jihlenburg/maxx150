@@ -13,7 +13,7 @@ sys.stdout.reconfigure(line_buffering=True)
 
 import MeshPart  # noqa: E402
 
-from cfd.config import REFERENCE_CASE, cfd_hash, manual_path  # noqa: E402
+from cfd.config import cfd_hash, manual_path, selected_case  # noqa: E402
 from export.export import _normalize_step_header  # noqa: E402
 from project_paths import cfd_dir  # noqa: E402
 from reference_models.belluna_aero import metadata, shapes  # noqa: E402
@@ -50,7 +50,8 @@ def _write_stl_m(shape, path: Path) -> None:
 
 
 def main() -> None:
-    digest = cfd_hash(REFERENCE_CASE)
+    case = selected_case()
+    digest = cfd_hash(case)
     target = cfd_dir(digest) / "geometry"
     target.mkdir(parents=True, exist_ok=True)
     files = []
@@ -70,6 +71,7 @@ def main() -> None:
     manifest = {
         "schema": 1,
         "cfd_hash": digest,
+        "case": case.name,
         "source_commit": source_commit,
         "manual_sha256": _sha256(manual_path()),
         "provenance": metadata(),

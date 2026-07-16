@@ -131,7 +131,9 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
         "mesh": _mesh_metrics(case_dir / "log.checkMesh"),
         "limitations": [
             "Belluna aerodynamic envelope reconstructed from manual page 10",
-            "coarse steady RANS reference case without prism-layer mesh",
+            ("steady RANS case without prism-layer mesh; local refinement "
+             f"level {case.near_field_level}, fan surface levels "
+             f"{case.fan_surface_level}"),
             "no vehicle-body upstream boundary-layer calibration",
             "not yet mesh-converged or experimentally correlated",
         ],

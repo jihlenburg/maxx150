@@ -4,7 +4,17 @@ from pathlib import Path
 import tempfile
 
 import params as PRM
-from cfd.config import AERO, REFERENCE_CASE, cfd_hash, manual_path
+from cfd.config import (
+    AERO,
+    CASE_ORDER,
+    OPEN_COARSE,
+    OPEN_MEDIUM,
+    REFERENCE_CASE,
+    cfd_hash,
+    comparison_hash,
+    manual_path,
+    selected_case,
+)
 from cfd.generate_case import (
     _block_mesh_dict,
     _control_dict,
@@ -27,6 +37,19 @@ def test_cfd_hash_reagiert_auf_fallparameter_aber_nicht_zufaellig():
     assert len(digest) == 8
     assert digest == cfd_hash()
     assert digest != cfd_hash(replace(REFERENCE_CASE, yaw_deg=30.0))
+    assert len(comparison_hash()) == 8
+
+
+def test_fallmatrix_trennt_zustand_und_netzniveau():
+    assert CASE_ORDER == (
+        "closed_front_coarse",
+        "open_front_coarse",
+        "open_front_medium",
+    )
+    assert OPEN_COARSE.state == OPEN_MEDIUM.state == "open"
+    assert OPEN_MEDIUM.near_field_level > OPEN_COARSE.near_field_level
+    assert OPEN_MEDIUM.fan_surface_level[1] > OPEN_COARSE.fan_surface_level[1]
+    assert selected_case("open_front_medium") is OPEN_MEDIUM
 
 
 def test_openfoam_dicts_enthalten_ausdrueckliche_modellgrenzen():
@@ -41,6 +64,8 @@ def test_openfoam_dicts_enthalten_ausdrueckliche_modellgrenzen():
     assert "55.5555556" in fields["U"]
     assert "forcesBelluna" in control
     assert f"Aref {PRM.P.A_HOOD}" in control
+    assert "levels ((1e15 2));" in snappy
+    assert "levels ((1e15 3));" in _snappy_dict(OPEN_MEDIUM)
 
 
 def test_v2606_vektorzeile():
@@ -83,4 +108,3 @@ def test_summary_darf_480_nicht_kleinrechnen():
         assert result["moment_mean_Nm"] == [0.0, 5.0, 0.0]
         assert result["structural_drag_envelope_N"] == PRM.wind_force()
         assert result["structural_use"] == "INFORMATIONAL_ONLY"
-

@@ -9,7 +9,7 @@ import shutil
 import subprocess
 
 import params as PRM
-from cfd.config import AERO, REFERENCE_CASE, CaseConfig, cfd_hash
+from cfd.config import AERO, REFERENCE_CASE, CaseConfig, cfd_hash, selected_case
 from project_paths import ROOT, cfd_dir
 
 
@@ -85,6 +85,7 @@ mergePatchPairs ();
 def _snappy_dict(case: CaseConfig) -> str:
     fan_lo, fan_hi = case.fan_surface_level
     sec_lo, sec_hi = case.secondary_surface_level
+    near_level = case.near_field_level
     return _header("snappyHexMeshDict") + f"""
 castellatedMesh true;
 snap true;
@@ -135,7 +136,7 @@ castellatedMeshControls
         nearFan
         {{
             mode inside;
-            levels ((1e15 2));
+            levels ((1e15 {near_level}));
         }}
     }}
     locationInMesh (-1.5 0 0.75);
@@ -465,7 +466,7 @@ RAS
 
 
 def main() -> None:
-    generate_case()
+    generate_case(selected_case())
 
 
 if __name__ == "__main__":

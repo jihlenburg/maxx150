@@ -27,16 +27,22 @@ def _env() -> dict[str, str]:
     return env
 
 
-def _run(cmd: list[str], *, label: str) -> None:
+def _run(cmd: list[str], *, label: str,
+         extra_env: dict[str, str] | None = None) -> None:
     print(f"\n== {label} ==", flush=True)
     print("$", " ".join(cmd), flush=True)
-    subprocess.run(cmd, cwd=ROOT, env=_env(), check=True)
+    env = _env()
+    if extra_env:
+        env.update(extra_env)
+    subprocess.run(cmd, cwd=ROOT, env=env, check=True)
 
 
-def _freecad(script: str, label: str) -> None:
+def _freecad(script: str, label: str,
+             extra_env: dict[str, str] | None = None) -> None:
     # freecadcmd 1.1.1 akzeptiert den Repo-relativen Skriptpfad zuverlässig;
     # ein absoluter Skriptpfad wird auf macOS dagegen teils still ignoriert.
-    _run([str(ROOT / "bin" / "fc"), script], label=label)
+    _run([str(ROOT / "bin" / "fc"), script], label=label,
+         extra_env=extra_env)
 
 
 def _blender(script: str, *args: Path | str, label: str) -> None:
@@ -100,11 +106,29 @@ def stage_fit() -> None:
 
 
 def stage_cfd() -> None:
-    _freecad("cfd/build_geometry.py", "Belluna-CFD-Hüllgeometrien")
-    _run([sys.executable, "-m", "cfd.generate_case"],
-         label="OpenFOAM-Referenzfall erzeugen")
-    _run([sys.executable, "-m", "cfd.run_case"],
-         label="OpenFOAM vernetzen, rechnen und auswerten")
+    from cfd.config import CASE_ORDER
+
+    for case_name in CASE_ORDER:
+        case_env = {"MAXX150_CFD_CASE": case_name}
+        _freecad(
+            "cfd/build_geometry.py",
+            f"Belluna-CFD-Hüllgeometrien · {case_name}",
+            extra_env=case_env,
+        )
+        _run(
+            [sys.executable, "-m", "cfd.generate_case"],
+            label=f"OpenFOAM-Fall erzeugen · {case_name}",
+            extra_env=case_env,
+        )
+        _run(
+            [sys.executable, "-m", "cfd.run_case"],
+            label=f"OpenFOAM rechnen · {case_name}",
+            extra_env=case_env,
+        )
+    _run([sys.executable, "-m", "cfd.compare"],
+         label="CFD-Fallmatrix und Netzsensitivität")
+    _freecad("fem/cfd_load_check.py",
+             "Nicht freigabewirksamer CFD→CalculiX-Strukturcheck")
 
 
 def stage_manual() -> None:

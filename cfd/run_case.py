@@ -6,7 +6,7 @@ import shlex
 import shutil
 import subprocess
 
-from cfd.config import REFERENCE_CASE, cfd_hash
+from cfd.config import CaseConfig, cfd_hash, selected_case
 from cfd.postprocess import summarize
 from project_paths import cfd_dir
 
@@ -34,8 +34,7 @@ def _run(case_dir: Path, command: list[str], log_name: str) -> None:
         )
 
 
-def run_reference_case() -> dict:
-    case = REFERENCE_CASE
+def run_case(case: CaseConfig) -> dict:
     target = cfd_dir(cfd_hash(case)) / "cases" / case.name
     if not (target / "case_manifest.json").exists():
         raise RuntimeError("CFD-Fall fehlt; zuerst cfd.generate_case ausführen")
@@ -53,5 +52,10 @@ def run_reference_case() -> dict:
     return result
 
 
+def run_reference_case() -> dict:
+    """Rückwärtskompatibler Einstieg für den ursprünglichen Referenzfall."""
+    return run_case(selected_case("closed_front_coarse"))
+
+
 if __name__ == "__main__":
-    run_reference_case()
+    run_case(selected_case())

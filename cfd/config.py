@@ -7,15 +7,16 @@ Provenienz-Hash.
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import params as PRM
 
 
-MODEL_REV = 1
+MODEL_REV = 2
 
 
 @dataclass(frozen=True)
@@ -47,10 +48,41 @@ class CaseConfig:
     base_cells: tuple[int, int, int] = (50, 30, 15)
     fan_surface_level: tuple[int, int] = (3, 4)
     secondary_surface_level: tuple[int, int] = (2, 3)
+    near_field_level: int = 2
 
 
 AERO = AeroGeometry()
-REFERENCE_CASE = CaseConfig()
+CLOSED_COARSE = CaseConfig()
+OPEN_COARSE = replace(
+    CLOSED_COARSE,
+    name="open_front_coarse",
+    state="open",
+)
+OPEN_MEDIUM = replace(
+    OPEN_COARSE,
+    name="open_front_medium",
+    fan_surface_level=(4, 5),
+    secondary_surface_level=(3, 4),
+    near_field_level=3,
+)
+CASES = {
+    case.name: case
+    for case in (CLOSED_COARSE, OPEN_COARSE, OPEN_MEDIUM)
+}
+CASE_ORDER = tuple(CASES)
+# Rückwärtskompatibler Name für Tests und externe Skripte.
+REFERENCE_CASE = CLOSED_COARSE
+
+
+def selected_case(name: str | None = None) -> CaseConfig:
+    """Liefert den per Pipeline-Umgebung gewählten, bekannten CFD-Fall."""
+    selected = name or os.environ.get("MAXX150_CFD_CASE", REFERENCE_CASE.name)
+    try:
+        return CASES[selected]
+    except KeyError as exc:
+        raise ValueError(
+            f"Unbekannter CFD-Fall {selected!r}; erlaubt: {', '.join(CASE_ORDER)}"
+        ) from exc
 
 
 def manual_path() -> Path:
@@ -83,5 +115,12 @@ def cfd_hash(case: CaseConfig = REFERENCE_CASE,
         "case_generator_sha256": _sha256(
             Path(__file__).resolve().parent / "generate_case.py"),
     }
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(blob).hexdigest()[:8]
+
+
+def comparison_hash() -> str:
+    """Hash der gemeinsam ausgewerteten Fallmatrix."""
+    payload = {name: cfd_hash(CASES[name]) for name in CASE_ORDER}
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(blob).hexdigest()[:8]

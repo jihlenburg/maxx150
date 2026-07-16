@@ -11,9 +11,11 @@ Konvergenzprüfung den Status `PRELIMINARY_CFD` und `INFORMATIONAL_ONLY`.
 python3 -m pipeline cfd
 ```
 
-Der Befehl erzeugt Geometrie und Fall neu, prüft die Oberflächen, vernetzt mit
-`snappyHexMesh`, initialisiert mit `potentialFoam`, rechnet stationär mit
-`simpleFoam`/k-ω-SST und schreibt `result.json` sowie `report.md`.
+Der Befehl erzeugt die Geometrie und drei Fälle neu, prüft die Oberflächen,
+vernetzt mit `snappyHexMesh`, initialisiert mit `potentialFoam`, rechnet
+stationär mit `simpleFoam`/k-ω-SST und schreibt je Fall `result.json` sowie
+`report.md`. Danach entstehen eine gemeinsame Netzsensitivität und ein
+separater, ausdrücklich nicht freigabewirksamer CalculiX-Strukturcheck.
 
 ## Geometrie und Provenienz
 
@@ -39,9 +41,17 @@ STEP bleibt in Millimetern; die OpenFOAM-STLs werden direkt in Metern
 geschrieben. Ein separates Manifest bindet Anleitung, Quellcommit,
 Modellklassifikation und SHA-256 aller Geometriedateien.
 
-## Erster Referenzfall
+## Fallmatrix
 
-`closed_front_coarse` verwendet:
+Die reproduzierbare Matrix enthält:
+
+| Fall | Haube | Nahfeld | Belluna-Oberfläche | Zweck |
+|---|---|---:|---:|---|
+| `closed_front_coarse` | geschlossen | 2 | 3–4 | Vergleichsbasis |
+| `open_front_coarse` | vollständig offen | 2 | 3–4 | Zustandsvergleich |
+| `open_front_medium` | vollständig offen | 3 | 4–5 | Netzsensitivität |
+
+Alle Fälle verwenden:
 
 - geschlossene Haube und 28-mm-Adapter,
 - 55-mm-Dachkante bei dem noch unbestätigten Abstand aus `params.py`,
@@ -51,19 +61,35 @@ Modellklassifikation und SHA-256 aller Geometriedateien.
 - stationäres RANS mit k-ω-SST,
 - keine Prismenschichten.
 
-Der vollständige Lauf des CFD-Hashs `5acfaf80` auf dem rechnerischen
+Der erste vollständige Lauf des CFD-Hashs `5acfaf80` auf dem rechnerischen
 Quellcommit `5df2d37` ergab im Mittel der letzten 20 Ausgaben ungefähr 11,9 N
 Widerstand, 157,7 N Auftrieb und 7,98 Nm Nickmoment. Die Zeitreihe war
 stationär, aber das Ergebnis ist noch nicht physikalisch freigegeben: Das
 Grobnetz besitzt 148.448 Zellen und `checkMesh` markiert etwa 3,56 % konkave
 Cut-Cells. Der bisherige Strukturnachweis bleibt deshalb unverändert bei
-mindestens 480 N horizontaler Hülllast.
+mindestens 480 N horizontaler Hülllast. Die Zahlen der neuen offenen
+Fallmatrix werden erst nach einem vollständigen, an den Quellcommit gebundenen
+Pipeline-Lauf in dieses Dokument übernommen.
+
+## Lastübergabe an CalculiX
+
+Nur `open_front_medium` wird mit dem Modellfaktor 1,5 in einen zusätzlichen
+kombinierten Rahmenlastfall übergeben. Die drei Kraftkomponenten wirken auf
+der Adapter-Deckfläche; das Nickmoment `My` wird als vertikales Kräftepaar an
+Front- und Heckaußenwand eingeleitet. `Mx` und `Mz` werden ausgewiesen, aber
+noch nicht in das bestehende Selektormodell übertragen.
+
+Die Auswertung enthält zusätzlich mittlere Spannungsindikatoren für die
+Kleberille, den konservativen analytischen Segmentstoßnachweis und eine ideale
+Gleichverteilung auf acht Belluna- beziehungsweise acht Dachschrauben. Letztere
+ist ausdrücklich kein Schrauben- oder GFK-Dach-Kapazitätsnachweis.
 
 ## Nächste Gates
 
 Vor einer Kopplung in die FEM sind mindestens erforderlich:
 
-1. Grob-/Mittel-/Feinnetz-Konvergenz für Kräfte und Momente.
+1. Feinnetz ergänzen und Grob-/Mittel-/Feinnetz-Konvergenz für Kräfte und
+   Momente bewerten.
 2. Verbesserung oder begründete Akzeptanz der konkaven Cut-Cells.
 3. Geschlossene und vollständig geöffnete Haube.
 4. Frontal-, Heck-, ±30°- und 90°-Anströmung.
