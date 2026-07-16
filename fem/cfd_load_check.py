@@ -77,7 +77,8 @@ def main() -> dict:
     comparison = json.loads(comparison_path.read_text(encoding="utf-8"))
     transfer = comparison["structural_transfer_open_medium"]
     force = transfer["force_N"]
-    moment = transfer["moment_Nm"]
+    moment_at_base = transfer["moment_about_adapter_base_Nm"]
+    moment_at_top = transfer["free_moment_at_adapter_top_Nm"]
 
     p = PRM.P
     print("CFD-FEM: baue Adapterrahmen …", flush=True)
@@ -86,7 +87,7 @@ def main() -> dict:
     print(f"  Rahmen gebaut ({time.time() - t0:.1f} s)", flush=True)
     print("CFD-FEM: kombinierter offener Lastfall auf Produktionsnetz …", flush=True)
     t0 = time.time()
-    fem = run_case(frame, _load_case(force, moment), p, p.MESH_MM)
+    fem = run_case(frame, _load_case(force, moment_at_top), p, p.MESH_MM)
     print(
         f"  vM {fem['vm_max_MPa']:.3f}/{fem['allowable_MPa']:.3f} MPa, "
         f"Deckverformung {fem['defl_top_mm']:.4f} mm "
@@ -116,7 +117,8 @@ def main() -> dict:
         "source_commit": source_commit,
         "loads_after_model_factor": {
             "force_N": force,
-            "moment_Nm": moment,
+            "moment_about_adapter_base_Nm": moment_at_base,
+            "free_moment_at_adapter_top_Nm": moment_at_top,
             "horizontal_resultant_N": horizontal,
             "force_resultant_N": resultant,
         },
@@ -132,8 +134,8 @@ def main() -> dict:
             "roof_screw_resultant_share_N_each_assuming_8": resultant / 8.0,
         },
         "omitted_moment_components": {
-            "Mx_Nm": moment[0],
-            "Mz_Nm": moment[2],
+            "Mx_free_at_top_Nm": moment_at_top[0],
+            "Mz_free_at_top_Nm": moment_at_top[2],
             "reason": (
                 "Der bestehende Rahmen-FEM-Lastselektor bildet nur My als "
                 "sauberes Kräftepaar ab; Mx/Mz werden ausgewiesen und sind "
@@ -163,7 +165,8 @@ def main() -> dict:
         "**PRELIMINARY_STRUCTURAL_CHECK** · nicht freigabewirksam",
         "",
         f"- Kraft nach Modellfaktor: `{force}` N",
-        f"- Moment nach Modellfaktor: `{moment}` Nm",
+        f"- Moment um Adapterbasis: `{moment_at_base}` Nm",
+        f"- Freies Moment an der Adapter-Deckfläche: `{moment_at_top}` Nm",
         f"- Horizontale Hülllastauslastung: **{util['horizontal']:.1%}**",
         f"- Nickmoment-Hülllastauslastung: **{util['pitch_y']:.1%}**",
         f"- Vertikal gegenüber Schlechtweg-Betrag: "

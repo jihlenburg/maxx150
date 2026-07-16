@@ -97,6 +97,13 @@ def test_summary_darf_480_nicht_kleinrechnen():
             header + "\n".join(force_rows) + "\n", encoding="utf-8")
         (force_dir / "moment.dat").write_text(
             header + "\n".join(moment_rows) + "\n", encoding="utf-8")
+        adapter_dir = case / "postProcessing" / "forcesAdapter" / "0"
+        adapter_dir.mkdir(parents=True)
+        zero_rows = [f"{i} 0 0 0 0 0 0 0 0 0" for i in range(5, 105, 5)]
+        (adapter_dir / "force.dat").write_text(
+            header + "\n".join(zero_rows) + "\n", encoding="utf-8")
+        (adapter_dir / "moment.dat").write_text(
+            header + "\n".join(zero_rows) + "\n", encoding="utf-8")
         (case / "log.checkMesh").write_text(
             "    cells: 1000\nMax aspect ratio = 4 OK.\n"
             "Mesh non-orthogonality Max: 40 average: 5\n"
@@ -105,6 +112,7 @@ def test_summary_darf_480_nicht_kleinrechnen():
         )
         result = summarize(case)
         assert result["drag_mean_N"] == 20.0
-        assert result["moment_mean_Nm"] == [0.0, 5.0, 0.0]
+        assert abs(result["moment_mean_Nm"][1] - 5.56) < 1e-12
+        assert result["force_scope"] == "BELLUNA_PLUS_ADAPTER"
         assert result["structural_drag_envelope_N"] == PRM.wind_force()
         assert result["structural_use"] == "INFORMATIONAL_ONLY"

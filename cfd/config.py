@@ -17,6 +17,7 @@ import params as PRM
 
 
 MODEL_REV = 2
+COMPARISON_SCHEMA_REV = 2
 
 
 @dataclass(frozen=True)
@@ -121,6 +122,12 @@ def cfd_hash(case: CaseConfig = REFERENCE_CASE,
 
 def comparison_hash() -> str:
     """Hash der gemeinsam ausgewerteten Fallmatrix."""
-    payload = {name: cfd_hash(CASES[name]) for name in CASE_ORDER}
+    # Der Fallhash beschreibt die Strömungsrechnung. Der separate Revisionswert
+    # bindet die fallübergreifende Summen-/Lastübergabelogik, ohne bei einer
+    # reinen Auswertungsänderung alle OpenFOAM-Fälle neu rechnen zu müssen.
+    payload = {
+        "comparison_schema_rev": COMPARISON_SCHEMA_REV,
+        "cases": {name: cfd_hash(CASES[name]) for name in CASE_ORDER},
+    }
     blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(blob).hexdigest()[:8]

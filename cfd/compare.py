@@ -6,7 +6,14 @@ import math
 from pathlib import Path
 
 import params as PRM
-from cfd.config import CASES, CASE_ORDER, OPEN_MEDIUM, cfd_hash, comparison_hash
+from cfd.config import (
+    CASES,
+    CASE_ORDER,
+    COMPARISON_SCHEMA_REV,
+    OPEN_MEDIUM,
+    cfd_hash,
+    comparison_hash,
+)
 from project_paths import cfd_dir, cfd_matrix_dir
 
 
@@ -35,15 +42,22 @@ def compare() -> dict:
     medium = results[OPEN_MEDIUM.name]
     factor = OPEN_MEDIUM.model_factor
     force = [value * factor for value in medium["force_mean_N"]]
-    moment = [value * factor for value in medium["moment_mean_Nm"]]
+    moment_at_base = [value * factor for value in medium["moment_mean_Nm"]]
     horizontal = math.hypot(force[0], force[1])
     resultant = math.sqrt(sum(value * value for value in force))
     top_z_mm = PRM.P.H_RAISE - PRM.P.GLUE_GAP
+    top_z_m = top_z_mm * 0.001
+    # Äquivalente Last auf der Adapter-Deckfläche: M_frei = M_Basis - r×F.
+    moment_at_top = [
+        moment_at_base[0] + top_z_m * force[1],
+        moment_at_base[1] - top_z_m * force[0],
+        moment_at_base[2],
+    ]
     existing_pitch = PRM.wind_force(PRM.P) * (PRM.P.H_CG + top_z_mm) * 0.001
     existing_vertical_road = PRM.P.FAN_MASS * 9.81 * PRM.P.G_VERT
 
     data = {
-        "schema": 1,
+        "schema": COMPARISON_SCHEMA_REV,
         "status": "PRELIMINARY_CFD_MATRIX",
         "structural_use": "INFORMATIONAL_NON_GATING",
         "comparison_hash": comparison_hash(),
@@ -68,7 +82,9 @@ def compare() -> dict:
         "structural_transfer_open_medium": {
             "model_factor": factor,
             "force_N": force,
-            "moment_Nm": moment,
+            "moment_about_adapter_base_Nm": moment_at_base,
+            "free_moment_at_adapter_top_Nm": moment_at_top,
+            "load_application_z_m": top_z_m,
             "horizontal_resultant_N": horizontal,
             "force_resultant_N": resultant,
             "comparison_envelopes": {
@@ -78,7 +94,7 @@ def compare() -> dict:
             },
             "utilization_of_existing_envelopes": {
                 "horizontal": horizontal / PRM.wind_force(PRM.P),
-                "pitch_y": abs(moment[1]) / existing_pitch,
+                "pitch_y": abs(moment_at_base[1]) / existing_pitch,
                 "vertical_vs_road_magnitude": abs(force[2]) / existing_vertical_road,
             },
         },
@@ -134,7 +150,9 @@ def compare() -> dict:
         "## Nicht freigabewirksame Lastübergabe",
         "",
         f"Mittelnetz × {t['model_factor']:.2f}: Kraft `{t['force_N']}` N, "
-        f"Moment `{t['moment_Nm']}` Nm.",
+        f"Moment um Adapterbasis `{t['moment_about_adapter_base_Nm']}` Nm.",
+        f"Äquivalentes freies Moment an der Deckfläche: "
+        f"`{t['free_moment_at_adapter_top_Nm']}` Nm.",
         "",
         "Die anschließende CalculiX-Prüfung ist informationshalber und "
         "ändert die bestehenden Freigabelastfälle nicht.",

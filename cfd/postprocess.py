@@ -6,9 +6,11 @@ import math
 from pathlib import Path
 import re
 from statistics import fmean, pstdev
+import subprocess
 
 import params as PRM
 from cfd.config import REFERENCE_CASE, CaseConfig
+from project_paths import ROOT
 
 
 FLOAT = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
@@ -66,6 +68,37 @@ def _dot(a: list[float], b: list[float]) -> float:
     return sum(x * y for x, y in zip(a, b))
 
 
+def _add(a: list[float], b: list[float]) -> list[float]:
+    return [x + y for x, y in zip(a, b)]
+
+
+def _belluna_moment_at_base(row: dict) -> list[float]:
+    """Transformiert das Belluna-Moment von z=H_RAISE an die Adapterbasis."""
+    fx, fy, _ = row["force_N"]
+    z = PRM.P.H_RAISE * 0.001
+    mx, my, mz = row["moment_Nm"]
+    return [mx - z * fy, my + z * fx, mz]
+
+
+def _assembly_rows(belluna: list[dict], adapter: list[dict]) -> list[dict]:
+    """Summiert beide Körper auf einen gemeinsamen Momentbezug (0,0,0)."""
+    adapter_by_time = {row["time"]: row for row in adapter}
+    rows = []
+    for fan in belluna:
+        plinth = adapter_by_time.get(fan["time"])
+        if plinth is None:
+            continue
+        rows.append({
+            "time": fan["time"],
+            "force_N": _add(fan["force_N"], plinth["force_N"]),
+            "moment_Nm": _add(
+                _belluna_moment_at_base(fan), plinth["moment_Nm"]),
+        })
+    if not rows:
+        raise RuntimeError("Belluna- und Adapterzeitreihen haben keine gemeinsamen Zeiten")
+    return rows
+
+
 def _mesh_metrics(log_path: Path) -> dict:
     text = log_path.read_text(encoding="utf-8", errors="replace")
     patterns = {
@@ -89,17 +122,25 @@ def _mesh_metrics(log_path: Path) -> dict:
 
 
 def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
-    force_files = sorted(
-        (case_dir / "postProcessing" / "forcesBelluna").glob("*/force.dat")
-    )
-    moment_files = sorted(
-        (case_dir / "postProcessing" / "forcesBelluna").glob("*/moment.dat")
-    )
-    if not force_files or not moment_files:
-        raise RuntimeError("forcesBelluna/force.dat oder moment.dat fehlt")
-    rows = read_forces(force_files[-1], moment_files[-1])
-    window_count = min(50, max(5, len(rows) // 5))
-    window = rows[-window_count:]
+    body_rows = {}
+    for body in ("Belluna", "Adapter"):
+        root = case_dir / "postProcessing" / f"forces{body}"
+        force_files = sorted(root.glob("*/force.dat"))
+        moment_files = sorted(root.glob("*/moment.dat"))
+        if not force_files or not moment_files:
+            raise RuntimeError(f"forces{body}/force.dat oder moment.dat fehlt")
+        body_rows[body] = read_forces(force_files[-1], moment_files[-1])
+
+    rows = body_rows["Belluna"]
+    assembly = _assembly_rows(rows, body_rows["Adapter"])
+    window_count = min(50, max(5, len(assembly) // 5))
+    belluna_window = rows[-window_count:]
+    adapter_window = body_rows["Adapter"][-window_count:]
+    window = assembly[-window_count:]
+    belluna_force = _mean_vector(belluna_window, "force_N")
+    belluna_moment = _mean_vector(belluna_window, "moment_Nm")
+    adapter_force = _mean_vector(adapter_window, "force_N")
+    adapter_moment = _mean_vector(adapter_window, "moment_Nm")
     force = _mean_vector(window, "force_N")
     moment = _mean_vector(window, "moment_Nm")
     yaw = math.radians(case.yaw_deg)
@@ -115,8 +156,15 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
         "status": "PRELIMINARY_CFD",
         "structural_use": "INFORMATIONAL_ONLY",
         "case": case.name,
-        "samples": len(rows),
+        "samples": len(assembly),
         "averaging_window": window_count,
+        "force_scope": "BELLUNA_PLUS_ADAPTER",
+        "moment_reference": "adapter base centre (0, 0, 0)",
+        "belluna_force_mean_N": belluna_force,
+        "belluna_moment_about_mount_mean_Nm": belluna_moment,
+        "adapter_force_mean_N": adapter_force,
+        "adapter_moment_about_base_mean_Nm": adapter_moment,
+        # Generische Schlüssel bezeichnen ab Schema 2 die Gesamtbaugruppe.
         "force_mean_N": force,
         "moment_mean_Nm": moment,
         "drag_mean_N": drag,
@@ -138,6 +186,13 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
             "not yet mesh-converged or experimentally correlated",
         ],
     }
+    result["schema"] = 2
+    try:
+        result["postprocess_source_commit"] = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip()
+    except Exception:
+        result["postprocess_source_commit"] = "UNBEKANNT"
     output = case_dir / "result.json"
     output.write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n",
@@ -151,7 +206,9 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
             f"Fall: `{case.name}` · Status: **PRELIMINARY_CFD**",
             "",
             f"- Mittlere Kraft [N]: `{force}`",
-            f"- Mittleres Moment [Nm]: `{moment}`",
+            f"- Mittleres Moment um Adapterbasis [Nm]: `{moment}`",
+            f"- davon Belluna-Kraft [N]: `{belluna_force}`",
+            f"- davon Adapter-Kraft [N]: `{adapter_force}`",
             f"- Widerstand: **{drag:.1f} N**",
             f"- Seitenkraft: **{side:.1f} N**",
             f"- Auftrieb (+z): **{lift:.1f} N**",
