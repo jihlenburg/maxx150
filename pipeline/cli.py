@@ -53,6 +53,8 @@ def stage_doctor() -> None:
         "Blender": Path(blender) if blender else None,
         "Chrome": CHROME,
         "pdfinfo": Path(shutil.which("pdfinfo")) if shutil.which("pdfinfo") else None,
+        "OpenFOAM": (Path(shutil.which("openfoam"))
+                     if shutil.which("openfoam") else None),
     }
     missing = []
     print(f"Projekt: {ROOT}")
@@ -97,6 +99,14 @@ def stage_fit() -> None:
     _freecad("pipeline/fit_stage.py", "Digitaler Belluna-Passungscheck")
 
 
+def stage_cfd() -> None:
+    _freecad("cfd/build_geometry.py", "Belluna-CFD-Hüllgeometrien")
+    _run([sys.executable, "-m", "cfd.generate_case"],
+         label="OpenFOAM-Referenzfall erzeugen")
+    _run([sys.executable, "-m", "cfd.run_case"],
+         label="OpenFOAM vernetzen, rechnen und auswerten")
+
+
 def stage_manual() -> None:
     h = PRM.params_hash(PRM.P)
     target = manual_dir(h)
@@ -123,6 +133,7 @@ STAGES = {
     "engineering": stage_engineering,
     "render": stage_render,
     "fit": stage_fit,
+    "cfd": stage_cfd,
     "heatmap": stage_heatmap,
     "manual": stage_manual,
     "references": stage_references,
@@ -138,8 +149,8 @@ def main(argv: list[str] | None = None) -> int:
 
     PRM.validate(PRM.P)
     if args.stage == "all":
-        for name in ("doctor", "test", "engineering", "fit", "render", "heatmap",
-                     "manual", "references", "release"):
+        for name in ("doctor", "test", "engineering", "fit", "cfd", "render",
+                     "heatmap", "manual", "references", "release"):
             STAGES[name]()
     else:
         STAGES[args.stage]()

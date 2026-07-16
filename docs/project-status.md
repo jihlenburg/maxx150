@@ -12,6 +12,8 @@ Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 - DFM-, FEM-, analytische, Passungs-, Export- und Referenztests.
 - Definiertes Kleb-/Dicht-/Lacksystem und reproduzierbarer Montagegenerator.
 - Einheitliche Pipeline und geordneter Build-/Release-/Referenzaufbau.
+- Reproduzierbarer erster OpenFOAM-Grobfall für die geschlossene Belluna-
+  Aerohülle bei 200 km/h; noch kein Freigabe-Gate.
 
 ## Offen vor Produktionsfreigabe
 
@@ -26,6 +28,7 @@ Stand: 15.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
 - FEM-Netzkonvergenz 20/10/5 mm automatisieren.
 - Elastische Noppenbettung statt starrer Lagerung untersuchen.
 - Stoßmodell um expliziten Bolzenkontakt und zyklische Lasten erweitern.
+- CFD-Netzkonvergenz sowie offene Haube, Schräg- und Seitenwind ergänzen.
 - Zusammenhängenden Massivquerschnitt als quantitative Warp-Metrik ergänzen.
 
 Historische Tasks, verworfene Materialien und frühere Parameterstände stehen

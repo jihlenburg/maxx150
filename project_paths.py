@@ -32,6 +32,10 @@ def fit_dir(parameter_hash: str) -> Path:
     return BUILD_ROOT / "analysis" / "fit" / parameter_hash
 
 
+def cfd_dir(cfd_hash: str) -> Path:
+    return BUILD_ROOT / "analysis" / "cfd" / cfd_hash
+
+
 def manual_dir(parameter_hash: str) -> Path:
     return BUILD_ROOT / "documentation" / parameter_hash
 

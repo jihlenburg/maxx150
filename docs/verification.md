@@ -17,6 +17,12 @@ gerechnet, der Segmentstoß separat. Das ist kein Kontakt-/Ermüdungsmodell der
 kompletten Baugruppe. Netz- und Modellgrenzen sind im jeweiligen Report
 sichtbar zu halten.
 
+Die optionale CFD-Stufe rekonstruiert die äußere Belluna-Hülle aus der
+Einbauanleitung. Ihre Ergebnisse sind bis zu Netzkonvergenz, Variantenmatrix
+und Korrelation ausdrücklich `INFORMATIONAL_ONLY`. Sie dürfen die bestehende
+480-N-Windhülllast nicht reduzieren; ein höherer Wert würde dagegen als
+Hinweis für eine Eskalation behandelt.
+
 ## Releasezustände
 
 | Zustand | Bedeutung |

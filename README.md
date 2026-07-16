@@ -24,6 +24,7 @@ python3 -m pipeline doctor       # Werkzeugkette prüfen
 python3 -m pipeline test         # komplette Testsuite
 python3 -m pipeline engineering  # Konstruktion + DFM + FEM + Report + Export
 python3 -m pipeline fit          # Belluna-Rekonstruktion gegen Adapter prüfen
+python3 -m pipeline cfd          # aerodynamisches Hüllmodell + OpenFOAM
 python3 -m pipeline render       # technische Konstruktionsansichten
 python3 -m pipeline heatmap      # FEM-Heatmaps
 python3 -m pipeline manual       # Montagebilder + PDF
@@ -44,6 +45,7 @@ Candidate werden versioniert.
 | `model/` | B-Rep-Rahmen, Segmentierung und DFM-Geometrie |
 | `fem/` | Lastfälle, Materialmodell, CalculiX und analytische Nachweise |
 | `analysis/` | nicht-FEM-basierte Prüfungen, derzeit Belluna-Passung |
+| `cfd/` | Belluna-Aerohüllmodell, OpenFOAM-Fall und Kräfteauswertung |
 | `export/` | STEP/STL/3MF und technische Montagenotiz |
 | `render/` | technische Blender-Ansichten und Heatmaps |
 | `montage/` | Generator der illustrierten Montageanleitung |
@@ -59,6 +61,7 @@ Candidate werden versioniert.
 - [Aktuelles Design](docs/design.md)
 - [Pipeline und Artefakte](docs/pipeline.md)
 - [Nachweise und Freigabestatus](docs/verification.md)
+- [CFD-Modell und Windlasten](docs/cfd.md)
 - [Generator der Montageanleitung](docs/assembly-manual.md)
 - [Referenz- und Datenblattkatalog](references/README.md)
 

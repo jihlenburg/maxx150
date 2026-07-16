@@ -6,6 +6,7 @@
 params.py
    ├─ model/ ── DFM ── FEM + Analytik ── export/ ── build/engineering/<hash>/
    ├─ reference_models/ + model/ ── Passung ─────── build/analysis/fit/<hash>/
+   ├─ Belluna-Anleitung + Dach ── OpenFOAM ──────── build/analysis/cfd/<cfd-hash>/
    ├─ fem/ ── Spannungsfelder ── Blender ───────── build/analysis/heatmap/<hash>/
    ├─ model/ ── Blender ────────────────────────── build/render/<hash>/
    └─ model/ + Belluna + Dach ── Blender ── PDF ─ build/documentation/<hash>/
@@ -21,6 +22,7 @@ params.py
 | `test` | Geometrie-, FEM-, Export-, Referenz- und Toolchaintests | alle Tests müssen bestehen |
 | `engineering` | Rahmen, Segmente, DFM, vier globale Lastfälle, Stoßmodell, Analytik, Export | Report darf nicht `FAIL` sein |
 | `fit` | Belluna-Rekonstruktion gegen Adapter | Kollision, Radialspiel, Auflage, Schraubpfade |
+| `cfd` | Aerohüllmodell, `snappyHexMesh`, stationäres RANS und Kräfteauswertung | vorläufige Kräfte/Momente; derzeit kein Release-Gate |
 | `render` | Standardansichten und Schnitte | PNG + Render-STL |
 | `heatmap` | Knotenspannungen und Hotspots aller Lastfälle | PLY, JSON und PNG |
 | `manual` | 14 Montageszenen, HTML und PDF | 14 PNGs in 1500×1125, aktueller Hash und exakt 10 A4-Seiten |
@@ -42,6 +44,7 @@ sondern stets über den Parameter-Hash:
 build/
 ├── engineering/<hash>/
 ├── analysis/fit/<hash>/
+├── analysis/cfd/<cfd-hash>/
 ├── analysis/heatmap/<hash>/
 ├── render/<hash>/
 ├── documentation/<hash>/
@@ -54,9 +57,10 @@ wird von keiner aktuellen Pipeline-Stufe gelesen.
 
 ## Werkzeugversionen
 
-Der aktuell geprüfte lokale Stack ist FreeCAD 1.1.1, Blender 5.1 und Google
-Chrome Headless. `bin/fc` akzeptiert über `FREECAD_BUNDLE` eine alternative
-FreeCAD-App. `BLENDER_BIN` überschreibt den Blender-Pfad.
+Der aktuell geprüfte lokale Stack ist FreeCAD 1.1.1, Blender 5.1, OpenFOAM
+v2606 und Google Chrome Headless. `bin/fc` akzeptiert über `FREECAD_BUNDLE`
+eine alternative FreeCAD-App. `BLENDER_BIN` überschreibt den Blender-Pfad.
+Die CFD-Stufe verwendet den `openfoam`-Wrapper aus `PATH`.
 
 ## Messwertübernahme
 
