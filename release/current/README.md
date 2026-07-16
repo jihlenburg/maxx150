@@ -1,12 +1,12 @@
 # Aktueller Adapterstand
 
-Parameterstand `83aeba39` · GEOM_REV `6` · Status `PROTOTYPE_ONLY`
+Parameterstand `78f560c8` · GEOM_REV `7` · Status `PROTOTYPE_ONLY`
 
-- `Belluna_Adapter_Universal_x4_83aeba39.step`: ein Universalsegment in Einbaulage.
-- `Belluna_Adapter_Universal_x4_PRINT_83aeba39.stl`: dasselbe Segment in Drucklage.
+- `Belluna_Adapter_Universal_x4_78f560c8.step`: ein Universalsegment in Einbaulage.
+- `Belluna_Adapter_Universal_x4_PRINT_78f560c8.stl`: dasselbe Segment in Drucklage.
 - Stückzahl: **4**, nur um Z drehen, nicht spiegeln.
-- `verification_report_83aeba39.md`: zugehöriger rechnerischer Nachweis.
-- `fit_summary_83aeba39.json`: digitaler Passungscheck gegen die Belluna-Rekonstruktion.
+- `verification_report_78f560c8.md`: zugehöriger rechnerischer Nachweis.
+- `fit_summary_78f560c8.json`: digitaler Passungscheck gegen die Belluna-Rekonstruktion.
 - `manifest.json`: Prüfsummen, Quellcommit und offene Gates.
 
-`PROTOTYPE_ONLY` ist keine Produktionsfreigabe. Offene physische Gates stehen im Report und in `docs/verification.md`.
+`PROTOTYPE_ONLY` ist keine Produktionsfreigabe. Reale Einbaukontrollen und die Erkenntnisgrenze der annahmenbasierten Werkstoffpfade stehen in `docs/verification.md` und `docs/load-paths.md`.

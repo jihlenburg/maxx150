@@ -1,33 +1,33 @@
 {
   "schema": 2,
   "status": "PROTOTYPE_ONLY",
-  "parameter_hash": "83aeba39",
-  "geom_rev": 6,
-  "source_commit": "1a7bd3289a95c4659ffbc3401632c657e754ba49",
-  "source_commit_time": "2026-07-16T00:34:56+02:00",
+  "parameter_hash": "78f560c8",
+  "geom_rev": 7,
+  "source_commit": "ba09897ac3e3d130885a5d73a99a6a0cf9d9c3fd",
+  "source_commit_time": "2026-07-16T08:24:15+02:00",
   "part": "Universal-L-Ecksegment",
   "quantity": 4,
   "step_orientation": "Einbaulage",
   "stl_orientation": "Drucklage, Deckfläche auf Z=0",
   "files": {
-    "Belluna_Adapter_Universal_x4_83aeba39.step": {
-      "sha256": "a9f77eb746e41f373b6b41400b457d48c064c9210cec80875900f0dedb674735",
-      "bytes": 320270
+    "Belluna_Adapter_Universal_x4_78f560c8.step": {
+      "sha256": "f54fac9d938024ee968cdcbafd0c21590dab2a4dfad13f640df0d0502dcc0c0f",
+      "bytes": 436160
     },
-    "Belluna_Adapter_Universal_x4_PRINT_83aeba39.stl": {
-      "sha256": "8d9153845ae6f593282acf560ce12112ff4978c5aa2a671019bbd27c6d01b212",
-      "bytes": 429984
+    "Belluna_Adapter_Universal_x4_PRINT_78f560c8.stl": {
+      "sha256": "99a6daa78f7949ad72dc71a743594d3c7efd53fdc8623c0e1e66e0658a15adfd",
+      "bytes": 498384
     },
-    "verification_report_83aeba39.md": {
-      "sha256": "5d7cebe0ebb60348d259271d9afd2340ba079741e0a4881fd0e75376d71c27e6",
-      "bytes": 2524
+    "verification_report_78f560c8.md": {
+      "sha256": "e6d8e7c274160d27dc4756c7ee5c169812603db8dd943bbb289d4f6eec729ab5",
+      "bytes": 2572
     },
-    "fit_summary_83aeba39.json": {
-      "sha256": "8e69ceee8aef043ebd44f6c4db1e049a1025adce5f1dcd1ea353797aa5c9d862",
+    "fit_summary_78f560c8.json": {
+      "sha256": "2804a22ea330736adf69648ab89c5b0392790c01688584fa3f8f620077534f5d",
       "bytes": 748
     }
   },
   "open_gates": [
-    "physische Coupon- und Einbauqualifikation laut Report"
+    "reale Einbaukontrollen; Werkstoffpfade nur PASS_ASSUMPTION_BASED laut docs/load-paths.md"
   ]
 }
