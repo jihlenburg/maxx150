@@ -33,6 +33,24 @@
       "sha256": "7efca012f57bf42d04366078873417af4429bc3b549973fe35618611056c0f87"
     },
     {
+      "path": "datasheets/process/sika-abglaettmittel-n.pdf",
+      "status": "selected_process_aid",
+      "source": "https://deu.sika.com/content/dam/dms/deaddconst01/o/sika-tooling-agentn.pdf",
+      "sha256": "c811d25ce5a0765e5aa5af233225352b9a2a636d91a08793bbe4ea3348c445e9"
+    },
+    {
+      "path": "datasheets/process/sika-stp-vorbehandlungstabelle-v8.pdf",
+      "status": "selected_process_basis",
+      "source": "https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf",
+      "sha256": "7a67344d40294f0a1b5b50880f3b15ff072f4fa883699eb60e16d5e1eb5376ce"
+    },
+    {
+      "path": "datasheets/process/sika-1k-bonding-sealing-guideline-v6-1.pdf",
+      "status": "selected_process_basis",
+      "source": "https://industry.sika.com/dam/dms/global-industry/4/bonding-and-sealingwith1-componentsikaflex.pdf",
+      "sha256": "f6a9ac4bedec2152411dd6a87722c632a6464655bd8a41c63d4f4c977653afae"
+    },
+    {
       "path": "datasheets/adhesives/carloflex-410-uv-source.md",
       "status": "evaluated_design_equivalent",
       "source": "vom Nutzer bereitgestelltes Carlofon-TDS; Original-SHA-256 b4dbd8213e0b37fe69204cb2b18fde1ef4012a4b50a6dd25a6b8006b5342a2a5",

@@ -66,5 +66,7 @@ def test_montagenotiz_inhalt():
                  "ST 4.2×25", "8 Belluna-Schrauben", "Acht seitliche",
                  "1× M5x", "HDT", "Kammer",
                  "Universal-Segment", "4x identisch", "nicht spiegeln",
-                 "16", "Abstandspads", "3.6 mm wirksame Raupenhöhe"):
+                 "16", "Abstandspads", "3.6 mm wirksame Raupenhöhe",
+                 "äußere Schutzkehle", "7×7 mm", "Sika Tooling Agent N",
+                 "nicht", "Tragpfad"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"

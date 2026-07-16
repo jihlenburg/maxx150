@@ -70,7 +70,12 @@ Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
   sie ersetzen den Klebnachweis nicht und werden rechnerisch nicht angerechnet.
 - Vollständige Durchhärtung der unteren Sikaflex-Doppelraupe nach aktuellem
   Produktdatenblatt vor weiterer Montage, Fahrt oder Belastung.
-- Flutungstest nach Montage sowie jährliche Sicht-/Handprüfung aller Nähte,
+- Erst danach die etwa 7×7 mm große äußere Sikaflex-522-Schutzkehle auf
+  trockenem GFK und vollständig ausgehärteter 2K-PUR-Lackflanke herstellen.
+  Sie ist zugänglicher, erneuerbarer Wetterschutz und kein angerechneter
+  Lastpfad; ausschließlich Sika Tooling Agent N zum Glätten verwenden.
+- Flutungstest nach Montage sowie jährliche Sicht-/Handprüfung der äußeren
+  Schutzkehle, aller übrigen Nähte,
   der unteren Doppelraupe, der oberen und unteren Schrauben sowie der Lackkanten.
 
 Ohne Werkstoffversuche bleibt das Ergebnis ehrlich

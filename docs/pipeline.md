@@ -27,7 +27,7 @@ params.py
 | `cfd` | Aerohüllmodell, `snappyHexMesh`, stationäres RANS und Kräfteauswertung | vorläufige Kräfte/Momente; derzeit kein Release-Gate |
 | `render` | Standardansichten und Schnitte | PNG + Render-STL |
 | `heatmap` | Knotenspannungen und Hotspots aller Lastfälle | PLY, JSON und PNG |
-| `manual` | 14 Montageszenen, HTML und PDF | 14 PNGs in 1500×1125, aktueller Hash und exakt 11 A4-Seiten |
+| `manual` | 15 Montageszenen, HTML und PDF | 15 PNGs in 1500×1125, aktueller Hash und exakt 12 A4-Seiten |
 | `references` | Belluna-Rekonstruktion als STEP/STL | separates Provenienz-/Dateimanifest |
 | `release` | geprüfte Universaldatei + Report + Fit-Summary nach `release/current` | aktueller Quellcommit, Report-SHA256 und Fit-PASS |
 

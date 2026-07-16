@@ -238,6 +238,36 @@ def marker(p1, p2, radius=3.0, rgb=COL_RED, emission=1.8):
     return o
 
 
+def rounded_square_bead(name, half, corner_r, z, diameter, rgb=COL_GREEN):
+    """Geschlossener Rundquadrat-Marker für die äußere Schutzkehle.
+
+    Der runde Querschnitt ist eine gut lesbare Render-Abstraktion der real
+    konkav abgezogenen Kehlnaht; Maße und Sollquerschnitt stehen im PDF.
+    """
+    points = []
+    center = half - corner_r
+    for cx, cy, a0 in ((center, center, 0), (-center, center, 90),
+                       (-center, -center, 180), (center, -center, 270)):
+        for i in range(9):
+            a = math.radians(a0 + 90.0 * i / 8.0)
+            points.append((cx + corner_r * math.cos(a),
+                           cy + corner_r * math.sin(a), z))
+    curve = bpy.data.curves.new(name, "CURVE")
+    curve.dimensions = "3D"
+    curve.resolution_u = 2
+    curve.bevel_depth = diameter / 2.0
+    curve.bevel_resolution = 4
+    spline = curve.splines.new("POLY")
+    spline.points.add(len(points) - 1)
+    for point, xyz in zip(spline.points, points):
+        point.co = (*xyz, 1.0)
+    spline.use_cyclic_u = True
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.scene.collection.objects.link(obj)
+    obj.data.materials.append(_mat(name + "_mat", rgb, rough=0.30, emission=1.1))
+    return obj
+
+
 def _rig(scene, sun=3.0, area=45000, key=(-500, -700, 900)):
     s = bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN"))
     s.data.energy = sun
@@ -514,7 +544,26 @@ def img12_kleberaupe():
     _render(scene, "12_kleberaupe.png")
 
 
-def img13_platte_schrauben():
+def img13_aussenkehle():
+    scene = _new_scene()
+    load_segments()
+    load_part("dach", _mat("dach", COL_DACH, rough=0.72))
+    leg = G["weather_fillet_leg"]
+    # Marker liegt in der konstruierten 4-mm-Außenfase und überbrückt den
+    # 3-mm-Dachspalt. Grün bedeutet wie in Bild 12: Sikaflex-Arbeitsschritt.
+    rounded_square_bead(
+        "Aussenkehle",
+        G["outer_half"] + 0.4,
+        G["outer_r"] + 0.4,
+        G["roof_top_z"] + leg * 0.42,
+        leg,
+    )
+    cam, target = _rig(scene, area=95000, key=(-300, -650, 520))
+    _cam(cam, target, (710, -710, 205), (0, 0, -1), lens=61)
+    _render(scene, "13_aussenkehle.png")
+
+
+def img14_platte_schrauben():
     scene = _new_scene()
     load_segments()
     load_part("platte", _mat("platte", COL_PLATTE, rough=0.5, alpha=0.30))
@@ -525,10 +574,10 @@ def img13_platte_schrauben():
         marker(m["p1"], m["p2"], radius=3.0)
     cam, target = _rig(scene)
     _cam(cam, target, (760, -760, 540), (0, 0, 16), lens=60)
-    _render(scene, "13_platte_schrauben.png")
+    _render(scene, "14_platte_schrauben.png")
 
 
-def img14_fertig():
+def img15_fertig():
     scene = _new_scene()
     load_segments()
     load_part("platte", _mat("platte", COL_PLATTE, rough=0.5))
@@ -536,14 +585,14 @@ def img14_fertig():
     load_part("dichtring", _mat("dichtring", COL_SEAL, rough=0.8))
     cam, target = _rig(scene)
     _cam(cam, target, (880, -880, 640), (0, 0, 20))
-    _render(scene, "14_fertig.png")
+    _render(scene, "15_fertig.png")
 
 
 ALL = [img01_titel_explosion, img02_teile_uebersicht, img03_fuegeflaechen,
        img04_kleber_aktivator, img05_m5_montage, img06_m5_mutter,
        img07_rahmen_komplett, img08_maskierung_lack, img09_dach_holzrahmen,
        img10_aufsetzen, img11_hybrid_dachinterface, img12_kleberaupe,
-       img13_platte_schrauben, img14_fertig]
+       img13_aussenkehle, img14_platte_schrauben, img15_fertig]
 
 # Optionaler Filter über Env ONLY_IMG (Komma-Liste von Nummern) für gezieltes
 # Nachrendern einzelner Bilder während der Sichtprüfung.

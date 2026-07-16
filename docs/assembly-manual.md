@@ -44,7 +44,7 @@ Prozess erzeugt bewusst kein scheinbar vollständiges PDF.
 | Datei | Stufe | Zweck |
 |-------|-------|-------|
 | `build_stls.py` | FreeCAD (`bin/fc`) | Baut Segmente, vermessene Belluna-Rekonstruktion und Dach-Sandwich; schreibt `build/documentation/<hash>/stl/` + Manifest. |
-| `render_steps.py` | Blender | Rendert die 14 Schrittbilder nach `build/documentation/<hash>/img/`. Liest nur das Manifest. |
+| `render_steps.py` | Blender | Rendert die 15 Schrittbilder nach `build/documentation/<hash>/img/`. Liest nur das Manifest. |
 | `build_pdf.py` | python3 | HTML aus `STEPS`-Datenstruktur + Chrome-Headless-PDF. Liest **nur** das Manifest. |
 | `docs/assembly-manual.md` | — | Dieses Dokument. |
 
@@ -83,8 +83,8 @@ Materialliste oder die Montageschritte aufgenommen werden.
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben permanente FDM-Abminderungen und `PROTOTYPE_ONLY`. |
 | Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. Für ASA-GF wird rechnerisch nur 0,50 statt 6 MPa auf ABS angesetzt. |
-| Dach- und Belluna-Dichtung | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Zwei 10-mm-Raupen tragen den unteren Primärnachweis allein; die äußere bleibt geschlossen, die innere belüftet den Mittelkanal an acht definierten Stellen. Acht Seitenschrauben bleiben eine rechnerisch nicht angerechnete Reserve. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
-| Vorbehandlung der 522-Klebezonen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205 | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
+| Dach-, Belluna- und Wetterschutzfugen | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Zwei 10-mm-Raupen tragen den unteren Primärnachweis allein; die äußere bleibt geschlossen, die innere belüftet den Mittelkanal an acht definierten Stellen. Erst nach vollständiger Durchhärtung schützt eine zugängliche, nichttragende 7×7-mm-Außenkehle die verdeckte Klebung. Acht Seitenschrauben bleiben eine rechnerisch nicht angerechnete Reserve. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
+| Vorbehandlung und Glätten der 522-Fugen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205, Sika Tooling Agent N | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Vollständig ausgehärteter Mipa-2K-PUR-Decklack wird nach der aktuellen Sika-STP-Tabelle für 2K-PUR-Lack behandelt. Tooling Agent N ist das festgelegte Glättmittel der sichtbaren Außenkehle; keine Spülmittel-, Alkohol- oder Lösemittellösung. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
 | Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Rechnerisch nur 0,05 MPa und eine GFK/Holz-Fläche angesetzt. |
 | Lack-Haftgrund | Mipa 1K-Plastic-Grundierfiller-Spray, Art.-Nr. 213390000 | Füllender Haftvermittler für u. a. ABS, PC/ABS und GFK, mit 2K-Decklack überlackierbar. ASA-GF ist nicht ausdrücklich gelistet; der Lack bleibt nichttragend und wird jährlich kontrolliert. |
 | Weißer Decklack | Mipa PUR HS 2K-PUR-Acryl-Fahrzeuglack RAL 9003 Signalweiß glänzend + Mipa 2K-MS-Härter MS 25, 2:1 Volumen | Wetter- und vergilbungsfester Nutzfahrzeuglack mit hoher chemischer/mechanischer Beständigkeit; Weiß reduziert die solare Aufheizung des schwarzen Rohlings. |
@@ -115,8 +115,9 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 | 10 aufsetzen | Rahmen über Dach, Kragen sichtbar | — |
 | 11 hybrid_dachinterface | Eingesetzter Rahmen mit transparentem Dach und Holzrahmen | 8× rote Achsen der seitlichen, nicht angerechneten Rückfallschrauben |
 | 12 kleberaupe | Unterseite | **grün** (zwei flache Führungsböden; acht Unterbrechungen der inneren Raupe sichtbar) |
-| 13 platte_schrauben | Rahmen+Platte (halbtransparent) | 16 mögliche rote ST4,2-Achsmarker; 8 werden gesetzt |
-| 14 fertig | Kompletter Stapel | — |
+| 13 aussenkehle | Eingesetzter Adapter auf dem Dach | **grün** (zugängliche, erst nach Primärhärtung aufgebrachte Schutzkehle) |
+| 14 platte_schrauben | Rahmen+Platte (halbtransparent) | 16 mögliche rote ST4,2-Achsmarker; 8 werden gesetzt |
+| 15 fertig | Kompletter Stapel | — |
 
 ## Texte/Bilder ergänzen oder ändern
 
@@ -131,8 +132,8 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
   entstehen keine verwaisten Bilder, Tabellenfortsetzungen oder
   Hinweisboxen.
 - **Automatische Abnahme**: `pipeline.checks.validate_manual()` verlangt nach
-  jedem `manual`-Lauf genau 14 Bilder in 1500×1125 px, den aktuellen
-  Parameterhash und genau elf PDF-Seiten. Ein unbeabsichtigter Umbruch ist
+  jedem `manual`-Lauf genau 15 Bilder in 1500×1125 px, den aktuellen
+  Parameterhash und genau zwölf PDF-Seiten. Ein unbeabsichtigter Umbruch ist
   damit ein Pipeline-Fehler statt einer stillen Layoutänderung.
 - **Neues Bild**: Geometrie/STL in `build_stls.py`, ggf. Marker/Filtergrößen
   ins Manifest; Renderfunktion `imgNN_*` in `render_steps.py` (Kamera, Material,

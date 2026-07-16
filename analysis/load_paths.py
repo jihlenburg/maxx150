@@ -257,6 +257,12 @@ def _roof_double_bead(p: PRM.Params) -> dict:
             p.SPACER_PAD_TANGENTIAL,
             p.GLUE_GAP,
         ],
+        "external_weather_fillet": {
+            "leg_mm": PRM.weather_fillet_leg(p),
+            "nominal_volume_ml": PRM.weather_fillet_volume_ml(p),
+            "load_path_credit": 0.0,
+            "role": "accessible_renewable_weather_seal_after_primary_cure",
+        },
         "outer_side_mm": outer_side,
         "area_mm2": area,
         "second_moment_mm4": inertia,
@@ -718,6 +724,13 @@ def to_markdown(result: dict) -> str:
         "- Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere "
         "Raupe wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, "
         "damit der 4-mm-Mittelkanal Feuchte nachführen kann.",
+        f"- Erst nach vollständiger Durchhärtung der tragenden Doppelraupe wird "
+        f"außen eine etwa {roof_ring['external_weather_fillet']['leg_mm']:.0f}×"
+        f"{roof_ring['external_weather_fillet']['leg_mm']:.0f}-mm-Sikaflex-522-"
+        f"Schutzkehle ergänzt (nominal rund "
+        f"{roof_ring['external_weather_fillet']['nominal_volume_ml']:.0f} ml). "
+        "Sie bleibt sichtbar, erneuerbar und erhält keinerlei Tragfähigkeits-"
+        "gutschrift.",
         "- Acht seitliche ST4.2x25 sichern den Unterkragen im Holzrahmen. Ohne "
         "typgeprüften Schraubgrund wird nur der je Lastfall erforderliche "
         "Kapazitätswert ausgewiesen; die Schrauben werden nicht angerechnet.",

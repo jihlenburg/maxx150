@@ -33,5 +33,6 @@ def test_referenzkatalog_ist_vollstaendig_und_unveraendert():
 def test_auswahldokumentation_deckt_alle_produktklassen_ab():
     text = (REFERENCES / "README.md").read_text(encoding="utf-8")
     for product in ("RK-1300", "Carloflex 410 UV", "Sikaflex-522",
-                    "SikaForce-710 L35", "Epoxyd-Minutenkleber", "Mipa"):
+                    "SikaForce-710 L35", "Sika Abglättmittel N",
+                    "Epoxyd-Minutenkleber", "Mipa"):
         assert product in text

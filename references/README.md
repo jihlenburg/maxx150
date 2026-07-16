@@ -17,6 +17,8 @@ Projektartefakte; diese liegen unter `build/` beziehungsweise
   Quellenprotokoll Originalname, SHA-256 und die verwendeten Kennwerte fest.
 - `datasheets/adhesives/evaluated-not-selected/`: bewertete, bewusst nicht
   gewählte Produkte.
+- `datasheets/process/`: eingefrorene Hersteller-Prozessgrundlagen für
+  Vorbehandlung, Aushärtung und Fugenbearbeitung.
 - `datasheets/coatings/`: Primer und Decklack.
 - `datasheets/materials/`: Materialherkunft und Herstellerlinks.
 
@@ -30,6 +32,7 @@ Dateien. Der Test `test_reference_catalog.py` schützt die Ablage gegen stille
 |---|---|---|
 | Segmentstöße | WEICON RK-1300 | ausgewählt; rechnerisch auf 0,50 MPa abgemindert |
 | Dach/Belluna | Sikaflex-522 weiß | Standardweg; 0,030 MPa normal / 0,050 MPa Schub, Vorbehandlung namentlich dokumentiert |
+| Äußere Schutzkehle | Sika Abglättmittel N | ausgewähltes, wasserbasiertes Sika-Glättmittel; Verträglichkeit am ausgehärteten Originallack vorprüfen |
 | Dach/Belluna | Carloflex 410 UV weiß | Belluna-konforme Alternative mit denselben Projektgrenzwerten; erst einsetzen, wenn der im TDS nicht benannte Kunststoffprimer prozesssicher festgelegt ist |
 | Holz/GFK/XPS | SikaForce-710 L35 + SikaForce-010 | ausgewählt; professioneller Misch-/Pressprozess |
 | Segmentstöße | WEICON Epoxyd-Minutenkleber | bewertet, nicht gewählt |

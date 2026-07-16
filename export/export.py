@@ -141,7 +141,9 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Holzrahmen ist vollflächig verklebter Lastverteiler und Kompressionsschutz.
 - Dicht-/Klebstoff: **Sikaflex-522 weiß, 2× 300 ml**: ca.
   **{bead_ml:.0f} ml** nominal in die beiden {p.GROOVE_W:.0f} mm breiten
-  unteren Kleberführungen plus Außenkehle und obere Belluna-Fuge; {PRM.spacer_pad_count(p)}
+  unteren Kleberführungen, ca. **{PRM.weather_fillet_volume_ml(p):.0f} ml**
+  für die äußere Schutzkehle sowie zusätzlich die obere Belluna-Fuge;
+  {PRM.spacer_pad_count(p)}
   Abstandspads halten {p.GLUE_GAP} mm Dachabstand. Zusammen mit der {p.GROOVE_D:.1f}-mm-
   Führung entstehen {PRM.groove_bondline_thickness(p):.1f} mm wirksame Raupenhöhe.
   Die Pads haben {p.SPACER_PAD_RADIAL:.1f}×{p.SPACER_PAD_TANGENTIAL:.1f} mm Kontaktmaß.
@@ -162,6 +164,16 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   die definierten Unterbrechungen der inneren Raupe und den Mittelkanal nicht
   mit Dichtstoff verschließen. Bis zur vollständigen Durchhärtung gemäß
   aktuellem Produktdatenblatt bewegungsfrei halten und nicht belasten.
+- Erst **nach vollständiger Durchhärtung** der beiden tragenden Dachraupen die
+  zugängliche Außenkehle schließen. GFK-Gelcoat und vollständig ausgehärtete
+  Mipa-2K-PUR-Lackflanke jeweils etwa {PRM.weather_fillet_leg(p):.0f} mm breit
+  nach aktueller Sika-STP-Vorbehandlungstabelle vorbereiten. Sikaflex-522 zu
+  einer lückenlosen konkaven Kehle von ungefähr
+  {PRM.weather_fillet_leg(p):.0f}×{PRM.weather_fillet_leg(p):.0f} mm formen und
+  innerhalb der Hautbildungszeit ausschließlich mit **Sika Tooling Agent N**
+  glätten. Keine Spülmittel-, Alkohol- oder Lösemittellösung. Diese erneuerbare
+  Wetter-/Kontrollfuge bleibt sichtbar und zugänglich, wird **nicht** als
+  Tragpfad angerechnet und ist jährlich sowie nach Beschädigung zu prüfen.
 - Jede Adapterseite besitzt Vollmaterialrippen ±140/±165. Von den zehn
   Belluna-Seitenlöchern nur die **acht äußeren** mit den übrigen 8
   ST4.2×25 setzen; Mittellöcher an den Segmentstößen frei lassen. Die vier
@@ -175,7 +187,8 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Herstellerfreigabe). Die äußere Raupe geschlossen führen; die innere an
   den acht geformten Trockenraum-Vents unterbrechen. Nach Einbau drucklos fluten
   (Gießkanne, 10 min); Hochdruck nur aus ISO-20653-9K-Abstand, nie direkt auf
-  die IPX4-Lüfterhaube. Die untere Klebefuge, Nähte und Lack jährlich prüfen.
+  die IPX4-Lüfterhaube. Die äußere Schutzkehle, die untere Klebefuge, Nähte und
+  Lack jährlich prüfen.
 
 ## Lüftereinbau
 - Effektive Wandstärke: {PRM.effective_wall(p):.0f} mm →

@@ -56,6 +56,10 @@ nicht reduziert.
   wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, damit der
   4-mm-Mittelkanal Feuchte nachführen kann. Die Unterbrechungen und der Kanal
   dürfen bei der Montage nicht mit Dichtstoff überbrückt werden.
+- Erst nach vollständiger Durchhärtung der tragenden Doppelraupe wird außen
+  eine etwa 7×7-mm-Sikaflex-522-Schutzkehle ergänzt (nominal rund 48 ml).
+  Sie bleibt sichtbar und erneuerbar und erhält keinerlei
+  Tragfähigkeitsgutschrift.
 - Acht seitliche ST4.2×25 sichern den Unterkragen im Holzrahmen. Ohne
   typgeprüften Schraubgrund wird nur der je Lastfall erforderliche Wert
   ausgewiesen; die Schrauben werden nicht angerechnet.
@@ -98,6 +102,7 @@ Alternative.
 ## Primärquellen
 
 - [Sikaflex-522: 1,8 MPa Zugfestigkeit, 400 % Bruchdehnung, −50 bis +90 °C](https://industry.sika.com/en/home/transportation/sealants/adhesive-sealants/sikaflex-522.html)
+- [Sika-Leitfaden: zusätzliche, zugängliche Schutzdichtung sowie verzögerte Durchhärtung bei zu frühem Schließen angrenzender Fugen](https://industry.sika.com/dam/dms/global-industry/4/bonding-and-sealingwith1-componentsikaflex.pdf)
 - [Sika-Kompendium: Abminderung und typische zulässige thermische Scherverformung](https://industry.sika.com/dms/getdocument.get/8ffff4cd-c90d-4d24-969d-ee4db9093cf3_global-industry/compendium-elasticbonding.pdf)
 - [Sika-STP-Vorbehandlungstabelle, Version 8, 02/2026](https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf)
 - [WEICON RK-1300: Zugscherwerte, Temperaturbereich und Fugendickenoptimum](https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf)

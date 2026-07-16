@@ -203,7 +203,10 @@ Die Pads sind Montageanschläge, kein dauerhafter rechnerischer Lastpfad.
 
 **Dichtheitskonzept (Mehrteiligkeit):** Dichtheit kommt von durchgehenden Elastomer-Ebenen,
 nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt. Barrierenkette:
-(1) Kehlnaht des gewählten Dichtprodukts außen, umlaufend geschlossen über alle Stöße; (2) äußere
+(1) erst nach vollständiger Durchhärtung der tragenden Dachraupen aufgebrachte,
+zugängliche Sikaflex-522-Schutzkehle außen, umlaufend geschlossen über alle
+Stöße; sie ist erneuerbare Wetter-/Kontrollfuge und erhält keine
+Tragfähigkeitsgutschrift; (2) äußere
 untere Raupe, geschlossen über die Stöße; die innere Raupe ergänzt Tragfläche,
 bleibt aber an acht Trockenraum-Vents offen; (3) Ringklebenut der Belluna-Platte auf der
 Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
@@ -332,7 +335,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | am realen Haubenfreigang zu verifizieren |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 2,5×20×3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
+| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 2,5×20×3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; erst nach Primärhärtung eine zugängliche, nichttragende 7×7-mm-Schutzkehle außen; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
 
 ## 10. Risiken und Gegenmaßnahmen
 

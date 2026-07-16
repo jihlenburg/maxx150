@@ -50,6 +50,9 @@ def test_universal_segment_schraubraster():
     assert abs(PRM.groove_bond_area(p) - 33313.27412287184) < 1e-6
     assert PRM.groove_bondline_thickness(p) == 3.6
     assert abs(PRM.groove_adhesive_volume_ml(p) - 119.9277868423386) < 1e-6
+    assert abs(PRM.outer_perimeter(p) - 1979.398223686155) < 1e-9
+    assert PRM.weather_fillet_leg(p) == 7.0
+    assert abs(PRM.weather_fillet_volume_ml(p) - 48.4952564803108) < 1e-9
     assert PRM.spacer_pad_radial_centers(p) == (1.5, 28.5)
     assert PRM.spacer_pad_count(p) == 16
     assert p.SPACER_PAD_RADIAL == 2.5 and p.SPACER_PAD_TANGENTIAL == 20.0

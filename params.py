@@ -374,6 +374,27 @@ def groove_adhesive_volume_ml(p: Params = P) -> float:
     return groove_bond_area(p) * groove_bondline_thickness(p) / 1000.0
 
 
+def outer_perimeter(p: Params = P) -> float:
+    """Umfang der abgerundeten äußeren Adapterkontur in mm."""
+    length, width = outer_dims(p)
+    return 2.0 * (length + width) - 8.0 * p.R_OUT + 2.0 * math.pi * p.R_OUT
+
+
+def weather_fillet_leg(p: Params = P) -> float:
+    """Soll-Schenkellänge der zugänglichen äußeren Schutzkehle.
+
+    Die Fuge überbrückt den freien Dachabstand und die dafür konstruierte
+    Außenfase. Sie ist eine austauschbare Wetterdichtung und kein Lastpfad.
+    """
+    return p.GLUE_GAP + p.CHAMFER_OUT
+
+
+def weather_fillet_volume_ml(p: Params = P) -> float:
+    """Nominalvolumen einer dreieckigen äußeren Schutzkehle in ml."""
+    leg = weather_fillet_leg(p)
+    return outer_perimeter(p) * leg * leg / 2.0 / 1000.0
+
+
 def wind_force(p: Params = P) -> float:
     """Horizontale Auslegungswindlast inkl. Sicherheitsfaktor (N)."""
     v = p.V_DESIGN_KMH / 3.6

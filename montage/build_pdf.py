@@ -84,21 +84,24 @@ def build_model(mf):
              warum="MMA-Strukturklebstoff für Hartkunststoffe und Fahrzeugbau; "
                    "hohe Schlag-, Schäl- und Scherfestigkeit. Sein "
                    "Festigkeitsoptimum bei 0,15–0,25 mm passt zur Fügepassung."),
-        dict(rolle="Dach + Belluna", menge="2× 300 ml",
+        dict(rolle="Dach + Belluna + Schutzfuge", menge="2× 300 ml",
              produkt="Sikaflex-522 weiß (Standard)",
              warum="UV-/witterungsbeständiger STP-Dichtklebstoff mit "
                    "veröffentlichten Kennwerten. Rechnerisch stark auf 0,030 "
                    "MPa normal und 0,050 MPa Schub abgemindert. Zwei 10-mm-"
                    "Raupen tragen den vollständigen Lastfall ohne Anrechnung "
-                   "der acht seitlichen Rückfallschrauben. Carloflex "
+                   "der acht seitlichen Rückfallschrauben. Eine erst nach "
+                   "deren Durchhärtung aufgebrachte Außenkehle bleibt "
+                   "nichttragender, zugänglicher Wetterschutz. Carloflex "
                    "410 UV weiß ist mit denselben Projektwerten eine "
                    "Belluna-konforme Alternative, sobald der passende "
                    "Kunststoffprimer prozesssicher festgelegt ist."),
-        dict(rolle="522-Vorbehandlung", menge="je 1 Gebinde",
-             produkt="Sika Cleaner P · Primer-507 · Aktivator-205",
+        dict(rolle="522-Vorbehandlung + Glätten", menge="je 1 Gebinde",
+             produkt="Sika Cleaner P · Primer-507 · Aktivator-205 · Tooling Agent N",
              warum="Cleaner P + Primer-507 auf den lackfreien Kunststoff-"
                    "Klebeflächen als konservative Vorbehandlung; Cleaner P + Aktivator-205 "
-                   "auf angeschliffenem GFK-Gelcoat."),
+                   "auf angeschliffenem GFK-Gelcoat. Tooling Agent N formt "
+                   "die sichtbare Außenkehle ohne ungeprüfte Glättmittel."),
         dict(rolle="Holzrahmen", menge="1× 1,2 kg A+B",
              produkt="SikaForce-710 L35 + SikaForce-010",
              warum="2K-PUR-Paneelklebstoff, ausdrücklich für Holz/GFK mit "
@@ -269,8 +272,6 @@ def build_model(mf):
                  "Sikaflex-522-Produktdatenblatt weder weiter montieren noch "
                  "fahren oder belasten; Temperatur, Luftfeuchte und die zwei "
                  "Raupen bei der Wartezeit berücksichtigen.",
-                 "Außen umlaufend mit demselben gewählten Produkt eine geschlossene "
-                 "Kehlnaht ziehen.",
              ],
              warn=[("hinweis", "Warum 522 als Standard: Carloflex 410 UV ist "
                                "mit >1,8 MPa Zugfestigkeit und >450 % Dehnung "
@@ -290,9 +291,50 @@ def build_model(mf):
                             "Die unteren Schrauben sind eine physische "
                             "Rückfallebene, aber ohne typgeprüften Holz-/Dachpfad "
                             "kein angerechneter Tragfähigkeitsnachweis.")]),
-        dict(nr=6, titel="Belluna-Platte montieren",
-             bild=("13_platte_schrauben.png",
-                   "Bild 13: Belluna-Platte mit silbernen Metallclips; "
+        dict(nr=6, titel="Äußere Wetter- und Kontrollfuge herstellen",
+             bild=("13_aussenkehle.png",
+                   "Bild 13: Zugängliche äußere Sikaflex-Schutzkehle (grün) "
+                   "zwischen lackierter Adapterfase und GFK-Dach."),
+             absaetze=[
+                 "Diesen Schritt erst beginnen, wenn die beiden tragenden "
+                 "Dachraupen gemäß aktuellem Sikaflex-522-Produktdatenblatt "
+                 "vollständig durchgehärtet sind. Eine früher geschlossene "
+                 "Außenfuge behindert die Feuchtezufuhr und verlängert die "
+                 "Durchhärtung. Das Fahrzeug weiterhin nicht bewegen oder "
+                 "belasten.",
+                 f"Dach und Außenfase vollständig trocknen. Auf GFK und Adapter "
+                 f"je etwa {de(t['weather_fillet_leg'])} mm breit abkleben. Das "
+                 "GFK-Gelcoat sehr fein anschleifen, mit Sika Cleaner P reinigen "
+                 "und Sika Aktivator-205 gemäß aktuellem Datenblatt auftragen. "
+                 "Die vollständig ausgehärtete Mipa-2K-PUR-Lackflanke mit sehr "
+                 "feinem Abrasivpad mattieren und nach der aktuellen Sika-STP-"
+                 "Vorbehandlungstabelle für 2K-PUR-Decklack behandeln; Cleaner "
+                 "und Aktivator zuvor an einer unauffälligen Lackstelle prüfen.",
+                 f"Sikaflex-522 weiß als lückenlose Dreiecksraupe auftragen und "
+                 f"zu einer konkaven Kehle von ungefähr "
+                 f"{de(t['weather_fillet_leg'])} × {de(t['weather_fillet_leg'])} mm "
+                 f"abziehen. Planmenge rund {de(t['weather_fillet_ml'])} ml. Die "
+                 "frische Fuge muss beide vorbereiteten Flanken vollständig "
+                 "benetzen und darf sich nicht nur auf altem Sikaflex abstützen.",
+                 "Innerhalb der Hautbildungszeit ausschließlich mit Sika "
+                 "Tooling Agent N und geeignetem Werkzeug glätten. Keine "
+                 "Spülmittel-, Alkohol- oder Lösemittellösung verwenden. Ohne "
+                 "Federkanten und Wassersack ausformen; danach Maskierung abziehen "
+                 "und die Außenfuge gemäß Produktdatenblatt aushärten lassen.",
+             ],
+             warn=[("hinweis", "Die Außenkehle ist eine zugängliche, erneuerbare "
+                               "Wetter- und Kontrollfuge. Sie schützt die "
+                               "verdeckte Dachverklebung, erhält aber keinerlei "
+                               "rechnerische Tragfähigkeit. Die zwei inneren "
+                               "10-mm-Raupen bleiben der alleinige Primärpfad."),
+                   ("warn", "Außenkehle erst auf vollständig trockenem Aufbau "
+                            "schließen. Sie muss rundum sichtbar und später mit "
+                            "einem Messer erreichbar bleiben; jährlich sowie nach "
+                            "Beschädigung prüfen und bei Ablösung vollständig "
+                            "erneuern.")]),
+        dict(nr=7, titel="Belluna-Platte montieren",
+             bild=("14_platte_schrauben.png",
+                   "Bild 14: Belluna-Platte mit silbernen Metallclips; "
                    "ST4,2-Schrauben (rot) seitlich durch den Platten-Kragen "
                    "in die Adapter-Innenwand."),
              absaetze=[
@@ -305,7 +347,7 @@ def build_model(mf):
                  "Öffnung).",
                  f"Die ST {de(t['plate_screw_d'])}×{de(t['plate_screw_l'])} seitlich "
                  f"durch den Platten-Kragen in die Adapter-Innenwand setzen "
-                 f"(3-mm-Kernloch vorbohren, Bild 13). Jede Seite bietet universelle "
+                 f"(3-mm-Kernloch vorbohren, Bild 14). Jede Seite bietet universelle "
                  f"Vollmaterialrippen für beide Belluna-Varianten (±140 und "
                  f"±165 mm).",
              ],
@@ -318,9 +360,9 @@ def build_model(mf):
                                "verwenden. Die zwei Mittellöcher der "
                                "3-Loch-Seiten liegen auf Segmentstößen und "
                                "bleiben frei.")]),
-        dict(nr=7, titel="Lüfter einsetzen",
-             bild=("14_fertig.png",
-                   "Bild 14: Fertige Baugruppe – Adapter, Platte und Dichtring."),
+        dict(nr=8, titel="Lüfter einsetzen",
+             bild=("15_fertig.png",
+                   "Bild 15: Fertige Baugruppe – Adapter, Platte und Dichtring."),
              absaetze=[
                  f"Vierkantwelle {de(t['shaft_mm'])} mm einsetzen "
                  f"(effektive Wandstärke {de(t['effective_wall_mm'])} mm = Dach "
@@ -331,13 +373,16 @@ def build_model(mf):
                  "(Relaxation). Beim Nachziehen Lackkanten nicht beschädigen.",
              ],
              warn=[]),
-        dict(nr=8, titel="Dichtheitsprüfung und Wartung",
+        dict(nr=9, titel="Dichtheitsprüfung und Wartung",
              bild=None,
              absaetze=[
                  "Erst drucklos fluten (Gießkanne, 10 min, Innenkontrolle).",
                  "Hochdruck nur aus ISO-20653-9K-Abstand auf den Sockelbereich "
                  "richten – NIE direkt auf die Lüfterhaube (Belluna ist IPX4).",
-                 "Jährlich die Nähte und den Lackzustand sichtprüfen. Die "
+                 "Jährlich insbesondere die zugängliche äußere Schutzkehle, "
+                 "alle übrigen Nähte und den Lackzustand sichtprüfen. Ablösung, "
+                 "Risse oder stehendes Wasser an der Außenkehle erfordern eine "
+                 "vollständige Erneuerung der betroffenen Fuge. Die "
                  "Lackprüfung ist beim schwarzen Grundkörper immer "
                  "Pflicht; Beschädigungen bis auf den Kunststoff fachgerecht ausbessern.",
              ],
@@ -438,8 +483,8 @@ figcaption { color:var(--muted); font-size:7.5pt; line-height:1.3; margin-top:1.
 /* Arbeitsschritte: eine abgeschlossene Orientierungseinheit pro Seite. */
 .step-page { break-before:page; page-break-before:always; break-after:page;
              page-break-after:always; min-height:258mm; break-inside:avoid; }
-.step-page.step-7 { break-after:auto; page-break-after:auto; min-height:0; }
-.step-page.step-8 { break-before:auto; page-break-before:auto; min-height:0;
+.step-page.step-8 { break-after:auto; page-break-after:auto; min-height:0; }
+.step-page.step-9 { break-before:auto; page-break-before:auto; min-height:0;
                     break-after:auto; page-break-after:auto;
                     margin-top:6mm; padding-top:5mm; border-top:1px solid var(--line); }
 .step-head { display:grid; grid-template-columns:12mm 1fr auto; gap:3mm;
@@ -477,12 +522,12 @@ figcaption { color:var(--muted); font-size:7.5pt; line-height:1.3; margin-top:1.
 .thumb-grid.count-3 { grid-template-columns:repeat(3, 1fr); }
 .thumb-grid img { width:100%; height:51mm; object-fit:cover; border-radius:1.2mm; }
 .step-2 .thumb-grid img { height:43mm; }
-.step-7 .step-hero img { max-height:79mm; }
-.step-8 .step-layout { display:block; }
-.step-8 .actions { display:grid; grid-template-columns:repeat(3, 1fr); gap:3mm; }
-.step-8 .actions li { border:0; background:var(--quiet); border-radius:1mm;
+.step-8 .step-hero img { max-height:79mm; }
+.step-9 .step-layout { display:block; }
+.step-9 .actions { display:grid; grid-template-columns:repeat(3, 1fr); gap:3mm; }
+.step-9 .actions li { border:0; background:var(--quiet); border-radius:1mm;
                       padding:3mm 3mm 3mm 9mm; margin:0; min-height:25mm; }
-.step-8 .actions li::before { left:2.5mm; top:3mm; background:#fff; }
+.step-9 .actions li::before { left:2.5mm; top:3mm; background:#fff; }
 
 /* Laufende Fußzeile. */
 .fuss { position:fixed; left:0; right:0; bottom:0; height:6mm;
