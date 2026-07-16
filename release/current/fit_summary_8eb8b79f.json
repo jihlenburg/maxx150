@@ -1,7 +1,7 @@
 {
   "schema": 2,
-  "parameter_hash": "8029252d",
-  "source_commit": "b224eed3f4fdb7dfa360ae11a0f2bf594303b0f3",
+  "parameter_hash": "8eb8b79f",
+  "source_commit": "e9645dbbec030ab6b5802cfd9228f6577b315f62",
   "belluna_model": "MEASURED_RECONSTRUCTION",
   "belluna_source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
   "nominal_collision_mm3": 0.0,

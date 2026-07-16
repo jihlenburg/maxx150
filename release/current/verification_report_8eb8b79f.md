@@ -1,6 +1,6 @@
 # Verifikationsreport Belluna-Adapterrahmen
 
-Parameterstand: `8029252d` · H_RAISE 28.0 mm · Wandstärke effektiv 63.0 mm · **Vierkantwelle 140 mm**
+Parameterstand: `8eb8b79f` · H_RAISE 28.0 mm · Wandstärke effektiv 63.0 mm · **Vierkantwelle 140 mm**
 Material: **Würth ASA GF15, Verkehrsschwarz RAL 9017 ähnlich (Art.-Nr. 4954641200)** · E 3000 MPa · ρ 1100 kg/m³ · HDT/B(0,45 MPa) 99 °C; 1,82-MPa-Wert fehlt
 
 ## FEM-Lastfälle
@@ -29,12 +29,12 @@ max vM 3.37 MPa ≤ 11.25 MPa → PASS
 
 ## Datei-Manifest
 
-Git-Commit: `b224eed3f4fdb7dfa360ae11a0f2bf594303b0f3` · GEOM_REV: `9`
+Git-Commit: `e9645dbbec030ab6b5802cfd9228f6577b315f62` · GEOM_REV: `10`
 
 | Datei | SHA256 |
 |---|---|
-| frame_8029252d.step | `6c770f61c58cf79682a46cc5ef85c3a04c431e0549d62fb909b848b239931056` |
-| universal_segment_x4_8029252d.step | `5b2707d6e7cda031cc10c3faa3dbab6a0c4a2a158b8332821f41b6b269fe21b5` |
-| universal_segment_x4_8029252d.stl | `4339eed4810c076efb53e4fb9191e71e3b5ee448a528f7d5a467ec71be1a9193` |
-| universal_segment_x4_8029252d.3mf | `69b2054656f434d9ad1be5a4b39ae2b6fffbbfc0176f8b023834ebaa4c162f72` |
-| montagenotiz_8029252d.md | `f6427fa92c87b78d227a5316b60ec38c7349bcb9216073ef98032d27990f42a1` |
+| frame_8eb8b79f.step | `0145b91ee00d65c850f49524f62542607f6f7115cf4381003b1a721431b9481d` |
+| universal_segment_x4_8eb8b79f.step | `d48444b3afd927f0b3dbd2dbb8ca766b97bc7aa6afc55df7b21337729d799144` |
+| universal_segment_x4_8eb8b79f.stl | `40da5109b71d5772a0f19312ba4cf4c6cc985fa55ae8e95669a2c36519101e60` |
+| universal_segment_x4_8eb8b79f.3mf | `abc19e059e771ac8075742693cb161f4cbb4def0fce49e419eb2b5f8a8b4d42d` |
+| montagenotiz_8eb8b79f.md | `e0791de36e661ec4fbf2c24c4342eb9445d97bb0cdd8cc1df8019ddcc76e9ef8` |
