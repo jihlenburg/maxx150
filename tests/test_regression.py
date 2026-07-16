@@ -23,8 +23,11 @@ REFERENZ = {
     # - GEOM_REV 8: Rückkehr zum kompakten 500-mm-Hybridband mit zwei
     #   Kammerringen und Doppelraupe. Bewusste Re-Baseline des Grobnetzes:
     #   LF1 0,88 MPa, LF3 1,43 MPa.
-    "LF1_wind": 0.88,
-    "LF3_klemmung": 1.43,
+    # - GEOM_REV 9: verteilte Fixierung auf den zwei Kleberführungsflächen
+    #   statt punktförmiger Fixierung an 68 Rundnoppen; 16 Pads sind nur
+    #   Montageanschläge. Die niedrigere lokale Spannung ist beabsichtigt.
+    "LF1_wind": 0.54,
+    "LF3_klemmung": 1.02,
 }
 
 

@@ -44,20 +44,10 @@ def _one_segment(frame, p, k):
     h = top_z(p)
     lap_h = h / 2
     t = p.TOL_JOINT
-    # z-Start der Lappen-Werkzeuge: unter die Noppenbasis (statt nur -0.5)
-    # ziehen. Grund: Von den 4 Rand-Noppenringen (rect_path_points, siehe
-    # frame._nopple_positions) liegt je Seite genau eine Noppe exakt auf der
-    # Symmetrieachse (x=0 bzw. y=0) -- Mittelpunkt der jeweiligen Kantenpunkt-
-    # folge. Diese Noppe fällt zugleich in das Stoßband x/y in [0, LAP_L].
-    # Endete der Lappenschnitt (wie ursprünglich) erst bei z=-0.5, würde nur
-    # der obere Rand dieser Noppe (z -0.5..0) abgetrennt, der Noppenfuß
-    # (z -GLUE_GAP..-0.5) aber unverbunden als eigene, hauchdünne Shell
-    # zurückbleiben (Volumen ~63 mm³, isValid() zunächst noch True). Diese
-    # lose Shell macht spätere Booleans (z. B. das Fuse+removeSplitter im
-    # Union-Test) numerisch instabil und lässt Segmente nachträglich als
-    # "Unorientable shape" ungültig werden. Fix: Lappenwerkzeuge bis unter
-    # die Noppenbasis ausdehnen, damit eine im Stoßband liegende Noppe IMMER
-    # vollständig abgegeben wird (nie angeschnitten):
+    # z-Start der Lappen-Werkzeuge bleibt unter der Abstandspad-Ebene. Die
+    # Pads liegen seit GEOM_REV 9 zwar bewusst bei ±140 und damit außerhalb
+    # des Stoßbands; die tiefe Schnittbox verhindert trotzdem generell lose
+    # Unterschalen, falls die Padposition später parametrisch geändert wird.
     z_lap0 = -(p.GLUE_GAP + 1)
     # Unterkragen: Lappenwerkzeuge bis unter die Kragenkante
     # ziehen, damit der Halbüberlappungsstoß auch durch den Kragen läuft
@@ -68,11 +58,11 @@ def _one_segment(frame, p, k):
         z_lap0 = -(p.GLUE_GAP + p.BOT_KRAGEN_DEPTH + 1)
     # Kernquadrant x>=0, y>=0:
     core = Part.makeBox(BIG, BIG, BIG, Vector(0, 0, -BIG / 2))
-    # Lappe (untere Hälfte inkl. evtl. Stoßband-Noppe), ragt am Stoß A um
+    # Lappe (untere Hälfte inkl. evtl. Stoßband-Pad), ragt am Stoß A um
     # LAP_L-t nach y<0, im +x-Band:
     lap_add = Part.makeBox(BIG, p.LAP_L - t, (lap_h - t) - z_lap0,
                            Vector(p.CUTOUT_W / 2 - 5, -(p.LAP_L - t), z_lap0))
-    # Abgabe am Stoß B: untere Hälfte (inkl. evtl. Stoßband-Noppe) bis LAP_L
+    # Abgabe am Stoß B: untere Hälfte (inkl. evtl. Stoßband-Pad) bis LAP_L
     # im +y-Band entfernen. Endet exakt bei z=lap_h (kein Rest oberhalb, sonst
     # Überschneidung mit lap_add des Nachbarn um TOL_JOINT statt Luftspalt):
     lap_cut = Part.makeBox(p.LAP_L, BIG, lap_h - z_lap0,

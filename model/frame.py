@@ -252,7 +252,7 @@ def _ring_radii(p: PRM.Params):
 def _ring_bands(p: PRM.Params):
     """Radiale (innen, außen)-Grenzen aller konzentrischen Kammerringe.
 
-    Die Anzahl ist parametrisch: GEOM_REV 8 nutzt im kompakten 50-mm-Band
+    Die Anzahl ist parametrisch: GEOM_REV 9 nutzt im kompakten 50-mm-Band
     wieder zwei Ringe. So bleibt der Querschnitt leicht und verzugsarm, ohne
     die massive Segmentstoßzone mit dem einzelnen M5 anzutasten.
     """
@@ -512,19 +512,36 @@ def _plate_screw_bosses(p: PRM.Params):
     return bosses
 
 
-def _nopple_positions(p):
-    """Noppenringe innen und außen neben der Doppelraupen-Zone."""
-    inner_r = p.CUTOUT_W / 2 + p.GROOVE_OFF / 2
-    # Die äußere Raupe endet innerhalb des 30-mm-Holzrahmens. Der Noppenring
-    # sitzt 6 mm weiter außen auf der kompakten 50-mm-Bodenplatte.
-    outer_r = p.CUTOUT_W / 2 + PRM.groove_outer_offset(p) + 6
-    pts = F.rect_path_points(inner_r, inner_r, p.NOPPLE_SPACING)
-    pts += F.rect_path_points(outer_r, outer_r, p.NOPPLE_SPACING)
-    return pts
+def _spacer_pads(p):
+    """16 schmale Abstandspads vollständig über dem Holzrahmen.
+
+    Je unterer Dachschraubachse sitzt ein Pad im trockenen inneren und eines
+    im trockenen äußeren Randstreifen der Doppelraupe. Die längliche Form
+    verteilt den Montagedruck, ohne Klebebänder oder Mittelkanal zu
+    unterbrechen. Vier Rotationskopien halten die Universalteil-Logik ein.
+    """
+    pads = []
+    for radial_off in PRM.spacer_pad_radial_centers(p):
+        x = p.CUTOUT_W / 2 + radial_off
+        for tangential_off in p.SPACER_PAD_OFFS:
+            pad = F.rounded_box(
+                p.SPACER_PAD_RADIAL,
+                p.SPACER_PAD_TANGENTIAL,
+                p.GLUE_GAP,
+                p.SPACER_PAD_RADIUS,
+                Vector(
+                    x - p.SPACER_PAD_RADIAL / 2,
+                    tangential_off - p.SPACER_PAD_TANGENTIAL / 2,
+                    -p.GLUE_GAP,
+                ),
+            )
+            for k in range(4):
+                pads.append(F.rotz(pad, k))
+    return pads
 
 
 def _groove_cut_tools(p):
-    """Zwei untere Kleberillen mit belüfteter innerer Raupe.
+    """Zwei flache Kleberführungen mit belüfteter innerer Raupe.
 
     Die äußere Rille bleibt geometrisch geschlossen. Aus dem Cutter der
     inneren Rille werden je Seite zwei 5-mm-Brücken herausgenommen. Dort
@@ -572,7 +589,7 @@ def _bot_kragen_tools(p):
     bettet ihn deshalb 2 mm radial in Bodenplatte/Innenwand ein (dort ist
     der Körper massiv); seine innere Oberkante bekommt eine 45°-Fase
     (BOT_KRAGEN_TRANS), damit die Übergangsfläche in Druckorientierung
-    (kopfüber) selbsttragend ist -- gleiches Prinzip wie der Noppenkegel.
+    (kopfüber) selbsttragend ist.
     Die lichte Öffnung verengt sich dadurch unterhalb z~TRANS von CUTOUT_W
     auf das Kragen-Innenmaß; der Belluna-Kragen von oben endet bei
     z = top_z-19 und bleibt davon unberührt (>=4 mm Luft)."""
@@ -650,7 +667,7 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     if not body.isValid():
         raise RuntimeError("frame: Entwässerungsfasen ergaben ungültigen Körper")
 
-    # Zwei Kleberillen unten: äußere Raupe geschlossen, innere Raupe mit
+    # Zwei Kleberführungen unten: äußere Raupe geschlossen, innere Raupe mit
     # definierten Trockenraum-Vents zum 4-mm-Mittelkanal.
     body = body.cut(Part.makeCompound(_groove_cut_tools(p)))
 
@@ -675,33 +692,10 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
     if fase_edges:
         body = body.makeChamfer(p.CHAMFER_OUT, fase_edges)
 
-    # Klebespalt-Noppen (definierte Elastikfugen-Dicke) + Übergangskegel am
-    # Fuß (Heatmap 2026-07-12: ALLE LF-Hotspots sitzen am Noppenfuß des
-    # äußeren Rings, r~238, z~-0.8 -- billigster Hebel gegen die einzige
-    # echte Kerbzone). Der Kegel füllt z in [-NOPPLE_FILLET, 0]: radius
-    # NOPPLE_R bei z=-NOPPLE_FILLET (deckungsgleich mit dem Zylinder, der
-    # dort ohnehin schon Material hat -- reiner Fuse-Zusatz nach außen) bis
-    # radius NOPPLE_R+NOPPLE_FILLET bei z=0 (Übergang in die Bodenfläche) --
-    # weitet sich zum Körper. Kegelflanke NOPPLE_FILLET/NOPPLE_FILLET = 45°
-    # -> in Druckorientierung (kopfüber) selbsttragend, DFM unverändert.
-    # ACHTUNG (Task 15, live gefunden über test_loadcases.test_face_selektoren):
-    # der Kegel teilt die vormals durchgehende Zylindermantelfläche bei
-    # z=-NOPPLE_FILLET in zwei Flächen. fem/loadcases.py::nopple_faces nahm
-    # bislang JEDE Fläche mit CenterOfMass nahe z=-GLUE_GAP (reiner
-    # Toleranzfilter, tol=1.0) -- die neue, kürzere untere Zylinder-Restfläche
-    # (CoM jetzt näher an -GLUE_GAP als die alte volle Mantelfläche) wäre
-    # damit fälschlich als Noppen-Stirnfläche in die FEM-Randbedingung
-    # gerutscht. Fix dort: Plane+Normalen-Filter (wie top_faces) statt
-    # reiner CoM-Toleranz -- selektiert wieder exakt dieselben Stirnflächen
-    # wie vor dem Kegel.
-    nops = []
-    for x, y in _nopple_positions(p):
-        nops.append(Part.makeCylinder(p.NOPPLE_R, p.GLUE_GAP, Vector(x, y, -p.GLUE_GAP)))
-        if p.NOPPLE_FILLET > 0:
-            nops.append(Part.makeCone(p.NOPPLE_R + p.NOPPLE_FILLET, p.NOPPLE_R,
-                                      p.NOPPLE_FILLET, Vector(x, y, 0),
-                                      Vector(0, 0, -1)))
-    body = body.fuse(nops)
+    # 16 schmale 3-mm-Abstandspads statt 68 harter Rundnoppen. Die Pads
+    # definieren nur den Montagespalt; der FEM-Lastpfad wird über die
+    # verteilten Böden der beiden Kleberführungen gelagert.
+    body = body.fuse(_spacer_pads(p))
     body = body.removeSplitter()
     if not body.isValid():
         raise RuntimeError("frame: Boolesche Operationen ergaben ungültigen Körper")

@@ -8,7 +8,7 @@ Das Manifest ist die einzige Schnittstelle zur Blender-Seite
 (``montage/render_steps.py``) und zur PDF-Seite (``montage/build_pdf.py``):
 es enthält den ``params_hash``, alle Markerkoordinaten (M5-Schraubachsen,
 Dach-Schraubachsen, Belluna-Plattenschraubachsen), die Explosions-Offsets,
-Geometrie-Konstanten für die Blender-Polygon-Filter (Kleberille, Noppenfeld,
+Geometrie-Konstanten für die Blender-Polygon-Filter (Kleberführung, Abstandspads,
 Stoßband) sowie alle abgeleiteten Textwerte (Klebstoffmenge in ml, M5-Länge,
 Vierkantwellenlänge …). Sämtliche Zahlen werden zur Laufzeit aus ``params.py``
 bzw. den ``export``-Helpern gezogen — nichts ist hier hartkodiert.
@@ -57,7 +57,7 @@ os.makedirs(STL, exist_ok=True)
 
 TOP_Z = top_z(P)                       # Deckflächenhöhe (Einbaulage), z=0 = Unterseite
 LAP_H = TOP_Z / 2                       # Halbüberlappungs-Ebene
-ROOF_TOP_Z = -P.GLUE_GAP               # Dachoberkante: die Noppenspitzen ruhen darauf
+ROOF_TOP_Z = -P.GLUE_GAP               # Dachoberkante: die Abstandspads ruhen darauf
 
 
 def stl(shape, name):
@@ -211,8 +211,8 @@ groove_ranges = [
     [P.CUTOUT_W / 2 + off, P.CUTOUT_W / 2 + off + width]
     for off, width, _gap_length in PRM.groove_specs(P)
 ]
-nopple_inner_r = P.CUTOUT_W / 2 + P.GROOVE_OFF / 2
-nopple_outer_r = P.CUTOUT_W / 2 + PRM.groove_outer_offset(P) + 6
+spacer_pad_radii = [P.CUTOUT_W / 2 + off
+                    for off in PRM.spacer_pad_radial_centers(P)]
 mask_r_in = P.CUTOUT_W / 2 + P.GROOVE_OFF - 5
 mask_r_out = P.CUTOUT_W / 2 + PRM.groove_outer_offset(P) + 18
 
@@ -238,14 +238,16 @@ manifest = {
         "groove_vent_w": P.GROOVE_VENT_W,
         "groove_vent_offs": list(P.GROOVE_VENT_OFFS),
         "groove_d": P.GROOVE_D,
-        "nopple_inner_r": nopple_inner_r,
-        "nopple_outer_r": nopple_outer_r,
-        "nopple_r": P.NOPPLE_R,
+        "spacer_pad_radii": spacer_pad_radii,
+        "spacer_pad_radial": P.SPACER_PAD_RADIAL,
+        "spacer_pad_tangential": P.SPACER_PAD_TANGENTIAL,
+        "spacer_pad_count": PRM.spacer_pad_count(P),
         "mask_r_in": mask_r_in,
         "mask_r_out": mask_r_out,
         "holz_inner_half": CUT_HALF,
         "holz_outer_half": HOLZ_OUT_HALF,
         "glue_gap": P.GLUE_GAP,
+        "bondline_thickness": PRM.groove_bondline_thickness(P),
         "bot_kragen_depth": P.BOT_KRAGEN_DEPTH,
     },
     "marker": {
@@ -269,8 +271,11 @@ manifest = {
         "groove_len_mm": round(groove_len),
         "groove_count": len(PRM.groove_specs(P)),
         "groove_w": P.GROOVE_W,
+        "groove_d": P.GROOVE_D,
+        "bondline_thickness": PRM.groove_bondline_thickness(P),
         "groove_channel_w": P.GROOVE_CHANNEL_W,
         "groove_vent_count": 4 * len(P.GROOVE_VENT_OFFS),
+        "spacer_pad_count": PRM.spacer_pad_count(P),
         "shaft_mm": round(PRM.select_shaft(P)),
         "effective_wall_mm": round(PRM.effective_wall(P)),
         "dach_screw_st_d": P.BOT_KRAGEN_SCREW_D,

@@ -31,7 +31,8 @@ def test_materialkarte():
 def test_face_selektoren():
     s = _frame()
     top = LC.top_faces(s, PRM.P)
-    nop = LC.nopple_faces(s, PRM.P)
+    bond = LC.bond_faces(s, PRM.P)
+    pads = LC.spacer_pad_faces(s, PRM.P)
 
     # top_faces: exakt eine zusammenhängende Deckfläche bei top_z, keine
     # Kammerdecken/Vents/Freistellungen mehr eingesammelt.
@@ -50,10 +51,30 @@ def test_face_selektoren():
     erwartet = flat_l * flat_w - p.CUTOUT_W ** 2 - rec
     assert erwartet * 0.98 < top_area < erwartet * 1.02
 
-    # nopple_faces: alle exakt bei z = -GLUE_GAP.
-    assert len(nop) >= 20
-    for name in nop:
-        assert abs(_face_by_name(s, name).CenterOfMass.z - (-PRM.P.GLUE_GAP)) < 1e-3
+    # bond_faces: verteilte Lagerung auf den Böden beider Führungsringe.
+    assert bond
+    bond_area = sum(_face_by_name(s, name).Area for name in bond)
+    assert abs(bond_area - PRM.groove_bond_area(PRM.P)) < 1.0
+    for name in bond:
+        assert abs(_face_by_name(s, name).CenterOfMass.z - PRM.P.GROOVE_D) < 1e-3
+
+    # spacer_pad_faces: exakt 16 Montagekontakte bei z = -GLUE_GAP; sie
+    # werden von keinem Lastfall als FEM-Fixierung benutzt.
+    assert len(pads) == PRM.spacer_pad_count(PRM.P) == 16
+    for name in pads:
+        face = _face_by_name(s, name)
+        assert abs(face.CenterOfMass.z - (-PRM.P.GLUE_GAP)) < 1e-3
+        c = face.CenterOfMass
+        radial_off = max(abs(c.x), abs(c.y)) - PRM.P.CUTOUT_W / 2
+        tangential_off = min(abs(c.x), abs(c.y))
+        assert any(abs(radial_off - r) < 1e-3
+                   for r in PRM.spacer_pad_radial_centers(PRM.P))
+        assert any(abs(tangential_off - abs(t)) < 1e-3
+                   for t in PRM.P.SPACER_PAD_OFFS)
+        assert (PRM.P.SPACER_PAD_RADIAL / 2
+                <= radial_off
+                <= PRM.P.ROOF_WOOD_FRAME_W - PRM.P.SPACER_PAD_RADIAL / 2)
+    assert all(c.fixed is LC.bond_faces for c in LC.CASES.values())
 
     # outer_wall_faces: Front/Heck beidseitig belegt, disjunkt, auf den
     # jeweiligen Außenwand-x-Ebenen (|x| = CUTOUT_W/2 + W_TOP_* = 250).

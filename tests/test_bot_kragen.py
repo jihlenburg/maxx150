@@ -29,7 +29,7 @@ def test_kragen_passt_in_den_ausschnitt():
     """Unterhalb der Dachoberfläche darf NICHTS breiter als der Ausschnitt
     minus Radialluft sein (sonst kollidiert der Kragen beim Einsetzen)."""
     p = PRM.P
-    # Box endet 0.1 UNTER der Dachoberfläche (-GLUE_GAP): die Noppen reichen
+    # Box endet 0.1 UNTER der Dachoberfläche (-GLUE_GAP): die Pads reichen
     # exakt bis -GLUE_GAP und spannen ~478 mm -- sie gehören nicht zum Kragen
     unten = Part.makeBox(1000, 1000, p.BOT_KRAGEN_DEPTH + 0.9,
                          Vector(-500, -500, -(p.GLUE_GAP + p.BOT_KRAGEN_DEPTH + 1)))

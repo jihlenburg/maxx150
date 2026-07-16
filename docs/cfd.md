@@ -64,9 +64,9 @@ Alle Fälle verwenden:
 Der OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
 Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Die
 äußere 500-mm-Aerogeometrie stimmt wieder mit dem aktuellen Hybridadapter
-`652716b5` überein. Doppelraupe, Entlüftungen und seitliche Schraubpfade liegen
+`8029252d` überein. Doppelraupe, Abstandspads, Entlüftungen und seitliche Schraubpfade liegen
 im Dachinterface und verändern die umströmte Hülle nicht. Der nachgeschaltete
-CalculiX-Strukturcheck wurde für `652716b5` neu gerechnet. Unabhängig davon
+CalculiX-Strukturcheck wurde für `8029252d` neu gerechnet. Unabhängig davon
 bleibt nur die analytische 480-N-Hülle freigabewirksam. Die Tabelle summiert
 jeweils **Belluna plus direkt angeströmte Adapteroberfläche**; alle Momente
 sind auf die Mitte der Adapterbasis `(0, 0, 0)` transformiert. Gemittelt werden
@@ -116,14 +116,17 @@ Der Lauf `a3a2de8c` übergibt nach Faktor 1,5:
 | Nickmoment `My` um Basis | −0,251 Nm | 88,8 Nm LF1-Hülle | 0,3 % |
 | Roll-/Giermoment um Basis | 0,110 / 0,320 Nm | — | ausgewiesen; äquivalentes `Mx/Mz` im CalculiX-Fall nicht eingeleitet |
 
-Der kombinierte Produktionsnetz-FEM-Fall ergibt 0,227 MPa von Mises bei
-11,25 MPa Kurzzeitzulässigkeit und 0,00070 mm Deckflächenverformung bei
-0,5 mm Grenzwert. Das ist nur 2,0 % Spannungs- und 0,14 %
+Der kombinierte Produktionsnetz-FEM-Fall ergibt 0,093 MPa von Mises bei
+11,25 MPa Kurzzeitzulässigkeit und 0,0011 mm Deckflächenverformung bei
+0,5 mm Grenzwert. Das ist nur 0,8 % Spannungs- und 0,22 %
 Verformungsauslastung im idealisierten monolithischen Rahmenmodell.
+Die Fixierung liegt verteilt auf den Böden beider Kleberführungen; die 16
+Abstandspads werden nicht als Lager benutzt. Klebstoff- und Dachnachgiebigkeit
+sind dadurch weiterhin nicht abgebildet.
 
 Lastpfad-Indikatoren nach Modellfaktor:
 
-- Doppelraupe 33.439 mm²: 0,00190 MPa mittlere Schubspannung und
+- Doppelraupe 33.313 mm²: 0,00191 MPa mittlere Schubspannung und
   0,00840 MPa mittlere Zugspannung. Maßgebend bleiben die strengeren
   0,050/0,030-MPa-Projektwerte unter der analytischen 480-N-Hülle.
 - Konservativ ein einzelner Segmentstoß unter der vollen Horizontallast:
@@ -138,7 +141,7 @@ Lastpfad-Indikatoren nach Modellfaktor:
 Die kleine Rahmenauslastung bedeutet deshalb nicht, dass die Gesamtmontage
 mit demselben Sicherheitsfaktor freigegeben wäre. Die derzeit plausibel
 schwächeren beziehungsweise unsichereren Glieder sind Haftung des gewählten
-Dichtstoffs auf Lack und X150-GFK, der nachgerüstete Holzrahmen, das lokale
+Dichtstoffs auf den lackfrei gehaltenen Kunststoff- und X150-GFK-Zonen, der nachgerüstete Holzrahmen, das lokale
 GFK-Dach und die reale Lastverteilung in der Doppelraupe. Die bestehende
 480-N-Horizontallast bleibt unverändert freigabewirksam.
 

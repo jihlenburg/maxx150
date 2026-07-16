@@ -23,7 +23,9 @@ def test_referenzkatalog_ist_vollstaendig_und_unveraendert():
         for path in REFERENCES.rglob("*")
         if path.is_file()
         and "belluna/models" not in path.relative_to(REFERENCES).as_posix()
-        and path.name not in {"README.md", "catalog.json"}
+        # Finder metadata is intentionally ignored by Git and must never become
+        # part of the reproducible reference catalog.
+        and path.name not in {"README.md", "catalog.json", ".DS_Store"}
     }
     assert paths == expected, f"Katalogabweichung: fehlt={expected - paths}, extra={paths - expected}"
 

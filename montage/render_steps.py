@@ -311,7 +311,7 @@ def stossB_faces(c, n):
 
 
 def mask_faces(c, n):
-    """Maskierzone (Bild 08): horizontale Kleberille + Noppen-Auflageflächen.
+    """Maskierzone (Bild 08): Kleberführung + Abstandspad-Auflageflächen.
 
     Der zusätzliche Normalenfilter ist wichtig: Nur tatsächlich nach unten
     gerichtete Kontaktflächen werden markiert. Ohne ihn färbte der reine
@@ -322,14 +322,14 @@ def mask_faces(c, n):
     downward = n.z < -0.55
     ring = (downward and G["mask_r_in"] <= r <= G["mask_r_out"]
             and c.z < 2.6)
-    noppen = (downward and c.z < 0.0
-              and (G["nopple_inner_r"] - 6) <= r
-              <= (G["nopple_outer_r"] + 6))
-    return ring or noppen
+    pads = (downward and c.z < 0.0
+            and any(abs(r - pad_r) <= G["spacer_pad_radial"]
+                    for pad_r in G["spacer_pad_radii"]))
+    return ring or pads
 
 
 def groove_faces(c, n):
-    """Nur die Böden der zwei Kleberillen (Bild 12).
+    """Nur die Böden der zwei Kleberführungen (Bild 12).
 
     Die Einschränkung auf nach unten gerichtete Flächen nahe der Rillentiefe
     lässt die ungeschnittenen Entlüftungsbrücken der inneren Raupe sichtbar.
@@ -338,7 +338,8 @@ def groove_faces(c, n):
     """
     r = _rad(c)
     in_bead = any(lo - 1.5 <= r <= hi + 1.5 for lo, hi in G["groove_ranges"])
-    return in_bead and 1.5 < c.z < 2.6 and n.z < -0.55
+    return (in_bead and abs(c.z - G["groove_d"]) < 0.2
+            and n.z < -0.55)
 
 
 # ==========================================================================

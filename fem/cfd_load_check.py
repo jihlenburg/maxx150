@@ -23,7 +23,7 @@ from cfd.config import comparison_hash  # noqa: E402
 from fem import analytic as A  # noqa: E402
 from fem.loadcases import (  # noqa: E402
     Case,
-    nopple_faces,
+    bond_faces,
     outer_wall_faces,
     top_faces,
 )
@@ -62,7 +62,7 @@ def _load_case(force: list[float], moment: list[float]) -> Case:
     return Case(
         "CFD_open_medium_x1p5",
         "kurz",
-        nopple_faces,
+        bond_faces,
         loads,
     )
 
@@ -144,7 +144,7 @@ def main() -> dict:
         },
         "limitations": [
             "monolithischer Rahmen; Klebfugen und vier Segmentstöße nicht als Kontakte modelliert",
-            "Noppenflächen als starre Fixierung statt nachgiebigem GFK-Dach und Klebstoff",
+            "Kleberführungsflächen als starre Fixierung statt nachgiebigem GFK-Dach und Klebstoff",
             "globale Lasten gleichmäßig auf die Adapter-Deckfläche verteilt",
             "nur My explizit als Kräftepaar; Mx und Mz nicht in CalculiX eingeleitet",
             "CFD selbst ist weder vollständig netzkonvergiert noch experimentell korreliert",

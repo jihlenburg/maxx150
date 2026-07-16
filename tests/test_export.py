@@ -65,5 +65,6 @@ def test_montagenotiz_inhalt():
                  "Primer-507", "Aktivator-205", "PASS_ASSUMPTION_BASED",
                  "ST 4.2×25", "8 Belluna-Schrauben", "Acht seitliche",
                  "1× M5x", "HDT", "Kammer",
-                 "Universal-Segment", "4x identisch", "nicht spiegeln"):
+                 "Universal-Segment", "4x identisch", "nicht spiegeln",
+                 "16", "Abstandspads", "3.6 mm wirksame Raupenhöhe"):
         assert muss in text, f"'{muss}' fehlt in Montagenotiz"

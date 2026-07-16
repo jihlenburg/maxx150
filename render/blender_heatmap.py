@@ -1,7 +1,7 @@
 """Blender-Seite des Heatmap-Workflows: importiert die PLY-Dateien (Vertex-
 farben, Viridis) aus fem.heatmap.heatmap_all() und rendert je Lastfall zwei
 Ansichten (oben/unten -- die Hotspots sitzen laut Task-15-Analyse an den
-Noppenfuessen unten). Emission-Material aus Vertexfarben (render_heat.py-
+Abstandspads unten). Emission-Material aus Vertexfarben (render_heat.py-
 Vorlage).
 
 Aufruf:  blender -b -P render/blender_heatmap.py -- <ply_dir> <out_dir>

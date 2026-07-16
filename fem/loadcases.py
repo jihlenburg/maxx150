@@ -28,16 +28,8 @@ def top_faces(shape, p):
     return tuple(f"Face{i+1}" for i in out)
 
 
-def nopple_faces(shape, p):
-    """Exakte Selektion der Noppenflächen bei z = -GLUE_GAP: NUR die ebene,
-    nach -z gerichtete Stirnfläche jeder Noppe -- nicht ihre Zylinder-/
-    Kegelmantelfläche (Task 15: der Übergangskegel am Noppenfuß teilt die
-    vormals durchgehende Zylindermantelfläche in eine kurze untere
-    Restfläche + die neue Kegelflanke; deren CoM liegt näher an
-    z=-GLUE_GAP als die volle, ungeteilte Mantelfläche vorher -- ein reiner
-    CoM-Toleranzfilter [wie zuvor via _planar_faces] würde sie ab jetzt
-    fälschlich mit einsammeln, siehe tests/test_loadcases.py::
-    test_face_selektoren). Analog zu top_faces(): Plane + Normale ~ -z."""
+def _downward_faces_at(shape, target):
+    """Planare, nach unten gerichtete Flächen auf einer exakten z-Ebene."""
     out = []
     for i, f in enumerate(shape.Faces):
         if not isinstance(f.Surface, Part.Plane):
@@ -45,9 +37,24 @@ def nopple_faces(shape, p):
         n = f.normalAt(0, 0)
         if abs(n.x) > 1e-3 or abs(n.y) > 1e-3 or abs(n.z + 1.0) > 1e-3:
             continue
-        if abs(f.CenterOfMass.z - (-p.GLUE_GAP)) < 0.01:
+        if abs(f.CenterOfMass.z - target) < 0.01:
             out.append(i)
     return tuple(f"Face{i+1}" for i in out)
+
+
+def bond_faces(shape, p):
+    """Verteilte Böden der beiden flachen Kleberführungen.
+
+    Die globale FEM idealisiert die ausgehärtete Dachklebung als starre,
+    flächige Lagerung. Die 16 Abstandspads sind ausdrücklich keine
+    strukturellen Lager und werden deshalb hier nicht fixiert.
+    """
+    return _downward_faces_at(shape, p.GROOVE_D)
+
+
+def spacer_pad_faces(shape, p):
+    """Kontaktflächen der 16 Montagepads, nur für Geometrieprüfungen."""
+    return _downward_faces_at(shape, -p.GLUE_GAP)
 
 
 def outer_wall_faces(shape, p, sign):
@@ -120,8 +127,8 @@ def _lf4(shape, p):
 
 
 CASES = {
-    "LF1_wind": Case("LF1_wind", "kurz", nopple_faces, _lf1),
-    "LF2_schlechtweg": Case("LF2_schlechtweg", "kurz", nopple_faces, _lf2),
-    "LF3_klemmung": Case("LF3_klemmung", "lang", nopple_faces, _lf3),
-    "LF4_schnee": Case("LF4_schnee", "kurz", nopple_faces, _lf4),
+    "LF1_wind": Case("LF1_wind", "kurz", bond_faces, _lf1),
+    "LF2_schlechtweg": Case("LF2_schlechtweg", "kurz", bond_faces, _lf2),
+    "LF3_klemmung": Case("LF3_klemmung", "lang", bond_faces, _lf3),
+    "LF4_schnee": Case("LF4_schnee", "kurz", bond_faces, _lf4),
 }

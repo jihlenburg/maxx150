@@ -1,6 +1,6 @@
 # Design: 3D-gedruckter Adapterrahmen — Belluna Super Fan im Mini-Heki-Ausschnitt (Challenger X150 / Chausson X550)
 
-Stand: 2026-07-16 · Parameterstand `652716b5` · Status `PROTOTYPE_ONLY`
+Stand: 2026-07-16 · Parameterstand `8029252d` · Status `PROTOTYPE_ONLY`
 
 ## 1. Ziel und Kontext
 
@@ -115,7 +115,7 @@ Parametern und schreibt sie in die Montagenotiz.
    geschlossen und wasserdicht. Die innere besitzt acht 5-mm-Unterbrechungen
    zur trockenen Öffnungsseite, damit der dazwischenliegende 4-mm-Kanal
    Feuchte zur Durchhärtung nachführen kann. Die wirksame Fläche beträgt
-   33.439 mm² bei 408 mm Innen- und 456 mm Außenmaß und liegt vollständig
+   33.313 mm² bei 406 mm Innen- und 454 mm Außenmaß und liegt vollständig
    über dem nachgerüsteten 30-mm-Holzrahmen im XPS. Der Holzrahmen wird mit
    **SikaForce-710 L35 + SikaForce-010** (2K-PUR, 100:25 Volumen bzw.
    100:19 Gewicht) vollflächig eingesetzt. Das System ist ausdrücklich für
@@ -133,8 +133,9 @@ Parametern und schreibt sie in die Montagenotiz.
    LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle). Die
    untere Doppelraupe trägt den Primärfall allein; die acht Seitenschrauben
    bleiben davon getrennte, unqualifizierte Reserve.
-7. **Dichtheit:** definierte 3-mm-Elastikfuge aus dem vollständig gewählten
-   Dichtklebstoff-System und geschlossene äußere Raupe samt Kehlnaht. Die
+7. **Dichtheit:** 16 schmale Abstandspads definieren 3 mm Dachabstand; die
+   0,6-mm-Applikationsführungen ergeben darin 3,6 mm wirksame Raupenhöhe.
+   Geschlossene äußere Raupe und Kehlnaht bilden die Wassersperre. Die
    seitlichen Schrauben werden ausschließlich von der trockenen Öffnungsseite
    gesetzt und abgedichtet; sie durchdringen weder Dachaußenhaut noch äußere
    Wassersperre.
@@ -170,11 +171,15 @@ Parametern und schreibt sie in die Montagenotiz.
   (druckprofil-unabhängig); die FEM rechnet auf der echten Kammergeometrie mit vollem
   E-Modul (INFILL_FACTOR = 1,0). [Entscheidung mit User 2026-07-12, ersetzt
   Slicer-Infill-Ansatz]
-- **Unterseite:** Klebespalt-Noppen (3 mm) für definierte Elastikfugen-Dicke,
-  Zentrierkragen mit acht seitlichen Schraubpfaden sowie zwei umlaufende
-  10-mm-Kleberillen vollständig über dem 30-mm-Holzrahmen. Die äußere Rille
-  ist geschlossen; die innere besitzt acht modellierte 5-mm-Brücken, welche
-  den 4-mm-Mittelkanal zur trockenen Öffnungsseite entlüften.
+- **Unterseite:** 16 längliche Abstandspads (2,5×10×3 mm), jeweils innen und
+  außen nahe den acht unteren Schraubachsen. Sie liegen vollständig in den
+  trockenen 3-mm-Randstreifen über dem Holzrahmen und greifen nicht in die
+  Klebefläche ein. Zwei umlaufende, nur 0,6 mm tiefe und 10 mm breite
+  Applikationsführungen liegen ebenfalls vollständig über dem 30-mm-Holzrahmen.
+  Die äußere Führung ist geschlossen; die innere besitzt acht modellierte
+  5-mm-Brücken, welche den 4-mm-Mittelkanal zur trockenen Öffnungsseite
+  entlüften. Gegenüber den früheren 68 Ø8-mm-Rundnoppen sinken harte
+  Kontaktfläche und lokale Montagepressung deutlich.
 
 **Segmentierung:** Standard **ein rotationsidentisches L-Ecksegment, 4× drucken**,
 Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: Halbüberlappung
@@ -191,9 +196,10 @@ Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit RK-1300 und M5 vollständig
 gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
 Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
 Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 38 %
-Auslastung der 3-mm-Elastikfuge.
-Aufnahme ausschließlich durch die elastische Klebschicht — deshalb sind die Klebespalt-Noppen und
-das Verbot starrer Verklebung Pflicht, keine Option.
+Auslastung des konservativ mit 3 mm angesetzten freien Dachabstands; die
+reale Raupenhöhe in den 0,6-mm-Führungen beträgt 3,6 mm.
+Die Lastaufnahme erfolgt ausschließlich durch die elastische Klebschicht.
+Die Pads sind Montageanschläge, kein dauerhafter rechnerischer Lastpfad.
 
 **Dichtheitskonzept (Mehrteiligkeit):** Dichtheit kommt von durchgehenden Elastomer-Ebenen,
 nicht vom Druckteil — die Segmentstöße werden von diesen Ebenen überbrückt. Barrierenkette:
@@ -238,7 +244,11 @@ kein Druckfile ohne zugehörige Verifikation.
 
 **FEM-Modellstrategie:** Globalnachweis am **ungeteilten** Rahmen (obere Steifigkeitsschranke),
 Detailnachweis am Stoß-Submodell mit den Schnittkräften aus dem Globalmodell (untere Schranke).
-Kein Vollkontaktmodell aller vier Segmente in CalculiX.
+Kein Vollkontaktmodell aller vier Segmente in CalculiX. Die globale Lagerung
+liegt seit GEOM_REV 9 verteilt auf den Böden beider Kleberführungen. Sie
+idealisiert Dach und ausgehärteten Klebstoff weiterhin starr, fixiert aber
+nicht mehr die 16 Montagepads und vermeidet damit die früheren künstlichen
+Punktspannungen an 68 Rundnoppen.
 
 **Fehlerbehandlung:** Jeder Schritt validiert sein Ergebnis (Solid `isValid()` + geschlossene
 Shell, Mindestwandstärke, Mesh-Qualität, CalculiX-Konvergenz) und bricht mit klarer Meldung ab,
@@ -322,7 +332,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | am realen Haubenfreigang zu verifizieren |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 408/456-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
+| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
 
 ## 10. Risiken und Gegenmaßnahmen
 
@@ -330,7 +340,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 |---|---|
 | Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
 | Schichthaftung (Z) versagt | Drucklage: Lasten in XY; permanenter Knockdown 0,5; kein pauschales Tempern |
-| Thermodehnung reißt Klebfuge | 3-mm-Elastikfuge aus dem gewählten Dichtklebstoff erzwungen (Noppen), LF5; 38 % des thermischen Scherbewegungsgrenzwerts |
+| Thermodehnung reißt Klebfuge | 16 Pads erzwingen 3 mm Dachabstand; in den flachen Führungen entstehen 3,6 mm Raupenhöhe. LF5 rechnet konservativ weiter mit 3 mm und erreicht 38 % des thermischen Scherbewegungsgrenzwerts. |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | reale Fahrzeugmaße + geometrischer Freigang-Check vor Produktionsfreigabe |
 | Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Lack trägt keine Struktur; jährliche Kontrolle und sofortige Ausbesserung |

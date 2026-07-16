@@ -34,8 +34,8 @@ def test_stossnachweis_traegt_windlast():
 def test_klebfugen_schub_aus_last():
     r = A.glue_load_shear(PRM.P, PRM.wind_force())
     # Zwei abgerundete 10-mm-Raupen minus acht innere 5-mm-Vents:
-    # 33.438,94 mm² (exakte R5-Parallelkurven, keine Quadratnäherung).
-    assert abs(r["tau_MPa"] - 480 / 33438.93782901543) < 1e-12
+    # 33.313,27 mm² (exakte R5-Parallelkurven, keine Quadratnäherung).
+    assert abs(r["tau_MPa"] - 480 / 33313.27412287184) < 1e-12
     assert r["PASS"]
 
 

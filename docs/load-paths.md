@@ -1,6 +1,6 @@
 # Abschätzung der Klebe-, Schraub- und Dachlastpfade
 
-Stand: 2026-07-16 · Parameterstand `652716b5` · **PASS_ASSUMPTION_BASED**
+Stand: 2026-07-16 · Parameterstand `8029252d` · **PASS_ASSUMPTION_BASED**
 
 > Konservative Plausibilisierung, keine Bauteilzulassung. Die untere
 > Doppelraupe trägt den Primärnachweis allein; acht seitliche Holzschrauben
@@ -10,7 +10,7 @@ Stand: 2026-07-16 · Parameterstand `652716b5` · **PASS_ASSUMPTION_BASED**
 
 | Lastfall | obere Elastikfuge allein | 8 Schrauben oben | 2×10-mm-Dachraupe allein | erforderliche Kapazität je Rückfallschraube | Holz–Dach, eine Fläche | serieller Pfad |
 |---|---:|---:|---:|---:|---:|---|
-| Windhülle 480 N | 157 % | 74 % | 76 % | 144 N (nicht qualifiziert) | 35 % | PASS |
+| Windhülle 480 N | 157 % | 74 % | 77 % | 144 N (nicht qualifiziert) | 35 % | PASS |
 | Schlechtweg | 98 % | 43 % | 44 % | 81 N (nicht qualifiziert) | 18 % | PASS |
 | Schnee/Druck | 0 % | 21 % | 0 % | 38 N (nicht qualifiziert) | 0 % | PASS |
 | CFD offen, mittel ×1,5 | 71 % | 32 % | 29 % | 54 N (nicht qualifiziert) | 12 % | PASS |
@@ -31,10 +31,12 @@ nicht reduziert.
 
 - Obere Ringfuge: 14.016 mm²; 0,030 MPa normal / 0,050 MPa Schub, nicht allein
   maßgebend.
-- Untere Doppelraupe: 33.439 mm² wirksam, Innenmaß 408 mm, Außenmaß 456 mm;
+- Untere Doppelraupe: 33.313 mm² wirksam, Innenmaß 406 mm, Außenmaß 454 mm;
   vollständig über dem 30-mm-Holzrahmen, acht innere Trockenraum-Vents,
   0,030/0,050 MPa. Fläche und Volumen folgen den echten gerundeten
-  R5-Parallelkonturen; eine Quadratnäherung wird nicht verwendet.
+  R5-Parallelkonturen; eine Quadratnäherung wird nicht verwendet. 3 mm
+  Padabstand plus 0,6 mm Führungsvertiefung ergeben 3,6 mm Raupenhöhe und
+  rund 120 ml Nennvolumen.
 - Obere ST4.2×25 in ASA-GF: 178 N je Schraube nach Detailfaktor 0,5.
 - Segmentstoß unter vollen 480 N: RK-1300 77 %; ein M5 62 %; beide getrennt PASS.
 - Thermische Scherbewegung der 3-mm-Fuge: 38 % des 50-%-Grenzwerts; PASS.
@@ -45,7 +47,11 @@ nicht reduziert.
 ## Konstruktive Interpretation
 
 - Der Adapter bleibt bei 500 mm Außenmaß. Zwei getrennte 10-mm-Raupen liefern
-  trotz acht 5-mm-Ventunterbrechungen rund 33.439 mm² wirksame Klebefläche.
+  trotz acht 5-mm-Ventunterbrechungen rund 33.313 mm² wirksame Klebefläche.
+- 16 schmale Abstandspads sitzen in den trockenen inneren und äußeren
+  Randstreifen nahe den acht Dachschrauben. Sie definieren nur den
+  Montagespalt und werden weder von der Klebefläche abgezogen noch als
+  struktureller Lastpfad angerechnet.
 - Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere Raupe
   wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, damit der
   4-mm-Mittelkanal Feuchte nachführen kann. Die Unterbrechungen und der Kanal
@@ -74,6 +80,9 @@ Alternative.
 
 - Starrer Ring und linear-elastische Lastverteilung; lokale Peelspitzen und
   Gehäusenachgiebigkeit sind nicht aufgelöst.
+- Die Rahmen-FEM fixiert die Böden beider Kleberführungen flächig. Das
+  beseitigt die frühere künstliche Rundnoppen-Lagerkonzentration, bildet aber
+  die reale Nachgiebigkeit des 3,6-mm-Klebstoffs und des GFK-Dachs noch nicht ab.
 - Die zwei unteren 10-mm-Elastikraupen sind der allein angerechnete
   Adapter-Dach-Primärpfad. Die acht Seitenschrauben sind mangels Holz-/Dachtest
   nur physische Reserve.

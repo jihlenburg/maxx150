@@ -57,7 +57,7 @@ Prozess erzeugt bewusst kein scheinbar vollständiges PDF.
 
 - `params_hash`, `geom_rev`, `erzeugt` (Datum);
 - `geometrie` — abgeleitete Maße für die Blender-Polygon-Filter (Deckhöhe
-  `top_z`, Lap-Ebene, Kleberille, Noppenradien, Maskierzone, Holzrahmen);
+  `top_z`, Lap-Ebene, Kleberführungen, Padabmessungen, Maskierzone, Holzrahmen);
 - `marker` — Markerachsen als Endpunktpaare: `m5` (4×), `dach_screws` (8×)
   und `plate_screws` (16 mögliche Positionen), jeweils exakt aus den
   `params`-Positionen und dem
@@ -110,11 +110,11 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 | 05 m5_montage | Stoß von oben | 1× roter M5-Achsmarker (Senkung) |
 | 06 m5_mutter | Stoß von unten | 1× roter M5-Achsmarker (Muttertasche) |
 | 07 rahmen_komplett | Gefügter Rahmen | 4× dezent rote M5-Marker |
-| 08 maskierung_lack | moderate 20°-Unteransicht | **gelb** (gleichmäßige Doppelraupe, Mittelkanal und Noppen-Auflageflächen) |
+| 08 maskierung_lack | moderate 20°-Unteransicht | **gelb** (gleichmäßige Doppelraupe, Mittelkanal und 16 Pad-Auflageflächen) |
 | 09 dach_holzrahmen | Dach-Halbschnitt | Holzrahmen eindeutig holzfarben, ohne Bauteil-fremden Marker |
 | 10 aufsetzen | Rahmen über Dach, Kragen sichtbar | — |
 | 11 hybrid_dachinterface | Eingesetzter Rahmen mit transparentem Dach und Holzrahmen | 8× rote Achsen der seitlichen, nicht angerechneten Rückfallschrauben |
-| 12 kleberaupe | Unterseite | **grün** (zwei Rillenböden; acht Unterbrechungen der inneren Raupe sichtbar) |
+| 12 kleberaupe | Unterseite | **grün** (zwei flache Führungsböden; acht Unterbrechungen der inneren Raupe sichtbar) |
 | 13 platte_schrauben | Rahmen+Platte (halbtransparent) | 16 mögliche rote ST4,2-Achsmarker; 8 werden gesetzt |
 | 14 fertig | Kompletter Stapel | — |
 

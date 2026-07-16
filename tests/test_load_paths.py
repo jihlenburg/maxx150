@@ -6,7 +6,7 @@ def test_ringflaechen_stammen_aus_der_konstruktionsgeometrie():
     result = LP.assess(include_cfd=False)
     assert result["geometry"]["top_elastic_ring"]["area_mm2"] == 14016.0
     roof = result["geometry"]["roof_elastic_ring"]
-    assert abs(roof["area_mm2"] - 33438.93782901543) < 1e-6
+    assert abs(roof["area_mm2"] - 33313.27412287184) < 1e-6
     assert roof["inner_vent_count"] == 8
     # Nur eine der zwei 30-mm-Holz/GFK-Flächen wird angerechnet.
     assert result["geometry"]["wood_frame_one_face_only"]["area_mm2"] == 51600.0
@@ -29,7 +29,7 @@ def test_wind_zeigt_getrennte_obere_schrauben_und_untere_klebung():
     assert not top["elastic_ring_bond_only"]["PASS"]
     assert top["eight_side_screws_full_case"]["PASS"]
     assert bottom["double_elastic_bead_primary"]["PASS"]
-    assert 0.75 < bottom["double_elastic_bead_primary"]["normalized_interaction"] < 0.78
+    assert 0.76 < bottom["double_elastic_bead_primary"]["normalized_interaction"] < 0.78
     fallback = bottom["eight_roof_side_screws_secondary"]
     assert fallback["installed_count"] == 8
     assert 140 < fallback["required_capacity_per_screw_N_for_full_case"] < 150

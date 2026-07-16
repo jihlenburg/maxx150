@@ -246,6 +246,16 @@ def _roof_double_bead(p: PRM.Params) -> dict:
         "inner_vent_count": 4 * len(p.GROOVE_VENT_OFFS),
         "inner_vent_width_mm": p.GROOVE_VENT_W,
         "channel_width_mm": p.GROOVE_CHANNEL_W,
+        "guide_depth_mm": p.GROOVE_D,
+        "stand_off_mm": p.GLUE_GAP,
+        "bondline_thickness_mm": PRM.groove_bondline_thickness(p),
+        "nominal_volume_ml": PRM.groove_adhesive_volume_ml(p),
+        "spacer_pad_count": PRM.spacer_pad_count(p),
+        "spacer_pad_size_mm": [
+            p.SPACER_PAD_RADIAL,
+            p.SPACER_PAD_TANGENTIAL,
+            p.GLUE_GAP,
+        ],
         "outer_side_mm": outer_side,
         "area_mm2": area,
         "second_moment_mm4": inertia,
@@ -589,6 +599,9 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
             "Die zwei unteren 10-mm-Elastikraupen sind der allein angerechnete "
             "Adapter-Dach-Primärpfad. Die acht seitlichen Schrauben sind eine "
             "physische, aber mangels Holz-/Dachprüfung unqualifizierte Reserve.",
+            "Die globale Rahmen-FEM fixiert die zwei Kleberführungsflächen "
+            "starr und verteilt. Die 16 Abstandspads sind nur Montageanschläge; "
+            "Klebstoff- und Dachnachgiebigkeit bleiben unaufgelöst.",
             "Die acht oberen ST4.2x25 werden mit einem abgeminderten axialen "
             "Analogiewert auf den resultierenden Lastvektor geprüft.",
             "Der einzelne M5 je Segmentstoß wird mit der vollen 480-N-Hülle "
@@ -665,7 +678,10 @@ def to_markdown(result: dict) -> str:
         f"{roof_ring['beads'][0]['inner_side_mm']:.0f} mm, Außenmaß "
         f"{roof_ring['outer_side_mm']:.0f} mm; vollständig über dem "
         f"30-mm-Holzrahmen, {roof_ring['inner_vent_count']} innere "
-        "Trockenraum-Vents, 0,030/0,050 MPa.",
+        f"Trockenraum-Vents, {roof_ring['stand_off_mm']:.0f} mm Padabstand + "
+        f"{roof_ring['guide_depth_mm']:.1f} mm Führung = "
+        f"{roof_ring['bondline_thickness_mm']:.1f} mm Raupenhöhe, "
+        f"{roof_ring['nominal_volume_ml']:.0f} ml nominal, 0,030/0,050 MPa.",
         f"- Obere ST4.2x25 in ASA-GF: {asa['project_capacity_per_screw_N']:.0f} N "
         "je Schraube nach Detailfaktor 0,5.",
         f"- Segmentstoß unter vollen 480 N: RK-1300 "
@@ -688,6 +704,10 @@ def to_markdown(result: dict) -> str:
         f"liefern trotz acht 5-mm-Ventunterbrechungen rund "
         f"{roof_ring['area_mm2']:.0f} mm² wirksame "
         "Klebefläche und liegen vollständig über dem Holzrahmen.",
+        f"- {roof_ring['spacer_pad_count']} schmale Abstandspads sitzen in den "
+        "trockenen Randstreifen nahe den acht Dachschrauben. Sie definieren "
+        "nur den Montagespalt, greifen nicht in die Klebefläche ein und "
+        "werden nicht als Lastpfad angerechnet.",
         "- Die äußere Raupe bleibt als Wassersperre geschlossen. Nur die innere "
         "Raupe wird an acht Stellen zur trockenen Öffnungsseite unterbrochen, "
         "damit der 4-mm-Mittelkanal Feuchte nachführen kann.",

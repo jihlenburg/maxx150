@@ -1,9 +1,9 @@
 """Eckkammern (Task 17): 90°-Rotationsfortsetzung der Seiten-Kammerringe um
 die vier massiven Eckblöcke (Haupt-Schrumpfspannungs-Reservoirs laut
 Herstellbarkeitsanalyse). Seit Task 20 (User-Entscheidung 2026-07-12)
-Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-8-Anker enthalten den
-kompakten 50-mm-Hybridrahmen mit zwei Kammerringen: EIN 1636285.2307699774,
-AUS 1683823.3149538105 mm³ (siehe test_eckkammern_default_anker und
+Default EIN (CORNER_CHAMBERS=True). Die GEOM_REV-9-Anker enthalten den
+kompakten 50-mm-Hybridrahmen mit zwei Kammerringen: EIN 1671916.7934465497,
+AUS 1719454.8776221767 mm³ (siehe test_eckkammern_default_anker und
 test_eckkammern_ausschalt_anker unten). GEOM_REV blieb beim Flip 2: reine
 Parameter-, keine Code-Änderung -- params_hash ändert sich über das Feld
 selbst (neuer Default-Hash, AUS-Variante hasht exakt auf den alten Stand).
@@ -122,13 +122,13 @@ def test_eckkammern_ohne_chambers_wirft_valueerror():
 
 
 def test_eckkammern_default_anker():
-    """GEOM_REV-8-Anker des kompakten Hybridrahmens.
+    """GEOM_REV-9-Anker des kompakten Hybridrahmens.
 
-    Gegenüber REV 5 bleiben die 43-mm-Kammerzellen erhalten; nur kompakte
-    10-mm-Rippen werden zurückgefust. Das erklärt die bewusste Volumenabnahme.
+    Flache Raupenführungen und 16 Pads ersetzen die tiefen Rillen und 68
+    Rundnoppen; der größere verbleibende Boden erklärt die Volumenzunahme.
     """
     v = _frame_default().Volume
-    assert abs(v - 1636285.2307699774) < 1.0, \
+    assert abs(v - 1671916.7934465497) < 1.0, \
         f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
@@ -136,9 +136,9 @@ def test_eckkammern_default_anker():
 
 
 def test_eckkammern_ausschalt_anker():
-    """GEOM_REV-8-AUS-Anker ohne Eckkammern."""
+    """GEOM_REV-9-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 1683823.3149538105) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 1719454.8776221767) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -220,7 +220,7 @@ def test_eckkammern_delta_und_keepout_exakt():
     frame._corner_keepout), die tatsächliche Reichweite der letzten Zelle
     bei Default-CELL_L=43 ist nur 193 mm, es wird also nichts gefiltert und
     das Zellraster bleibt bitidentisch zum Stand ohne Filter. Deshalb ist
-    das GEOM_REV-8-Delta AUS-EIN exakt 47538.0841838331 mm³."""
+    das GEOM_REV-9-Delta AUS-EIN exakt 47538.084176 mm³."""
     v_eck = _frame_default().Volume
     delta = _frame_aus().Volume - v_eck
     assert abs(delta - 47538.0841838331) < 1.0, \

@@ -21,7 +21,7 @@ def test_hauptmasse():
     p = PRM.P
     assert abs(bb.XLength - 500.0) < 0.01 and abs(bb.YLength - 500.0) < 0.01
     zmin = -(p.GLUE_GAP + (p.BOT_KRAGEN_DEPTH if p.BOT_KRAGEN else 0.0))
-    assert abs(bb.ZMin - zmin) < 1e-6     # Noppen bis -3 bzw. Unterkragen-Kante
+    assert abs(bb.ZMin - zmin) < 1e-6     # Pads bis -3 bzw. Unterkragen-Kante
     assert abs(bb.ZMax - top_z()) < 1e-6                 # Deckfläche bei 25
 
 def test_oeffnung_bleibt_400():

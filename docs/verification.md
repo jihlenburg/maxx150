@@ -18,8 +18,10 @@ Die Engineering-Stufe prüft vor jedem Export:
 
 Der FEM-Ansatz ist bewusst konservativ: Der globale Rahmen wird monolithisch
 gerechnet, der Segmentstoß separat. Das ist kein Kontakt-/Ermüdungsmodell der
-kompletten Baugruppe. Netz- und Modellgrenzen sind im jeweiligen Report
-sichtbar zu halten.
+kompletten Baugruppe. Die beiden Kleberführungsböden werden als starre,
+verteilte Lagerflächen angesetzt; die 16 Abstandspads sind nur Montageanschläge
+und werden nicht fixiert. Klebstoff- und Dachnachgiebigkeit bleiben dennoch
+unaufgelöst. Netz- und Modellgrenzen sind im jeweiligen Report sichtbar zu halten.
 
 Die optionale CFD-Stufe rekonstruiert die äußere Belluna-Hülle aus der
 Einbauanleitung. Ihre Ergebnisse sind bis zu Netzkonvergenz, Variantenmatrix
@@ -58,6 +60,9 @@ Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
   Raupen müssen vollständig über ihm liegen. Die äußere Raupe muss rundum
   geschlossen bleiben; die acht Vents der inneren Raupe und der 4-mm-
   Mittelkanal müssen zur trockenen Öffnungsseite frei bleiben.
+- Alle 16 Abstandspads müssen gleichzeitig und ohne Kippeln aufliegen. Sie
+  definieren 3 mm Dachabstand; zusammen mit den 0,6-mm-Führungen entstehen
+  3,6 mm Raupenhöhe. Kein Pad darf mit Dichtstoff unterfüttert werden.
 - Die acht seitlichen ST4.2×25 mit 3-mm-Vorbohrung und abgedichteten Köpfen;
   sie ersetzen den Klebnachweis nicht und werden rechnerisch nicht angerechnet.
 - Vollständige Durchhärtung der unteren Sikaflex-Doppelraupe nach aktuellem

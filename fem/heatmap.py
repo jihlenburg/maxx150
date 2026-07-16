@@ -1,7 +1,7 @@
 """Von-Mises-Heatmaps aller Lastfaelle: FEM -> Knotenspannungen -> Mapping auf
 die Oberflaechen-Tessellation -> PLY mit Vertexfarben (Viridis) + Hotspot-
-Liste (fem.heatmap.heatmap_all(), Task 15: Session-Erkenntnis "alle LF-
-Hotspots sitzen am Noppenfuss" ging aus genau diesem Workflow hervor).
+Liste (fem.heatmap.heatmap_all(), Task 15: Die früheren punktförmigen
+Auflager wurden durch dabei sichtbare, künstliche Hotspots erkannt).
 
 Reine Helferfunktionen (cmap, classify, write_ply, hotspots, voxel_index,
 build_lookup, nearest_vm) sind FreeCAD-frei nutzbar/testbar (siehe
@@ -69,7 +69,7 @@ def classify(pt, p: PRM.Params = PRM.P) -> str:
     tol = p.CHAMBER_RIB
 
     if z < -0.5:
-        return "Noppenfuß (Fixierstelle — Lagerkonzentration)"
+        return "Abstandspad (Montagekontakt, kein FEM-Lager)"
     if z < p.BOTTOM_T + 0.5:
         return "Bodenplatte/Kleberille"
     if z > z_deck + 0.5:

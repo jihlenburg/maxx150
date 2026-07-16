@@ -80,7 +80,7 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
         mesh.CharacteristicLengthMax = f"{mesh_mm} mm"
         mesh.ElementOrder = "2nd"
         # Gerade Kanten statt echter Geometriekrümmung an den Zwischenknoten:
-        # ohne das erzeugt Gmsh an kleinradiigen Details (Noppen R4, Vent-
+        # ohne das erzeugt Gmsh an kleinradiigen Details (Pad-Radien, Vent-
         # Bohrungen Ø4, Außenfase 4 mm) im Verhältnis zur Elementgröße
         # umgeschlagene ("nonpositive jacobian") quadratische Tetraeder ->
         # CCX bricht mit Fehler 201 ab. SecondOrderLinear=True behebt das

@@ -161,7 +161,7 @@ def build_model(mf):
                             "zusätzlich den vollständigen 480-N-Pfad über M5.")]),
         dict(nr=3, titel="Weiße Schutzlackierung (Pflicht)",
              bild=("08_maskierung_lack.png",
-                   "Bild 8: Unterseite – Doppelraupe, Mittelkanal und Noppenfeld (gelb) beim "
+                   "Bild 8: Unterseite – Doppelraupe, Mittelkanal und Abstandspads (gelb) beim "
                    "Lackieren abkleben."),
              absaetze=[
                  "Die Segmente werden mit schwarzer Rohteiloberfläche geliefert; "
@@ -169,7 +169,7 @@ def build_model(mf):
                  "für 60 min bei 60 °C ausgasen lassen, wie es Mipa für die "
                  "Kunststoffvorbereitung fordert, und vollständig abkühlen lassen.",
                  "Alle späteren Klebe- und Belüftungszonen abkleben: beide "
-                 "Kleberillen, Mittelkanal, Noppenfeld sowie die obere Auflage der Belluna-Platte. Mit "
+                 "Kleberführungen, Mittelkanal, Abstandspads sowie die obere Auflage der Belluna-Platte. Mit "
                  "Mipa Kunststoffreiniger antistatisch reinigen, MP Softpad "
                  "Superfine schleifen, nachreinigen, trocknen und Benetzungsprobe "
                  "durchführen.",
@@ -232,7 +232,7 @@ def build_model(mf):
                             "echten Ausschnitt vor dem Setzen kontrollieren.")]),
         dict(nr=5, titel="Adapter kleben, setzen und sichern",
              bild=("12_kleberaupe.png",
-                   "Bild 12: Zwei grüne Kleberillen; die äußere bleibt geschlossen, "
+                   "Bild 12: Zwei grüne Kleberführungen; die äußere bleibt geschlossen, "
                    "die innere besitzt acht geformte Belüftungsbrücken."),
              bilder2=[("10_aufsetzen.png",
                        "Bild 10: Rahmen mit Unterkragen über dem Ausschnitt."),
@@ -246,14 +246,16 @@ def build_model(mf):
                  "Das angeschliffene GFK-Gelcoat mit Cleaner P reinigen und "
                  "Sika Aktivator-205 gemäß aktuellem Produktdatenblatt auftragen.",
                  f"Sikaflex-522 weiß nominal ca. {de(t['bead_ml'])} ml in die "
-                 f"beiden {de(t['groove_w'])}-mm-Kleberillen legen (Bild 12). "
+                 f"beiden {de(t['groove_w'])}-mm-Kleberführungen legen (Bild 12). "
                  "Die äußere Raupe muss wasserdicht und ohne Unterbrechung geschlossen sein. "
                  f"Die innere Raupe an den {de(t['groove_vent_count'])} geformten "
                  "Brücken sauber unterbrechen; den Mittelkanal nicht überfüllen.",
                  "Rahmen mit dem Unterkragen in den Ausschnitt einsetzen (Bild 10) "
                  "und lagerichtig ausrichten. Gleichmäßig nur so weit anpressen, "
-                 f"bis die Noppen die vorgesehene {de(t['glue_gap'])}-mm-Fuge "
-                 "definieren; anschließend mit einer ebenen, nicht "
+                 f"bis die {de(t['spacer_pad_count'])} Abstandspads den vorgesehenen "
+                 f"{de(t['glue_gap'])}-mm-Dachabstand definieren. In den "
+                 f"{de(t['groove_d'])}-mm-Führungen beträgt die wirksame "
+                 f"Raupenhöhe damit {de(t['bondline_thickness'])} mm; anschließend mit einer ebenen, nicht "
                  "beschädigenden Montagehilfe gegen Verschieben sichern.",
                  f"Je Seite zwei ST {de(t['dach_screw_st_d'])}×{de(t['dach_screw_st_l'])} "
                  f"durch die Kragenlöcher in den Holzrahmen setzen – insgesamt "
@@ -276,8 +278,8 @@ def build_model(mf):
                                "Carloflex-TDS nennt den Kunststoffprimer nicht. "
                                "Je Baugruppe nur ein vollständiges System "
                                "verwenden."),
-                   ("warn", f"Die Noppen definieren die {de(t['glue_gap'])} mm "
-                            f"Fugendicke – den Kleber NICHT auspressen "
+                   ("warn", f"Die Abstandspads definieren {de(t['glue_gap'])} mm "
+                            f"Dachabstand und {de(t['bondline_thickness'])} mm Raupenhöhe – den Kleber NICHT auspressen "
                             f"(Thermik-Elastikfuge). Äußere Dichtungsraupe, "
                             f"Mittelkanal und innere Ventöffnungen vor dem "
                             f"Aushärten visuell vollständig kontrollieren. "

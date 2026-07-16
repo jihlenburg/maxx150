@@ -63,7 +63,7 @@ def _allowed_bridge_area(p):
     # 7. Unterkragen-Schraubenlöcher: 8 horizontale Ø HOLE_D-
     #    Kanäle durch die Kragenwand (achsparallel, analog Zone 5); die
     #    45°-Übergangsfase trägt sich über die Flankenneigung selbst
-    #    (Noppenkegel-Präzedenz), braucht keinen eigenen Term.
+    #    braucht keinen eigenen Term.
     kragen_loch = 0.0
     if p.BOT_KRAGEN:
         kragen_loch = (PRM.bot_kragen_hole_count(p) * (math.pi / 2)
