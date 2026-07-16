@@ -1,8 +1,8 @@
 """Asymmetrie-Smoke-Test (Finalreview I3, Ledger 21/22): W_TOP je Seite
 unterschiedlich. Deckt die seitenspezifischen Kopplungen ab, die bei den
-symmetrischen Defaults (alle W_TOP=50) unentdeckt blieben (z. B. eine
+symmetrischen Defaults (alle W_TOP=70) unentdeckt blieben (z. B. eine
 Seitenvertauschung in der k<->Seite-Kanonik in model/frame.py::_chamber_cuts
-waere bei Symmetrie unsichtbar). min(46,48,55,60)=46 >= Kammergrenze 44.4
+waere bei Symmetrie unsichtbar). min(70,72,73,74)=70 >= Kammergrenze 69.4
 (INNER_WALL 8 + 2*CHAMBER_W 15 + CHAMBER_RIB 4 + 2.4), validate() akzeptiert
 also diesen Parametersatz.
 
@@ -10,7 +10,7 @@ Task 20: P_ASYM und P_CORNER erben jetzt CORNER_CHAMBERS=True (Default EIN).
 Alle formelbasierten Erwartungen (allowed(p) im DFM-Gate, Nachbargrenzen-
 Bänder, Eck-Massiv-Prüfquader y 193..199) halten nachweislich unverändert
 (RED-Lauf Task 20: nur die Werkzeugzahl-Formel unten brach -- geometrische
-Ursache: 16 fixe Eck-Werkzeuge, siehe dort)."""
+Ursache: ringzahlabhängige fixe Eck-Werkzeuge, siehe dort)."""
 import Part
 from FreeCAD import Vector
 
@@ -20,15 +20,15 @@ from model import frame
 from model.frame import build_frame
 from model.segments import build_segments
 
-P_ASYM = PRM.Params(W_TOP_FRONT=46.0, W_TOP_REAR=60.0,
-                    W_TOP_LEFT=48.0, W_TOP_RIGHT=55.0)
+P_ASYM = PRM.Params(W_TOP_FRONT=70.0, W_TOP_REAR=74.0,
+                    W_TOP_LEFT=72.0, W_TOP_RIGHT=73.0)
 
 # Achsen-Fehlbezug-Nachbesserung (Review-Critical nach Ledger 21/22): nur
 # EINE Seite (REAR) stark vergrößert, Rest Default (50) -- deckt exakt den
 # im Befund genannten Fall auf (frühere "seitenspezifische" Fassung nahm
 # fälschlich die EIGENE W_TOP_REAR als u-Bandgrenze statt der SENKRECHTEN
 # Nachbarn W_TOP_LEFT/W_TOP_RIGHT).
-P_CORNER = PRM.Params(W_TOP_REAR=90.0)
+P_CORNER = PRM.Params(W_TOP_REAR=100.0)
 
 
 def _corner_frame():
@@ -90,13 +90,13 @@ def test_asym_rear_band_durch_senkrechte_nachbarn_begrenzt():
     SENKRECHTEN Nachbarn W_TOP_RIGHT (+u) / W_TOP_LEFT (-u) beziehen, NICHT
     aus der eigenen (hier stark vergrößerten) W_TOP_REAR=90 -- sonst
     Phantom-Slots/SOLID_CORNER-Erosion (Review-Befund). Bei P_CORNER sind
-    LEFT/RIGHT unverändert 50 -> die Grenze bleibt (CUTOUT_W/2+50)-
-    SOLID_CORNER = 205, unabhängig von REARs eigenem Wert."""
+    LEFT/RIGHT unverändert 70 -> die Grenze bleibt (CUTOUT_W/2+70)-
+    SOLID_CORNER = 225, unabhängig von REARs eigenem Wert."""
     plus_w, minus_w = frame._side_neighbor_bounds(P_CORNER)[0]  # k=0 REAR
-    assert plus_w == P_CORNER.W_TOP_RIGHT == 50.0
-    assert minus_w == P_CORNER.W_TOP_LEFT == 50.0
-    limit = (P_CORNER.CUTOUT_W / 2 + 50.0) - P_CORNER.SOLID_CORNER
-    assert limit == 205.0
+    assert plus_w == P_CORNER.W_TOP_RIGHT == 70.0
+    assert minus_w == P_CORNER.W_TOP_LEFT == 70.0
+    limit = (P_CORNER.CUTOUT_W / 2 + 70.0) - P_CORNER.SOLID_CORNER
+    assert limit == 225.0
     for half in (frame._chamber_cell_centers(P_CORNER, plus_w),
                  frame._chamber_cell_centers(P_CORNER, minus_w)):
         assert half, "REAR-Halbseite unerwartet leer"
@@ -108,23 +108,18 @@ def test_asym_rear_band_durch_senkrechte_nachbarn_begrenzt():
 
 def test_asym_chamber_slot_count_konsistent_zu_werkzeugzahl():
     """chamber_slot_count muss zur tatsächlich erzeugten Werkzeuganzahl aus
-    _chamber_cuts passen: je Slot 2 Kammer-Cuts (Ring 1 + Ring 2) + 2
-    Vent-Bohrungen = 4 Werkzeuge je Slot.
+    _chamber_cuts passen: je Ring ein Kammer-Cut und ein Vent je Slot.
 
     Task 20 (Eckkammern Default EIN): P_CORNER erbt jetzt CORNER_CHAMBERS=
-    True -- _chamber_cuts hängt zusätzlich GENAU 16 fixe Eck-Werkzeuge an
-    (frame._corner_chamber_cuts: 2 Ring-Profile x 4 Ecken = 8 Sektor-
-    Kavitäten + 2 Diagonal-Vents x 4 Ecken = 8 Vents), UNABHÄNGIG von
-    CELL_L/W_TOP/Slot-Zahl. Rechnung am Istfall (bin/fc-Probe, Task-20-
-    Report): slots(P_CORNER)=24, len(tools)=112 = 4*24 + 16. Die alte Form
-    (len//4 == slots) galt nur ohne Eckkammern; +16 ist dieselbe exakte
-    Werkzeugbilanz wie in test_eckkammern_werkzeugzahl_konsistent_zu_slot_
-    count_cell_l_53 -- keine Aufweichung."""
+    True -- _chamber_cuts hängt zusätzlich je Ring vier Sektor-Kavitäten
+    und vier Diagonal-Vents an. Die Bilanz wird aus CHAMBER_RING_COUNT
+    abgeleitet und bleibt unabhängig von CELL_L/W_TOP/Slot-Zahl."""
     tools = frame._chamber_cuts(P_CORNER)
     slots = frame.chamber_slot_count(P_CORNER)
-    assert len(tools) == 4 * slots + 16, (
-        f"{len(tools)} Werkzeuge != 4*{slots} (Slot-Kavitäten+Vents) + "
-        f"16 (fixe Eck-Werkzeuge)"
+    per_slot = 2 * P_CORNER.CHAMBER_RING_COUNT
+    corner = 8 * P_CORNER.CHAMBER_RING_COUNT
+    assert len(tools) == per_slot * slots + corner, (
+        f"{len(tools)} Werkzeuge != {per_slot}*{slots} + {corner}"
     )
 
 

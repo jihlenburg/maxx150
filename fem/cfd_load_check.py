@@ -131,7 +131,7 @@ def main() -> dict:
             "segment_joint_horizontal_check": joints,
             "belluna_screw_uplift_share_N_each_assuming_8": uplift / 8.0,
             "belluna_screw_pullout_reference": side_screw,
-            "roof_screw_resultant_share_N_each_assuming_8": resultant / 8.0,
+            "roof_interface": "wide_elastic_bond_without_side_screws",
         },
         "omitted_moment_components": {
             "Mx_free_at_top_Nm": moment_at_top[0],
@@ -148,7 +148,8 @@ def main() -> dict:
             "globale Lasten gleichmäßig auf die Adapter-Deckfläche verteilt",
             "nur My explizit als Kräftepaar; Mx und Mz nicht in CalculiX eingeleitet",
             "CFD selbst ist weder vollständig netzkonvergiert noch experimentell korreliert",
-            "Schraubenwerte sind reine Gleichverteilungsindikatoren, kein Schrauben-/GFK-Nachweis",
+            "Belluna-Schraubenwert ist ein Gleichverteilungsindikator; die "
+            "schraubenlose Dachklebung wird in analysis/load_paths.py geprüft",
         ],
     }
     result_path = matrix_dir / "structural_check.json"
@@ -189,8 +190,8 @@ def main() -> dict:
         f"{'PASS' if joints['PASS'] else 'FAIL'}",
         f"- Belluna-Schraube bei ideal 8-facher Aufteilung der Zuglast: "
         f"{uplift / 8.0:.1f} N je Schraube",
-        f"- Dachschraube bei ideal 8-facher Aufteilung der Resultierenden: "
-        f"{resultant / 8.0:.1f} N je Schraube (ohne Kapazitätsaussage)",
+        "- Dachschnittstelle: verbreiterte Elastikfuge ohne seitliche "
+        "Holzschrauben; vollständiger Ringnachweis in `analysis/load_paths.py`",
         "",
         "Diese Rechnung ergänzt LF1–LF4, ändert sie aber nicht. Kontakte, "
         "Dachnachgiebigkeit, Beschichtungszustand und reale Lastverteilung "

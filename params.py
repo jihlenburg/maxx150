@@ -14,8 +14,8 @@ class Params:
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
     # bleiben (Task 15, Heatmap-Fix Noppenfuß-Radius) ---
-    GEOM_REV: int = 6            # 6: rotationsidentisches Universal-Segment;
-                                  # Dach- und Belluna-Schraubraster entkoppelt
+    GEOM_REV: int = 7            # 7: 70-mm-Rahmen, zwei M5 je Stoß und
+                                  # schraubenlose, verbreiterte Dachklebung
     # --- Dachausschnitt / Fahrzeug ---
     CUTOUT_W: float = 400.0      # Sollmaß Ausschnitt (Anleitung; Messpunkt C1)
     CUTOUT_R: float = 5.0        # Eckenradius R5
@@ -33,18 +33,20 @@ class Params:
     GLUE_SHEAR_CAP: float = 0.5  # zulässige Schubverzerrung der Fuge (50 %, Sika-Klasse)
     T_CURE: float = 20.0         # Verklebetemperatur
     # --- Deckflächenbreiten je Seite (aus A1/A2 abgeleitete Designwahl) ---
-    W_TOP_FRONT: float = 50.0
-    W_TOP_REAR: float = 50.0
-    W_TOP_LEFT: float = 50.0
-    W_TOP_RIGHT: float = 50.0
+    W_TOP_FRONT: float = 70.0
+    W_TOP_REAR: float = 70.0
+    W_TOP_LEFT: float = 70.0
+    W_TOP_RIGHT: float = 70.0
     R_OUT: float = 12.0          # Außeneckenradius
     # --- Obere Plattenschnittstelle / Entwässerung ---
     PLATE_OUTER_W: float = 450.0     # Belluna-Flansch, A1a/A1b bestätigt
     PLATE_KRAGEN_W: float = 397.0    # A3a gemessen 2026-07-14
     PLATE_KRAGEN_MEASURED: bool = True
+    PLATE_BOND_OFF: float = 15.0     # Belluna-Ringklebenut ab Öffnungskante
+    PLATE_BOND_W: float = 8.0        # unveränderte obere Elastikfuge
     TOP_DRAIN_RUN: float = 13.0      # max. Breite der äußeren Entwässerungsfase
     TOP_DRAIN_DEG: float = 47.0      # selbsttragend in Druckorientierung
-    TOP_DRAIN_SUPPORT_MARGIN: float = 2.0  # ebene Auflage über Flanschrand hinaus
+    TOP_DRAIN_SUPPORT_MARGIN: float = 4.5  # hält M5-Zone und äußeren Kammer-Ventdeckel eben
     # --- Freistellung Gussets oben innen (Messpunkt A4) ---
     REC_GUSSET_W: float = 18.0
     REC_GUSSET_D: float = 0.0    # GEMESSEN 2026-07-13 (A4 erledigt):
@@ -55,8 +57,8 @@ class Params:
                                   # Deckfläche); der digitale Passungscheck
                                   # belegt die vollständige Stegauflage.
     # --- Unterseite: Kleberille + Noppen ---
-    GROOVE_OFF: float = 15.0     # Rillenbeginn ab Öffnungskante
-    GROOVE_W: float = 8.0
+    GROOVE_OFF: float = 5.0      # Rillenbeginn ab Öffnungskante; über Holzrahmen
+    GROOVE_W: float = 25.0       # Bond-only-Dachlastpfad, außen bei 30 mm
     GROOVE_D: float = 2.0
     NOPPLE_R: float = 4.0
     NOPPLE_SPACING: float = 60.0
@@ -68,7 +70,7 @@ class Params:
     LAP_L: float = 25.0          # Halbüberlappung am Stoß
     TOL_JOINT: float = 0.25      # Passungsluft je Fügefläche
     JOINT_BOLT_D: float = 5.5    # M5-Durchgang (M4 fiel bei 480 N Lochleibungs-Nachweis durch)
-    JOINT_BOLT_OFF: float = 30.0 # strukturell zwischen Kleberille und Entwässerungsfase
+    JOINT_BOLT_OFFS: tuple = (40.0, 58.0)  # zwei M5 radial je Stoß
     JOINT_CB_D: float = 10.0     # Zylindersenkung Kopf (DIN912 M5)
     JOINT_CB_T: float = 6.0
     JOINT_NUT_AF: float = 8.0    # Sechskant-Schlüsselweite Muttertasche (M5)
@@ -76,15 +78,14 @@ class Params:
     SEG_MAX_BBOX: float = 300.0  # zulässige Segment-Boundingbox (Druckservice)
     # --- Unterkragen (User-Entscheidung 2026-07-13): dupliziert den Belluna-
     # Einbaukragen nach UNTEN -- taucht in den Dachausschnitt und wird dort
-    # SEITLICH verschraubt (Methode der Belluna-Anleitung; mechanische
-    # Redundanz zum Kleber am Dach-Interface). Dieses Dachinterface ist seit
-    # GEOM_REV 6 bewusst vom 3/2/3/2-Lochbild der Belluna-Platte entkoppelt:
-    # acht umlaufend gleiche Löcher bei ±140 gehen in den nachgerüsteten
-    # Holzrahmen. Die Belluna-Platte nutzt oben weiterhin ihre realen
+    # und zentriert den Rahmen formschlüssig im Ausschnitt. Seit GEOM_REV 7
+    # bleibt er geschlossen: Der Dachlastpfad läuft über die verbreiterte,
+    # vollständig vom verklebten Holzrahmen unterlegte Elastikfuge; es gibt
+    # keine seitliche Holzverschraubung. Die Belluna-Platte nutzt oben weiterhin ihre realen
     # ±140/±165-Positionen, dort aber universelle lokale Vollmaterialrippen.
-    # So bleibt jedes der vier Druckteile rotationsidentisch. Die 16
-    # beiliegenden ST4.2x25 bleiben vollständig zugeordnet: 8x
-    # Platte->Adapter und 8x Adapter->Holz. KEIN Loch bei 0 (Segmentstoß).
+    # So bleibt jedes der vier Druckteile rotationsidentisch. Acht der
+    # beiliegenden ST4.2x25 verbinden Platte und Adapter; die übrigen werden
+    # nicht eingesetzt. KEIN Loch bei 0 (Segmentstoß).
     # Druckorientierung kopfüber -> Kragen zeigt im Druck nach oben,
     # 45°-Übergang (BOT_KRAGEN_TRANS) selbsttragend wie der Noppenkegel.
     BOT_KRAGEN: bool = True
@@ -96,7 +97,8 @@ class Params:
     BOT_KRAGEN_HOLE_Z: float = 10.0  # Lochmitte unter Dachoberfläche (wie Belluna)
     BOT_KRAGEN_SCREW_D: float = 4.2  # Belluna-Lieferumfang: ST 4.2x25
     BOT_KRAGEN_SCREW_L: float = 25.0
-    BOT_KRAGEN_HOLE_OFFS: tuple = (-140.0, 140.0)  # identisch auf allen 4 Seiten
+    ROOF_SIDE_SCREWS: bool = False
+    BOT_KRAGEN_HOLE_OFFS: tuple = ()  # nur bei optionaler Schraubvariante
     # Obere Belluna-Platte: jede Segmenthälfte bietet BEIDE möglichen
     # Außenloch-Abstände. Nur das am realen Plattenloch liegende Paar wird
     # verschraubt; es entstehen keine ungenutzten offenen Löcher.
@@ -108,8 +110,8 @@ class Params:
                                       # 2026-07-13): dessen Spitze endet bei
                                       # top_z - 19 -- Schnittstellen-Gate unten
     PLATE_KRAGEN_Z_CLEAR_MIN: float = 2.0  # axialer Mindestfreigang zur Übergangsfase
-    ROOF_WOOD_FRAME_W: float = 30.0  # Mindestbreite des PU-verklebten Schraubgrunds
-    ROOF_WOOD_FRAME_CONFIRMED: bool = False  # erst nach Einbau/Probeschraube True
+    ROOF_WOOD_FRAME_W: float = 30.0  # PU-verklebter Lastverteiler unter Dachfuge
+    ROOF_WOOD_FRAME_CONFIRMED: bool = False  # erst nach Einbaukontrolle True
     # --- Lüfter / Lasten (Spec §3/§6) ---
     FAN_MASS: float = 6.5        # kg (Maxxfan-Hüllkurve; Belluna 5.0)
     V_DESIGN_KMH: float = 200.0  # 160 Reise + Böenreserve
@@ -159,7 +161,8 @@ class Params:
     DECK_T: float = 5.0        # Deckplatte: Gusset-Freistellung 3 + 2 Rest
     BOTTOM_T: float = 4.0      # Bodenplatte: enthält Kleberille (Tiefe 2)
     INNER_WALL: float = 8.0    # Schraubgrund seitliche Verschraubung
-    CHAMBER_W: float = 15.0    # radiale Kammerbreite (2 konzentrische Ringe)
+    CHAMBER_W: float = 17.0    # radiale Kammerbreite; 3 Ringe lassen 3-mm-Außenwand
+    CHAMBER_RING_COUNT: int = 3  # dritter Ring hält den 70-mm-Bandquerschnitt leicht
     CHAMBER_RIB: float = 4.0   # Steg zwischen den Kammerringen
     CELL_L: float = 43.0       # Zellenteilung entlang der Seite. Vent-Kanäle,
                                 # die einer Universal-Schraubrippe zu nahe
@@ -229,7 +232,7 @@ def drainage_start(p: Params, side_width: float) -> float:
     """
     outer = p.CUTOUT_W / 2 + side_width
     plate_keepout = p.PLATE_OUTER_W / 2 + p.TOP_DRAIN_SUPPORT_MARGIN
-    bolt_keepout = (p.CUTOUT_W / 2 + p.JOINT_BOLT_OFF
+    bolt_keepout = (p.CUTOUT_W / 2 + max(p.JOINT_BOLT_OFFS)
                     + p.JOINT_CB_D / 2 + p.TOP_DRAIN_SUPPORT_MARGIN)
     return max(outer - p.TOP_DRAIN_RUN, plate_keepout, bolt_keepout)
 
@@ -243,7 +246,12 @@ def top_surface_z(p: Params, radius: float, side_width: float) -> float:
 
 def bot_kragen_hole_count(p: Params = P) -> int:
     """Gesamtzahl der seitlichen Dachschrauben."""
-    return 4 * len(p.BOT_KRAGEN_HOLE_OFFS)
+    return 4 * len(p.BOT_KRAGEN_HOLE_OFFS) if p.ROOF_SIDE_SCREWS else 0
+
+
+def joint_bolt_count(p: Params = P) -> int:
+    """Gesamtzahl der M5-Stoßschrauben."""
+    return p.N_SEGMENTS * len(p.JOINT_BOLT_OFFS)
 
 
 def min_band(p: Params = P) -> float:
@@ -297,7 +305,8 @@ def params_hash(p: Params = P) -> str:
 
 def validate(p: Params = P) -> None:
     """Konsistenz-Ungleichungen (Spec §5: abbrechen statt defekte Artefakte).
-    Empirisch belegte Brecher aus dem Final-Review: W_TOP<42 öffnet Kammerring 2
+    Empirisch belegte Brecher aus dem Final-Review: zu kleine W_TOP-Werte
+    öffnen den äußersten Kammerring
     zur Außenwand, REC_GUSSET_D>DECK_T-2 durchstößt die Kammerdecke."""
     import math
     fehler = []
@@ -322,9 +331,14 @@ def validate(p: Params = P) -> None:
             fehler.append(f"Entwässerungsfase endet bei z={top_surface_z(p, outer, side_w):.1f} mm "
                           f"zu nah an Boden/Außenfase")
     if p.CHAMBERS:
-        aussenwand = w_min - (p.INNER_WALL + 2 * p.CHAMBER_W + p.CHAMBER_RIB)
+        if p.CHAMBER_RING_COUNT < 2 or int(p.CHAMBER_RING_COUNT) != p.CHAMBER_RING_COUNT:
+            fehler.append("CHAMBER_RING_COUNT muss eine ganze Zahl >= 2 sein")
+        radial_stack = (p.INNER_WALL + p.CHAMBER_RING_COUNT * p.CHAMBER_W
+                        + (p.CHAMBER_RING_COUNT - 1) * p.CHAMBER_RIB)
+        aussenwand = w_min - radial_stack
         if aussenwand < 2.4:
-            fehler.append(f"Außenwand hinter Kammerring 2 nur {aussenwand:.1f} mm (< 2.4): "
+            fehler.append(f"Außenwand hinter Kammerring {p.CHAMBER_RING_COUNT} nur "
+                          f"{aussenwand:.1f} mm (< 2.4): "
                           f"W_TOP erhöhen oder CHAMBER_W/INNER_WALL senken")
         deck_rest = p.DECK_T - p.REC_GUSSET_D
         if deck_rest < 2.0:
@@ -334,16 +348,15 @@ def validate(p: Params = P) -> None:
         apex = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * p.CHAMBER_W / 2
         if apex > kammerdecke - 1.0:
             fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht Kammerdecke {kammerdecke:.1f} mm")
-        r_out2 = (p.CUTOUT_W / 2 + p.INNER_WALL + 2 * p.CHAMBER_W
-                  + p.CHAMBER_RIB)
+        r_out_last = p.CUTOUT_W / 2 + radial_stack
         for side_w in side_top_widths(p):
-            geneigte_decke = top_surface_z(p, r_out2, side_w) - p.DECK_T
+            geneigte_decke = top_surface_z(p, r_out_last, side_w) - p.DECK_T
             if apex > geneigte_decke - 1.0:
                 fehler.append(f"Chevron-Apex {apex:.1f} mm erreicht geneigte Kammerdecke "
                               f"{geneigte_decke:.1f} mm bei W_TOP={side_w}")
         if p.CORNER_CHAMBERS:
             off = p.CUTOUT_W / 2 - p.CUTOUT_R
-            corner_axis = off + (r_out2 - off) * math.cos(
+            corner_axis = off + (r_out_last - off) * math.cos(
                 math.radians(p.CORNER_ANGLE_MARGIN))
             corner_drop = max(
                 max(0.0, corner_axis - drainage_start(p, side_w))
@@ -356,16 +369,31 @@ def validate(p: Params = P) -> None:
         if not (apex + p.VENT_D / 2 + 0.5 <= p.VENT_Z <= kammerdecke - p.VENT_D / 2 - 0.5):
             fehler.append(f"VENT_Z={p.VENT_Z} außerhalb des Kammer-z-Bands "
                           f"({apex + p.VENT_D/2 + 0.5:.1f}..{kammerdecke - p.VENT_D/2 - 0.5:.1f})")
-    if p.JOINT_BOLT_OFF + p.JOINT_CB_D / 2 > w_min - 2.4:
-        fehler.append("M5-Kopfsenkung erreicht die Außenwand: JOINT_BOLT_OFF/W_TOP prüfen")
-    joint_r = p.CUTOUT_W / 2 + p.JOINT_BOLT_OFF
     groove_outer = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W
-    if joint_r - p.JOINT_CB_D / 2 < groove_outer + 1.0:
-        fehler.append("M5-Kopfsenkung erreicht die Kleberille: JOINT_BOLT_OFF erhöhen")
-    for side_w in side_top_widths(p):
-        if joint_r + p.JOINT_CB_D / 2 > drainage_start(p, side_w):
-            fehler.append("M5-Kopfsenkung erreicht die Entwässerungsfase: "
-                          "JOINT_BOLT_OFF/Drainage-Keepout prüfen")
+    bolt_offsets = tuple(sorted(p.JOINT_BOLT_OFFS))
+    if len(bolt_offsets) != 2 or len(set(bolt_offsets)) != 2:
+        fehler.append("JOINT_BOLT_OFFS braucht genau zwei verschiedene M5-Positionen")
+    elif bolt_offsets[0] <= 0:
+        fehler.append("JOINT_BOLT_OFFS müssen positiv radial außerhalb der Öffnung liegen")
+    else:
+        if bolt_offsets[1] - bolt_offsets[0] < p.JOINT_CB_D + 4.0:
+            fehler.append("M5-Kopfsenkungen haben weniger als 4 mm Materialabstand")
+        for bolt_off in bolt_offsets:
+            joint_r = p.CUTOUT_W / 2 + bolt_off
+            if bolt_off + p.JOINT_CB_D / 2 > w_min - 2.4:
+                fehler.append("M5-Kopfsenkung erreicht die Außenwand: "
+                              "JOINT_BOLT_OFFS/W_TOP prüfen")
+            if joint_r - p.JOINT_CB_D / 2 < groove_outer + 1.0:
+                fehler.append("M5-Kopfsenkung erreicht die Kleberille: "
+                              "JOINT_BOLT_OFFS erhöhen")
+            for side_w in side_top_widths(p):
+                if joint_r + p.JOINT_CB_D / 2 > drainage_start(p, side_w):
+                    fehler.append("M5-Kopfsenkung erreicht die Entwässerungsfase: "
+                                  "JOINT_BOLT_OFFS/Drainage-Keepout prüfen")
+    if p.GROOVE_OFF < 4.0:
+        fehler.append("GROOVE_OFF < 4 mm: Kleberille erreicht Unterkragen-Übergang")
+    if p.GROOVE_OFF + p.GROOVE_W > p.ROOF_WOOD_FRAME_W:
+        fehler.append("Dach-Kleberille liegt teilweise außerhalb des Holzrahmens")
     if p.GLUE_GAP < 2.0:
         fehler.append("GLUE_GAP < 2 mm: Thermik-Elastikfuge und Noppen-Fixierflächen brauchen >= 2")
     if p.NOPPLE_FILLET < 0:
@@ -452,9 +480,9 @@ def validate(p: Params = P) -> None:
             fehler.append(f"Kragenloch (z={p.BOT_KRAGEN_HOLE_Z}, Ø{p.BOT_KRAGEN_HOLE_D}) "
                           f"unterschreitet den Kragenrand (Tiefe {p.BOT_KRAGEN_DEPTH})")
         offsets = p.BOT_KRAGEN_HOLE_OFFS
-        if len(offsets) != 2 or len(set(offsets)) != 2:
-            fehler.append("BOT_KRAGEN_HOLE_OFFS braucht genau zwei verschiedene Offsets")
-        else:
+        if p.ROOF_SIDE_SCREWS and (len(offsets) != 2 or len(set(offsets)) != 2):
+            fehler.append("Aktive Dachverschraubung braucht genau zwei Offsets")
+        elif p.ROOF_SIDE_SCREWS:
             if abs(sum(offsets)) > 1e-6:
                 fehler.append("BOT_KRAGEN_HOLE_OFFS muss als symmetrisches ±Paar "
                               "rotationsidentische Segmente ergeben")
@@ -467,7 +495,9 @@ def validate(p: Params = P) -> None:
             if (max(abs(o) for o in offsets) + p.BOT_KRAGEN_HOLE_D / 2 + 2.0
                     > p.CUTOUT_W / 2 - p.CUTOUT_R - p.BOT_KRAGEN_T):
                 fehler.append("Kragenloch läuft in den Eckradius")
-        if p.BOT_KRAGEN_SCREW_L > p.ROOF_WOOD_FRAME_W:
+        elif offsets:
+            fehler.append("BOT_KRAGEN_HOLE_OFFS muss bei ROOF_SIDE_SCREWS=False leer sein")
+        if p.ROOF_SIDE_SCREWS and p.BOT_KRAGEN_SCREW_L > p.ROOF_WOOD_FRAME_W:
             fehler.append(f"ST4.2x{p.BOT_KRAGEN_SCREW_L:.0f} länger als Holzrahmenbreite "
                           f"{p.ROOF_WOOD_FRAME_W:.0f} mm")
         # Schnittstelle Belluna-Kragen: dessen Spitze (top_z - PLATE_KRAGEN_D)

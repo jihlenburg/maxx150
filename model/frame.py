@@ -244,14 +244,26 @@ def _chamber_cavity(r_in, r_out, apex_z, y0, length, p, side_width=None):
 
 
 def _ring_radii(p: PRM.Params):
-    """Radiale Grenzen der beiden konzentrischen Kammerringe, gemessen von
-    der globalen Mittelachse (identisch für alle 4 geraden Seiten UND
-    Grundlage der Eckkammer-Radien, siehe _corner_chamber_cuts)."""
-    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
-    r_out1 = r_in1 + p.CHAMBER_W
-    r_in2 = r_out1 + p.CHAMBER_RIB
-    r_out2 = r_in2 + p.CHAMBER_W
-    return r_in1, r_out1, r_in2, r_out2
+    """Kompatibilitäts-Helper für die Grenzen der ersten beiden Ringe."""
+    bands = _ring_bands(p)
+    return (*bands[0], *bands[1])
+
+
+def _ring_bands(p: PRM.Params):
+    """Radiale (innen, außen)-Grenzen aller konzentrischen Kammerringe.
+
+    GEOM_REV 7 nutzt drei statt zwei Ringe: Die auf 70 mm verbreiterte
+    Adapterzone bliebe mit zwei Ringen außen 28 mm massiv. Der dritte Ring
+    stellt den leichten, verzugsarmen FDM-Querschnitt wieder her, ohne die
+    massive Segmentstoßzone mit den beiden M5 anzutasten.
+    """
+    start = p.CUTOUT_W / 2 + p.INNER_WALL
+    bands = []
+    for _ in range(p.CHAMBER_RING_COUNT):
+        end = start + p.CHAMBER_W
+        bands.append((start, end))
+        start = end + p.CHAMBER_RIB
+    return tuple(bands)
 
 
 def _corner_chamber_cuts(p: PRM.Params):
@@ -335,7 +347,9 @@ def _corner_chamber_cuts(p: PRM.Params):
     if not p.CORNER_CHAMBERS:
         return []
     off = p.CUTOUT_W / 2 - p.CUTOUT_R
-    r_in1, r_out1, r_in2, r_out2 = _ring_radii(p)
+    bands = _ring_bands(p)
+    r_in1, r_out1 = bands[0]
+    r_out_last = bands[-1][1]
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     margin = p.CORNER_ANGLE_MARGIN
     sweep = 90 - 2 * margin
@@ -346,7 +360,7 @@ def _corner_chamber_cuts(p: PRM.Params):
     # Die Entwässerungsfasen schneiden an den Ecksektor-Rändern tiefer als
     # auf den geraden Ringprofilen. Eine einheitlich abgesenkte Eckkammerdecke
     # hält dort konservativ mindestens DECK_T Material geschlossen.
-    corner_axis_max = off + (r_out2 - off) * math.cos(math.radians(margin))
+    corner_axis_max = off + (r_out_last - off) * math.cos(math.radians(margin))
     corner_drop = max(
         max(0.0, corner_axis_max - PRM.drainage_start(p, side_w))
         * math.tan(math.radians(p.TOP_DRAIN_DEG))
@@ -356,7 +370,8 @@ def _corner_chamber_cuts(p: PRM.Params):
 
     tools = []
     cr_out1 = r_out1 - off
-    for r_in, r_out in ((r_in1 - off, cr_out1), (r_in2 - off, r_out2 - off)):
+    for r_in_abs, r_out_abs in bands:
+        r_in, r_out = r_in_abs - off, r_out_abs - off
         face = _chamber_profile_face(r_in, r_out, apex_z, 0.0, p,
                                      z_top_override=corner_z_top)
         face.rotate(Vector(0, 0, 0), Vector(0, 0, 1), margin)
@@ -367,8 +382,12 @@ def _corner_chamber_cuts(p: PRM.Params):
 
     # Vents entlang der 45°-Diagonale (kanonische (+,+)-Ecke, dann F.rotz):
     diag = Vector(math.cos(math.radians(45)), math.sin(math.radians(45)), 0)
-    for r0, length in ((p.CUTOUT_R - 1, p.INNER_WALL + 2),
-                       (cr_out1 - 1, p.CHAMBER_RIB + 2)):
+    vent_starts = [(p.CUTOUT_R - 1, p.INNER_WALL + 2)]
+    vent_starts += [
+        (r_out - off - 1, p.CHAMBER_RIB + 2)
+        for _, r_out in bands[:-1]
+    ]
+    for r0, length in vent_starts:
         base = Vector(off + r0 * diag.x, off + r0 * diag.y, p.VENT_Z)
         vent = Part.makeCylinder(p.VENT_D / 2, length, base, diag)
         for k in range(4):
@@ -408,7 +427,7 @@ def _chamber_cuts(p: PRM.Params):
     gemeinsamen removeSplitter()."""
     if not p.CHAMBERS:
         return []
-    r_in1, r_out1, r_in2, r_out2 = _ring_radii(p)
+    bands = _ring_bands(p)
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = _side_neighbor_bounds(p)
     side_widths = PRM.side_top_widths(p)
@@ -420,21 +439,22 @@ def _chamber_cuts(p: PRM.Params):
         centers = plus_half + [-c for c in minus_half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
-            for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
+            for r_in, r_out in bands:
                 cav = _chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L, p,
                                       side_widths[k])
                 tools.append(F.rotz(cav, k))
-            # Vent 1: Innenfläche (Öffnungskante) -> Kammerring 1 (durch INNER_WALL)
+            # Vent 1: Innenfläche -> Ring 1; weitere Vents durch jeden
+            # Zwischensteg bis in den jeweils nächsten Ring.
             vent_u = _vent_u_clear_of_plate_boss(uc, p)
-            v1 = Part.makeCylinder(p.VENT_D / 2, p.INNER_WALL + 2,
-                                   Vector(p.CUTOUT_W / 2 - 1, vent_u, p.VENT_Z),
-                                   Vector(1, 0, 0))
-            # Vent 2: Kammerring 1 -> Kammerring 2 (durch den Steg CHAMBER_RIB)
-            v2 = Part.makeCylinder(p.VENT_D / 2, p.CHAMBER_RIB + 2,
-                                   Vector(r_out1 - 1, vent_u, p.VENT_Z),
-                                   Vector(1, 0, 0))
-            tools.append(F.rotz(v1, k))
-            tools.append(F.rotz(v2, k))
+            vents = [Part.makeCylinder(
+                p.VENT_D / 2, p.INNER_WALL + 2,
+                Vector(p.CUTOUT_W / 2 - 1, vent_u, p.VENT_Z),
+                Vector(1, 0, 0))]
+            vents += [Part.makeCylinder(
+                p.VENT_D / 2, p.CHAMBER_RIB + 2,
+                Vector(r_out - 1, vent_u, p.VENT_Z), Vector(1, 0, 0))
+                for _, r_out in bands[:-1]]
+            tools.extend(F.rotz(vent, k) for vent in vents)
     tools += _corner_chamber_cuts(p)
     return tools
 
@@ -498,18 +518,23 @@ def _nopple_positions(p):
     """Zwei Noppenringe: innen (zwischen Öffnung und Rille) und außen
     (zwischen Rille und Außenkante)."""
     inner_r = p.CUTOUT_W / 2 + p.GROOVE_OFF / 2                       # ~207.5
-    outer_r = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W + 12         # ~235
+    # Noppen müssen außerhalb der 2-mm-tiefen Rille an der Bodenplatte
+    # angebunden bleiben. Der äußere Ring sitzt nur 6 mm jenseits der
+    # verbreiterten Rille; die tragende Klebefläche selbst endet exakt über
+    # dem 30-mm-Holzrahmen.
+    outer_r = p.CUTOUT_W / 2 + p.GROOVE_OFF + p.GROOVE_W + 6
     pts = F.rect_path_points(inner_r, inner_r, p.NOPPLE_SPACING)
     pts += F.rect_path_points(outer_r, outer_r, p.NOPPLE_SPACING)
     return pts
 
 
 def _bot_kragen_tools(p):
-    """Unterkragen: dupliziert den Belluna-Einbaukragen nach
-    unten -- taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und trägt
-    2 seitliche Schraubenlöcher je Seite (8 gesamt, umlaufend identisch bei
-    ±140 und bewusst unabhängig vom Belluna-Lochbild). Rückgabe
-    (fuse_teile, loch_cutter).
+    """Unterkragen: dupliziert den Belluna-Einbaukragen nach unten.
+
+    Er taucht BOT_KRAGEN_DEPTH tief in den Dachausschnitt und zentriert den
+    Rahmen. Bei der optionalen Schraubvariante enthält er die parametrischen
+    Seitenlöcher; GEOM_REV 7 lässt ihn geschlossen. Rückgabe
+    ``(fuse_teile, loch_cutter)``.
 
     Aufbau: Der Kragen (außen CUTOUT_W-2*CLEAR) liegt radial INNERHALB der
     Öffnungswand und hätte allein keinen Materialkontakt. Ein Übergangsring
@@ -614,7 +639,7 @@ def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
         if not body.isValid():
             raise RuntimeError("frame: Unterkragen-Booleans ergaben ungültigen Körper")
 
-    # Außenfase unten (Sika-Kehlnaht): alle z=0-Kanten nahe der Außenkontur
+    # Außenfase unten (Elastikfugen-Kehlnaht): alle z=0-Kanten nahe der Außenkontur
     def _on_outer(e):
         c = e.CenterOfMass
         near_x = min(abs(c.x - x0), abs(c.x - (x0 + L))) < p.R_OUT + 1

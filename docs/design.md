@@ -1,6 +1,6 @@
 # Design: 3D-gedruckter Adapterrahmen — Belluna Super Fan im Mini-Heki-Ausschnitt (Challenger X150 / Chausson X550)
 
-Stand: 2026-07-15 · Parameterstand `83aeba39` · Status `PROTOTYPE_ONLY`
+Stand: 2026-07-16 · Parameterstand `78f560c8` · Status `PROTOTYPE_ONLY`
 
 ## 1. Ziel und Kontext
 
@@ -71,9 +71,8 @@ Parametern und schreibt sie in die Montagenotiz.
    Schlechtweg ±4 g vertikal / ±2 g quer auf 6,5 kg Auslegungsmasse (Maxxfan-Hüllkurve; Belluna 5,0 kg).
 3. **Temperatur:** Bauteiltemperatur −20 … **+85 °C** dauerhaft formstabil und tragfähig.
 4. **Fertigung:** Druckservice, druckerunabhängig; Segment-Boundingbox ≤ 300 mm
-   Kantenlänge (`SEG_MAX_BBOX`; Ist ~277 mm — die ursprünglich konservativen 250 mm
-   wurden mit der Bauraum-Klärung angehoben, Bambu H2D 350 mm verfügbar; Drift-Fix
-   2026-07-14); stützenfrei druckbar.
+   Kantenlänge (`SEG_MAX_BBOX` = 300 mm; Bambu H2D 350 mm verfügbar);
+   stützenfrei druckbar. Das reale Segmentmaß ist ein automatisches DFM-Gate.
 5. **Material & Prozess (§3.5):** **Würth ASA GF15 Verkehrsschwarz ähnlich
    RAL 9017, 1,75 mm, Art.-Nr. 4954641200** aus lokaler FDM-Fertigung
    (Plan-of-Record 2026-07-15). 15 % Glasfaser; gehärtete Düse und geschlossener,
@@ -105,29 +104,30 @@ Parametern und schreibt sie in die Montagenotiz.
    strukturellen Klebezonen bleiben lackfrei: ASA-GF/Belluna-Kunststoff sehr
    fein anschleifen, Sika Cleaner P und als ABS-Analogie Sika Primer-507;
    GFK-Gelcoat sehr fein anschleifen, Sika Cleaner P und Sika Aktivator-205
-   gemäß jeweils aktuellem Produktdatenblatt. Zusätzlich werden
-   die 16 beiliegenden Belluna-ST4.2×25
-   auf zwei entkoppelte Interfaces verteilt: 8 äußere Belluna-Seitenlöcher
-   Platte→lokale Universalrippen (jede Seite hält ±140 und ±165 vor, ohne
-   offene Vorratslöcher) und 8 umlaufend gleiche ±140-Löcher
-   Unterkragen→nachgerüsteter Holzrahmen im XPS. Der Holzrahmen wird mit
+   gemäß jeweils aktuellem Produktdatenblatt. Acht Belluna-ST4.2×25 verbinden
+   die äußeren Belluna-Seitenlöcher mit den lokalen Universalrippen; jede
+   Seite hält ±140 und ±165 vor, ohne offene Vorratslöcher. Der Adapter wird
+   nicht in den Holzrahmen geschraubt. Stattdessen trägt eine 25 mm breite,
+   geschlossene Elastikfuge den vollständigen Adapter-Dach-Lastfall allein.
+   Sie liegt mit 410 mm Innen- und 460 mm Außenmaß vollständig über dem
+   nachgerüsteten Holzrahmen im XPS. Der Holzrahmen wird mit
    **SikaForce-710 L35 + SikaForce-010** (2K-PUR, 100:25 Volumen bzw.
    100:19 Gewicht) vollflächig eingesetzt. Das System ist ausdrücklich für
    Holz/GFK mit EPS/XPS-Sandwichkernen spezifiziert; Auftragsmenge und
    Pressprozess müssen gleichmäßig, hohlraumarm und unterhalb der
-   Druckfestigkeit des Dachkerns bleiben. Schraubgrund sind trockene
-   Nadelvollholz-Leisten mit ρk ≥ 350 kg/m³ und Faser längs zur jeweiligen
-   Rahmenseite; 18 mm wirksamer Gewindeeingriff sind Mindestannahme des
-   Schraubennachweises.
+   Druckfestigkeit des Dachkerns bleiben. Er ist vollflächig verklebter
+   Lastverteiler und Kompressionsschutz, nicht Schraubgrund. Verwendet werden
+   trockene Nadelvollholz-Leisten mit ρk ≥ 350 kg/m³ und Faser längs zur
+   jeweiligen Rahmenseite.
    Die zwei Belluna-Mittellöcher an den Segmentstößen bleiben frei. Keine Verschraubung
    von oben durch eine Dichtfläche.
    **Reale Einbausituation (User 2026-07-12): KEINE harte Klemmkette durchs Sandwich** —
    Lüfter geklebt + Kragen formschlüssig im Schacht, von unten nur die Zierblende.
-   LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle); die mechanische
-   Redundanz trägt allein die seitliche Verschraubung + Formschluss.
+   LF3 bleibt als bewusst konservative Hüllkurve (Montage-Grenzfälle). Die
+   untere Klebefuge besitzt bewusst keine mechanische Rückfallebene.
 7. **Dichtheit:** definierte 3-mm-Elastikfuge aus dem vollständig gewählten
-   Dichtklebstoff-System, geschlossene Kehlnaht außen und abgedichtete
-   Schraubdurchtritte.
+   Dichtklebstoff-System und geschlossene Kehlnaht außen. Durch Adapter oder
+   Dach gibt es keine Schraubdurchtritte.
 
 ## 4. Bauteilgeometrie
 
@@ -136,7 +136,7 @@ Parametern und schreibt sie in die Montagenotiz.
 **Querschnitt (umlaufend):**
 - **Deckfläche:** plane Klebefläche unter der Ringklebenut-Zone der Platte; außerhalb
   des 450-mm-Flansches geht sie in eine 47°-Entwässerungsfase über. Breite je Seite
-  einzeln parametrisierbar (`W_TOP_FRONT/REAR/LEFT/RIGHT`, Startwert 50 mm), da der
+  einzeln parametrisierbar (`W_TOP_FRONT/REAR/LEFT/RIGHT`, Stand 70 mm), da der
   Plattenflansch asymmetrisch ist. Innen liegender Bereich mit parametrischer **Freistellung**
   (Tiefe `REC_GUSSET`) für die Dreiecks-Gussets der Plattenunterseite.
 - **Innenwand:** 8 mm umlaufend; jede Seite besitzt an ±140 und ±165 mm
@@ -147,32 +147,37 @@ Parametern und schreibt sie in die Montagenotiz.
   Druck bleibt supportfrei. Kollidierende Ventkanäle werden innerhalb ihrer
   Zelle aus der Rippe verschoben.
 - **Außenwand:** geschlossen, unten gefast für die Elastikfugen-Kehlnaht zum Dach.
-- **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
+- **Innenleben:** geschlossene Rippenkammern (drei konzentrische Kammerringe je Seite,
   Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 47°-Chevron
   (stützenfrei in Druckorientierung), horizontale Ø4-Druckausgleichsbohrungen je Zelle
   zur Innenseite. Stoß- und Schraubzonen bleiben
-  massiv. Eckkammern (90°-Rotationsfortsetzung der Kammerringe um die vier Eckblöcke,
+  massiv. Der dritte 17-mm-Ring verhindert, dass die auf 70 mm verbreiterte
+  Zone außen als 28-mm-Massivband gedruckt wird; die Außenwand bleibt 3 mm.
+  Eckkammern (90°-Rotationsfortsetzung der Kammerringe um die vier Eckblöcke,
   Task 17) sind seit 2026-07-12 Default EIN (`CORNER_CHAMBERS = True`, Task 20;
   Verzugs-/Gewichtsnutzen, FEM-verifiziert — abschaltbar, die AUS-Variante bleibt
   volumen-anker-geprüft reproduzierbar). Damit ist die Festigkeit geometrie-definiert
   (druckprofil-unabhängig); die FEM rechnet auf der echten Kammergeometrie mit vollem
   E-Modul (INFILL_FACTOR = 1,0). [Entscheidung mit User 2026-07-12, ersetzt
   Slicer-Infill-Ansatz]
-- **Unterseite:** Klebespalt-Noppen (3 mm) für definierte Elastikfugen-Dicke + umlaufende
-  Kleberille für die elastische Dichtklebstoff-Raupe.
+- **Unterseite:** Klebespalt-Noppen (3 mm) für definierte Elastikfugen-Dicke,
+  geschlossener Zentrierkragen ohne Dachschraubenlöcher und umlaufende 25-mm-
+  Kleberille vollständig über dem 30-mm-Holzrahmen.
 
 **Segmentierung:** Standard **ein rotationsidentisches L-Ecksegment, 4× drucken**,
 Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindung: Halbüberlappung
-(Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + 1 Durchsteckschraube M5 je Stoß
-(M4 fiel beim Lochleibungs-Nachweis mit 480 N durch) + Klebefläche. Die vier
+(Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + zwei
+Durchsteckschrauben M5 je Stoß + Klebefläche. Unter vollen 480 N liegen beide
+M5 gemeinsam bei 31 % Lochleibungsauslastung; ein verbleibender M5 bei 62 %.
+Die vier
 Kopien werden nur um Z gedreht, nie gespiegelt; ein starker Geometrietest
 prüft die Rotationsidentität über die symmetrische Differenz.
 
 **Thermik konstruktiv:** ASA-GF α = 60 µm/(m·K), konservative
 Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit RK-1300 und M5 vollständig
-gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
-Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
-Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 38 %
+gefügte Rahmen wird thermisch als **540-mm-Baugruppe**, nicht als entkoppeltes
+Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,23 mm
+Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 41 %
 Auslastung der 3-mm-Elastikfuge.
 Aufnahme ausschließlich durch die elastische Klebschicht — deshalb sind die Klebespalt-Noppen und
 das Verbot starrer Verklebung Pflicht, keine Option.
@@ -299,11 +304,11 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 |---|---|---|
 | Pipeline | A: vollparametrisch, headless FreeCAD + CalculiX | B: GUI+Spreadsheet (nicht reproduzierbar) · C: CadQuery-Stack (Werkzeugvorgabe FreeCAD) |
 | Material | **Würth ASA GF15 Verkehrsschwarz, Art.-Nr. 4954641200 + Pflichtlackierung Mipa RAL 9003** | weißes Filament ist nicht verfügbar · PC/ABS erfordert neue UV-/CTE-/Klebe-/Lackqualifikation |
-| Befestigung | Kleben + seitliche Schrauben | nur Kleben (keine Redundanz) · Klemmen (Kriechen der Klemmstelle) |
+| Befestigung | oben Kleben + 8 seitliche Schrauben; unten 25-mm-Klebefuge ohne Schrauben | schmale Klebefuge (rechnerisch unzureichend) · Klemmen (Kriechen der Klemmstelle) |
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | am realen Haubenfreigang zu verifizieren |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Belluna-konform seitlich: 8× ST4.2×25 Platte→Universalrippen ±140/±165 + 8× ST4.2×25 Adapter-Unterkragen im eigenen ±140-Raster→nachgerüsteter Holzrahmen; genau die 16 beiliegenden Schrauben, plus Kleber | Kopplung beider Lochraster (zwei Segmenttypen) · von oben durch Dichtfläche (Belluna rät ab) · 12 Schrauben |
+| Dach-Befestigung | 25-mm-Sikaflex-522-Fuge mit 410/460-mm-Ringmaß vollständig über dem vollflächig eingeklebten Holzrahmen; geschlossener Zentrierkragen, keine Holzverschraubung | ursprüngliche 8-mm-Fuge (174 % Windhüllen-Auslastung) · nur Verbreiterung nach außen (148 %) · Schrauben durch Dichtfläche |
 
 ## 10. Risiken und Gegenmaßnahmen
 
@@ -311,7 +316,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 |---|---|
 | Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
 | Schichthaftung (Z) versagt | Drucklage: Lasten in XY; permanenter Knockdown 0,5; kein pauschales Tempern |
-| Thermodehnung reißt Klebfuge | 3-mm-Elastikfuge aus dem gewählten Dichtklebstoff erzwungen (Noppen), LF5; 38 % des thermischen Scherbewegungsgrenzwerts |
+| Thermodehnung reißt Klebfuge | 3-mm-Elastikfuge aus dem gewählten Dichtklebstoff erzwungen (Noppen), LF5; 41 % des thermischen Scherbewegungsgrenzwerts |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | reale Fahrzeugmaße + geometrischer Freigang-Check vor Produktionsfreigabe |
 | Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Lack trägt keine Struktur; jährliche Kontrolle und sofortige Ausbesserung |

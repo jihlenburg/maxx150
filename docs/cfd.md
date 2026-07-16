@@ -61,11 +61,15 @@ Alle Fälle verwenden:
 - stationäres RANS mit k-ω-SST,
 - keine Prismenschichten.
 
-Der OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
-Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Die
-Tabelle summiert jeweils **Belluna plus direkt angeströmte Adapteroberfläche**;
-alle Momente sind auf die Mitte der Adapterbasis `(0, 0, 0)` transformiert.
-Gemittelt werden die letzten 20 Kraftausgaben (100 Solveriterationen):
+Der folgende OpenFOAM-Lauf auf Quellcommit `4a9e437` und die korrigierte
+Gesamtbaugruppen-Auswertung auf `59775a0` ergeben Matrix `a3a2de8c`. Er ist
+eine **historische CFD-Basis der schmaleren Vorgängergeometrie**, nicht das
+Ergebnis des aktuellen 540-mm-Adapters (`78f560c8`). Für den aktuellen Stand
+lautet die noch neu zu rechnende Matrix `74366ac7`; bis dahin darf nur die
+analytische 480-N-Hülle freigabewirksam verwendet werden. Die Tabelle summiert
+jeweils **Belluna plus direkt angeströmte Adapteroberfläche**; alle Momente
+sind auf die Mitte der Adapterbasis `(0, 0, 0)` transformiert. Gemittelt werden
+die letzten 20 Kraftausgaben (100 Solveriterationen):
 
 | Fall | CFD-Hash | Zellen | Fx [N] | Fy [N] | Fz [N] | My [Nm] | Widerstands-CoV |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -96,10 +100,12 @@ der Adapter-Deckfläche; das Nickmoment `My` wird als vertikales Kräftepaar an
 Front- und Heckaußenwand eingeleitet. `Mx` und `Mz` werden ausgewiesen, aber
 noch nicht in das bestehende Selektormodell übertragen.
 
-Die Auswertung enthält zusätzlich mittlere Spannungsindikatoren für die
-Kleberille, den konservativen analytischen Segmentstoßnachweis und eine ideale
-Gleichverteilung auf acht Belluna- beziehungsweise acht Dachschrauben. Letztere
-ist ausdrücklich kein Schrauben- oder GFK-Dach-Kapazitätsnachweis.
+Die historische Auswertung enthält zusätzlich mittlere Spannungsindikatoren
+für die damalige Kleberille, den konservativen analytischen
+Segmentstoßnachweis und ideale Gleichverteilungen auf acht Belluna- und acht
+damals vorgesehene Dachschrauben. Diese Dachschrauben sind im aktuellen
+Entwurf entfallen; ihre nachstehenden Werte sind ausdrücklich kein Nachweis
+für den aktuellen Lastpfad.
 
 Der Lauf `a3a2de8c` übergibt nach Faktor 1,5:
 
@@ -115,7 +121,7 @@ Der kombinierte Produktionsnetz-FEM-Fall ergibt 0,241 MPa von Mises bei
 0,5 mm Grenzwert. Das ist nur 2,1 % Spannungs- und 0,12 %
 Verformungsauslastung im idealisierten monolithischen Rahmenmodell.
 
-Einfache Lastpfad-Indikatoren nach Modellfaktor:
+Historische Lastpfad-Indikatoren nach Modellfaktor:
 
 - Kleberille 14.016 mm²: 0,00454 MPa mittlere Schubspannung gegenüber
   0,1 MPa Projektgrenze; 0,02003 MPa mittlere Zugspannung ohne im Projekt
@@ -124,16 +130,22 @@ Einfache Lastpfad-Indikatoren nach Modellfaktor:
   0,0509/5,625 MPa Schub und 0,926/11,25 MPa Lochleibung.
 - Ideale Verteilung der Auftriebslast auf acht Belluna-Schrauben: 35,1 N je
   Schraube gegenüber 356 N rechnerischer ASA-Wand-Auszugreferenz.
-- Ideale Verteilung der Resultierenden auf acht Dachschrauben: 36,0 N je
-  Schraube. Dafür wird bewusst keine Tragfähigkeit behauptet, solange realer
-  Holzrahmen, GFK, Randabstände und Lastverteilung nicht geprüft sind.
+- Die damalige ideale Verteilung der Resultierenden auf acht Dachschrauben
+  betrug 36,0 N je Schraube. Dieser Pfad existiert in `78f560c8` nicht mehr.
+
+Der aktuelle Entwurf verwendet stattdessen eine 25 mm breite, rechnerisch
+43.500 mm² große untere Elastikfuge, vollständig über einem 30-mm-Holzrahmen.
+Sie ist der **alleinige** Lastpfad zwischen Adapter und Dach; es gibt keine
+mechanische Rückfallebene. Ihr vollständiger, annahmenbasierter Nachweis steht
+in [Lastpfade](load-paths.md). Erst die neu gerechnete Matrix `74366ac7` darf
+diese Geometrie in der CFD-Strukturkopplung auswerten.
 
 Die kleine Rahmenauslastung bedeutet deshalb nicht, dass die Gesamtmontage
 mit demselben Sicherheitsfaktor freigegeben wäre. Die derzeit plausibel
 schwächeren beziehungsweise unsichereren Glieder sind Haftung des gewählten
 Dichtstoffs auf Lack und X150-GFK, der nachgerüstete Holzrahmen, das lokale
-GFK-Dach und eine mögliche ungleichmäßige Schraubenlastverteilung. Die
-bestehende 480-N-Horizontallast bleibt unverändert freigabewirksam.
+GFK-Dach und die reale Lastverteilung in der breiten Klebfuge. Die bestehende
+480-N-Horizontallast bleibt unverändert freigabewirksam.
 
 ## Nächste Gates
 

@@ -39,27 +39,22 @@ def test_kragen_passt_in_den_ausschnitt():
     assert teil.BoundBox.YLength <= grenze
 
 
-def test_loecher_vorhanden_und_frei():
-    """Sonde IM Loch schneidet kein Material; Sonde daneben schon."""
+def test_kragen_ist_geschlossen_und_hat_keine_dachschraubenloecher():
+    """Der Zentrierkragen bleibt an den früheren Lochpositionen geschlossen."""
     p = PRM.P
     ki = p.CUTOUT_W - 2 * p.BOT_KRAGEN_CLEAR - 2 * p.BOT_KRAGEN_T
     z = -(p.GLUE_GAP + p.BOT_KRAGEN_HOLE_Z)
     frame = _frame()
-    geprueft = 0
     for k in range(4):
-        for off in p.BOT_KRAGEN_HOLE_OFFS:
+        for off in (-140.0, 140.0):
             sonde = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
                                       p.BOT_KRAGEN_T + 2,
                                       Vector(off, ki / 2 - 1, z), Vector(0, 1, 0))
-            rest = frame.common(F.rotz(sonde, k))
-            assert rest.Volume < 1e-6, \
-                f"Loch Seite {k}, Offset {off} fehlt (V={rest.Volume:.1f})"
-            geprueft += 1
-    assert geprueft == PRM.bot_kragen_hole_count(p) == 8
-    daneben = Part.makeCylinder(p.BOT_KRAGEN_HOLE_D / 2 - 0.5,
-                                p.BOT_KRAGEN_T + 2,
-                                Vector(20, ki / 2 - 1, z), Vector(0, 1, 0))
-    assert frame.common(daneben).Volume > 1.0, "Wand neben den Löchern fehlt"
+            material = frame.common(F.rotz(sonde, k))
+            assert material.Volume > 1.0, \
+                f"Kragen an Seite {k}, Offset {off} unerwartet offen"
+    assert p.BOT_KRAGEN_HOLE_OFFS == ()
+    assert PRM.bot_kragen_hole_count(p) == 0
 
 
 def test_ohne_kragen_flach_und_anderer_hash():
@@ -70,8 +65,7 @@ def test_ohne_kragen_flach_und_anderer_hash():
 
 
 def test_validate_faengt_kragen_brecher():
-    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 0.0, 140.0)),
-                   PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 150.0)),
+    for kaputt in (PRM.Params(BOT_KRAGEN_HOLE_OFFS=(-140.0, 140.0)),
                    PRM.Params(BOT_KRAGEN_DEPTH=34.0),
                    PRM.Params(BOT_KRAGEN_HOLE_Z=17.0),
                    PRM.Params(BOT_KRAGEN_CLEAR=0.2)):
@@ -82,17 +76,17 @@ def test_validate_faengt_kragen_brecher():
             pass
 
 
-def test_dachschrauben_sind_umlaufend_identisch_und_unabhaengig_von_belluna():
+def test_unterkragen_ohne_dachschrauben_bleibt_unabhaengig_von_belluna():
     p = PRM.P
-    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
+    assert p.BOT_KRAGEN_HOLE_OFFS == ()
     assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
-    assert PRM.bot_kragen_hole_count(p) == 8
+    assert PRM.bot_kragen_hole_count(p) == 0
 
 
 def test_kragen_volumendelta_plausibel():
     """Default gegen die BOT_KRAGEN=False-Variante mit sonst identischen
     Parametern: das Delta ist NUR der Unterkragen (Ring ~398x4x21 +
-    Übergangsring - 8 Löcher). Bewusst kein Vergleich gegen die
+    Übergangsring, ohne Löcher). Bewusst kein Vergleich gegen die
     Eckkammern-Anker mehr -- die pinnen seit der Messwertübernahme alte
     CELL_L/REC_GUSSET-Werte."""
     ohne = build_frame(PRM.Params(BOT_KRAGEN=False))

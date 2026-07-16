@@ -85,7 +85,9 @@ def write_report(fem_results: dict, joint_result: dict,
     j = A.joint_checks(p, PRM.wind_force(p))
     ok &= j["PASS"]
     lines.append(f"- Stoß analytisch: τ {j['tau_MPa']:.2f}/{j['tau_zul_MPa']:.2f} MPa, "
-                 f"Lochleibung {j['lochleibung_MPa']:.2f}/{j['lochleibung_zul_MPa']:.2f} MPa "
+                 f"2×M5 je {j['lochleibung_MPa']:.2f} MPa, "
+                 f"ein M5 im Restfall {j['lochleibung_ein_rest_MPa']:.2f}/"
+                 f"{j['lochleibung_zul_MPa']:.2f} MPa "
                  f"→ {'PASS' if j['PASS'] else 'FAIL'}")
     g = A.glue_load_shear(p, PRM.wind_force(p))
     ok &= g["PASS"]
@@ -97,7 +99,7 @@ def write_report(fem_results: dict, joint_result: dict,
                  f"{sc['F_erf_N']:.0f} N erforderlich → {'PASS' if sc['PASS'] else 'FAIL'}")
     lines.append("- Fertigungslogik: 1 rotationsidentisches Universal-Segment ×4; "
                  "Belluna-Vollmaterialrippen ±140/±165 auf jeder Seite, "
-                 "Dachschrauben unabhängig umlaufend ±140")
+                 "zwei M5 je Segmentstoß, geschlossener Unterkragen")
     plate_clear = (p.CUTOUT_W - p.PLATE_KRAGEN_W) / 2
     if not p.PLATE_KRAGEN_MEASURED:
         vorbehalt = True
@@ -107,10 +109,10 @@ def write_report(fem_results: dict, joint_result: dict,
                  + ("; A3a vor Druck messen" if not p.PLATE_KRAGEN_MEASURED else ""))
     if not p.ROOF_WOOD_FRAME_CONFIRMED:
         vorbehalt = True
-    lines.append(f"- Dachinterface: 8× ST{p.BOT_KRAGEN_SCREW_D:.1f}×"
-                 f"{p.BOT_KRAGEN_SCREW_L:.0f} in nachzurüstenden Holzrahmen "
-                 f"≥{p.ROOF_WOOD_FRAME_W:.0f} mm; X150-Dach ist {p.ROOF_T:.0f} mm "
-                 f"gesamt und besitzt im Bestand keinen Schraubgrund; Status "
+    lines.append(f"- Dachinterface: {p.GROOVE_W:.0f}-mm-Elastikfuge vollständig "
+                 f"über nachzurüstendem Holzrahmen ≥{p.ROOF_WOOD_FRAME_W:.0f} mm; "
+                 f"keine Holzverschraubung. X150-Dach ist {p.ROOF_T:.0f} mm "
+                 f"stark; Holzrahmen-Status "
                  f"{'bestätigt' if p.ROOF_WOOD_FRAME_CONFIRMED else 'vor Montage offen'}")
 
     lines.append("")

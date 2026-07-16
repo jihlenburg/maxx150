@@ -19,7 +19,7 @@ def test_hauptmasse():
     s = _frame()
     bb = s.BoundBox
     p = PRM.P
-    assert abs(bb.XLength - 500.0) < 0.01 and abs(bb.YLength - 500.0) < 0.01
+    assert abs(bb.XLength - 540.0) < 0.01 and abs(bb.YLength - 540.0) < 0.01
     zmin = -(p.GLUE_GAP + (p.BOT_KRAGEN_DEPTH if p.BOT_KRAGEN else 0.0))
     assert abs(bb.ZMin - zmin) < 1e-6     # Noppen bis -3 bzw. Unterkragen-Kante
     assert abs(bb.ZMax - top_z()) < 1e-6                 # Deckfläche bei 25
@@ -48,7 +48,7 @@ def test_volumen_plausibel():
     # Band seit GEOM_REV 4 + Messwertübernahme: +Unterkragen (~174 cm³),
     # +Freistellungs-Entfall (~90 cm³), +CELL_L 43 (etwas mehr Stege)
     v = _frame().Volume
-    assert 1.75e6 < v < 2.2e6, f"Volumen {v/1e6:.2f} l unplausibel"
+    assert 2.5e6 < v < 2.9e6, f"Volumen {v/1e6:.2f} l unplausibel"
 
 def test_deckflaeche_vorhanden():
     """Ebene Belluna-Auflage bis zum Beginn der Entwässerungsfasen."""
@@ -125,12 +125,15 @@ def test_ventkanaele_halten_abstand_zu_universalrippen():
         vent_u = MF._vent_u_clear_of_plate_boss(center, p)
         assert min(abs(vent_u - off) for off in p.PLATE_SCREW_OFFS) >= clearance - 1e-9
         assert abs(vent_u - center) <= p.CELL_L / 2 - p.VENT_D / 2 - 1.0
-        # Nicht nur die Koordinate prüfen: beide realen Querkanäle müssen
+        # Nicht nur die Koordinate prüfen: alle realen Querkanäle müssen
         # nach Kammer-Cut, Rippen-Fuse und removeSplitter im Endkörper frei
         # bleiben. Ein etwas kleinerer Zylinder vermeidet OCC-Randrauschen.
-        for x0, length in ((p.CUTOUT_W / 2 - 0.5, p.INNER_WALL + 1.0),
-                           (p.CUTOUT_W / 2 + p.INNER_WALL + p.CHAMBER_W - 0.5,
-                            p.CHAMBER_RIB + 1.0)):
+        vent_probes = [(p.CUTOUT_W / 2 - 0.5, p.INNER_WALL + 1.0)]
+        vent_probes += [
+            (r_out - 0.5, p.CHAMBER_RIB + 1.0)
+            for _, r_out in MF._ring_bands(p)[:-1]
+        ]
+        for x0, length in vent_probes:
             probe = Part.makeCylinder(p.VENT_D / 2 - 0.25, length,
                                       Vector(x0, vent_u, p.VENT_Z),
                                       Vector(1, 0, 0))
@@ -148,4 +151,5 @@ def test_kammern_wirken():
     from model.frame import build_frame
     v_solid = build_frame(PRM.Params(CHAMBERS=False, CORNER_CHAMBERS=False)).Volume
     v_cham = build_frame().Volume
-    assert 2.2e5 < (v_solid - v_cham) < 4.5e5, f"Kammervolumen {v_solid - v_cham:.0f}"
+    assert 6.0e5 < (v_solid - v_cham) < 7.5e5, \
+        f"Kammervolumen {v_solid - v_cham:.0f}"

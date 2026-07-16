@@ -22,13 +22,13 @@ EXPECTED_MANUAL_IMAGES = (
     "08_maskierung_lack.png",
     "09_dach_holzrahmen.png",
     "10_aufsetzen.png",
-    "11_dachschrauben.png",
+    "11_dach_klebeflaeche.png",
     "12_kleberaupe.png",
     "13_platte_schrauben.png",
     "14_fertig.png",
 )
 MANUAL_IMAGE_SIZE = (1500, 1125)
-MANUAL_PAGE_COUNT = 10
+MANUAL_PAGE_COUNT = 11
 
 
 def png_dimensions(path: Path) -> tuple[int, int]:

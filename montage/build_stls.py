@@ -172,22 +172,14 @@ stl(xps.cut(halb_y), "xps_kern_ycut.stl")
 # ---------------------------------------------------------------------------
 # 4) Markerkoordinaten (aus params abgeleitet) für die Blender-Seite
 # ---------------------------------------------------------------------------
-# M5-Stoßschrauben: vertikale Achse bei (CUTOUT_W/2+JOINT_BOLT_OFF, -LAP_L/2),
-# 4x um 90° rotiert (deckungsgleich model/segments.py::_bolt_cuts).
-m5_x = P.CUTOUT_W / 2 + P.JOINT_BOLT_OFF
+# M5-Stoßschrauben: zwei radiale Positionen je Stoß, 4x um 90° rotiert
+# (deckungsgleich model/segments.py::_bolt_cuts).
 m5_y = -P.LAP_L / 2
-m5_markers = [marker_line(m5_x, m5_y, -3.0, TOP_Z + 4.0, k) for k in range(4)]
-
-# Dach-Schrauben Ø4: horizontal (radial) durch den Unterkragen in den
-# Holzrahmen, z=-(GLUE_GAP+BOT_KRAGEN_HOLE_Z), an BOT_KRAGEN_HOLE_OFFS.
-dach_z = -(P.GLUE_GAP + P.BOT_KRAGEN_HOLE_Z)
-ki_half = (P.CUTOUT_W - 2 * P.BOT_KRAGEN_CLEAR) / 2 - P.BOT_KRAGEN_T   # Kragen-Innenwand
-dach_markers = []
-for k in range(4):
-    for off in P.BOT_KRAGEN_HOLE_OFFS:
-        # von innen (Kragen) radial nach außen durch die Ausschnittwand in den Holzrahmen
-        dach_markers.append(marker_horiz(off, ki_half - 8.0, CUT_HALF + HOLZ_W - 4.0,
-                                         dach_z, k))
+m5_markers = [
+    marker_line(P.CUTOUT_W / 2 + bolt_off, m5_y, -3.0, TOP_Z + 4.0, k)
+    for k in range(4)
+    for bolt_off in P.JOINT_BOLT_OFFS
+]
 
 # Belluna-Plattenschrauben ST4.2: horizontal (radial) durch den Platten-Kragen
 # in die Adapter-Innenwand, z=top_z-PLATE_SCREW_Z_FROM_TOP, an PLATE_SCREW_OFFS.
@@ -208,7 +200,7 @@ bead_ml = groove_len * P.GROOVE_W * (P.GLUE_GAP + P.GROOVE_D) / 1000.0
 groove_inner_half = P.CUTOUT_W / 2 + P.GROOVE_OFF
 groove_outer_half = groove_inner_half + P.GROOVE_W
 nopple_inner_r = P.CUTOUT_W / 2 + P.GROOVE_OFF / 2
-nopple_outer_r = P.CUTOUT_W / 2 + P.GROOVE_OFF + P.GROOVE_W + 12
+nopple_outer_r = P.CUTOUT_W / 2 + P.GROOVE_OFF + P.GROOVE_W + 6
 mask_r_in = P.CUTOUT_W / 2 + P.GROOVE_OFF - 5
 mask_r_out = P.CUTOUT_W / 2 + P.GROOVE_OFF + P.GROOVE_W + 25
 
@@ -224,7 +216,7 @@ manifest = {
         "cutout_r": P.CUTOUT_R,
         "lap_l": P.LAP_L,
         "tol_joint": P.TOL_JOINT,
-        "joint_bolt_off": P.JOINT_BOLT_OFF,
+        "joint_bolt_offs": list(P.JOINT_BOLT_OFFS),
         "joint_cb_d": P.JOINT_CB_D,
         "outer_half": PRM.outer_dims(P)[0] / 2,
         "roof_t": P.ROOF_T,
@@ -244,7 +236,6 @@ manifest = {
     },
     "marker": {
         "m5": m5_markers,
-        "dach_screws": dach_markers,
         "plate_screws": plate_markers,
     },
     "explosion": {
@@ -254,6 +245,8 @@ manifest = {
     "text": {
         "material_name": P.MATERIAL_NAME,
         "m5_length": _m5_bolt_length(P),
+        "m5_count": PRM.joint_bolt_count(P),
+        "m5_per_joint": len(P.JOINT_BOLT_OFFS),
         "m5_through_d": P.JOINT_BOLT_D,
         "nut_af": P.JOINT_NUT_AF,
         "bead_ml": round(bead_ml),
@@ -261,11 +254,8 @@ manifest = {
         "groove_len_mm": round(groove_len),
         "shaft_mm": round(PRM.select_shaft(P)),
         "effective_wall_mm": round(PRM.effective_wall(P)),
-        "dach_screw_count": PRM.bot_kragen_hole_count(P),
-        "dach_screw_d": P.BOT_KRAGEN_HOLE_D,
         "dach_screw_st_d": P.BOT_KRAGEN_SCREW_D,
         "dach_screw_st_l": P.BOT_KRAGEN_SCREW_L,
-        "dach_hole_offs": list(P.BOT_KRAGEN_HOLE_OFFS),
         "plate_screw_d": 4.2,
         "plate_screw_l": 25,
         "plate_screw_offs": list(P.PLATE_SCREW_OFFS),

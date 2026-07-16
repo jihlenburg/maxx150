@@ -88,10 +88,12 @@ def test_eckkammern_frame_valide_und_wasserdicht():
 
 
 def test_eckkammern_volumendelta_plausibel():
-    # Semantik seit Task 20 gedreht: AUS (mehr Material) minus Default (EIN).
-    # Istwert 41247.58 mm³ liegt unverändert im Band (2.5e4, 7.0e4).
+    # Beim 70-mm-Band ersetzen die Sektoren je Halbseite eine volle äußere
+    # Seitenzelle. Das entlastet gezielt die Ecken, lässt aber netto mehr
+    # Material in den geraden Übergangszonen: AUS minus EIN ist daher negativ.
     delta = _frame_aus().Volume - _frame_default().Volume
-    assert 2.5e4 < delta < 7.0e4, f"Eckkammer-Volumendelta {delta:.0f} mm³ unplausibel"
+    assert -1.3e5 < delta < -8.0e4, \
+        f"Eckkammer-Volumendelta {delta:.0f} mm³ unplausibel"
 
 
 def test_eckkammern_segmente_valide_ueberschneidungsfrei():
@@ -127,7 +129,8 @@ def test_eckkammern_default_anker():
     10-mm-Rippen werden zurückgefust. Das erklärt die bewusste Volumenabnahme.
     """
     v = _frame_default().Volume
-    assert abs(v - 1597985.5915437404) < 1.0, f"Default-Volumen (EIN) driftete: {v}"
+    assert abs(v - 2602732.525690021) < 1.0, \
+        f"Default-Volumen (EIN) driftete: {v}"
     h_default = PRM.params_hash(PRM.P)
     h_alt_feld = PRM.params_hash(PRM.Params(CORNER_ANGLE_MARGIN=25.0))
     assert h_default != h_alt_feld
@@ -136,7 +139,7 @@ def test_eckkammern_default_anker():
 def test_eckkammern_ausschalt_anker():
     """GEOM_REV-6-AUS-Anker ohne Eckkammern."""
     v = _frame_aus().Volume
-    assert abs(v - 1629483.1080823927) < 1.0, f"AUS-Volumen driftete: {v}"
+    assert abs(v - 2495396.1415553167) < 1.0, f"AUS-Volumen driftete: {v}"
 
 
 def _side_cavities_only(p):
@@ -145,7 +148,7 @@ def _side_cavities_only(p):
     die Vent-Bohrungen und ohne den Eck-Sektor-Anhang, damit sie gezielt
     gegen die Eck-Sektor-Kavitäten (frame._corner_chamber_cuts) auf
     Überschneidung geprüft werden können (siehe Test unten)."""
-    r_in1, r_out1, r_in2, r_out2 = frame._ring_radii(p)
+    bands = frame._ring_bands(p)
     apex_z = p.BOTTOM_T + math.tan(math.radians(p.CHEVRON_DEG)) * (p.CHAMBER_W / 2)
     neighbor_bounds = frame._side_neighbor_bounds(p)
     side_widths = PRM.side_top_widths(p)
@@ -157,7 +160,7 @@ def _side_cavities_only(p):
         centers = plus_half + [-c for c in minus_half]
         for uc in centers:
             y0 = uc - p.CELL_L / 2
-            for r_in, r_out in ((r_in1, r_out1), (r_in2, r_out2)):
+            for r_in, r_out in bands:
                 cav = frame._chamber_cavity(r_in, r_out, apex_z, y0, p.CELL_L,
                                             p, side_widths[k])
                 tools.append(F.rotz(cav, k))
@@ -191,15 +194,15 @@ def test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53():
 
     plus_w, _ = frame._side_neighbor_bounds(p)[0]  # k=0 REAR, +u-Halbseite
     centers = frame._chamber_cell_centers(p, plus_w)
-    assert centers == [66.5, 122.5], \
+    assert centers == [76.5, 132.5], \
         f"REAR +u-Raster bei CELL_L=53 unerwartet: {centers} (erwartet: die " \
-        f"kollidierende dritte Zelle bei uc=178.5 muss herausgefiltert sein)"
+        f"kollidierende dritte Zelle bei uc=188.5 muss herausgefiltert sein)"
 
     straight = Part.makeCompound(_side_cavities_only(p))
-    corner_sectors = Part.makeCompound(frame._corner_chamber_cuts(p)[:8])  # nur die
-    # 8 Ring1/Ring2-Sektorsolids (Indizes 0..7), OHNE die 8 Diagonal-Vents
-    # danach (siehe frame._corner_chamber_cuts: Ring1 k0..k3, Ring2 k0..k3,
-    # dann Vents) -- Vents interessieren hier nicht, nur die Kavitäten.
+    corner_count = 4 * p.CHAMBER_RING_COUNT
+    corner_sectors = Part.makeCompound(
+        frame._corner_chamber_cuts(p)[:corner_count])
+    # Nur die Ring-Sektorsolids, ohne die danach folgenden Diagonal-Vents.
     overlap = straight.common(corner_sectors).Volume
     assert overlap < 1e-6, \
         f"Zellraster überschneidet Ecksektor: {overlap:.3f} mm³ (Regression!)"
@@ -221,7 +224,8 @@ def test_eckkammern_delta_und_keepout_exakt():
     das GEOM_REV-6-Delta AUS-EIN exakt 31497.516538652 mm³."""
     v_eck = _frame_default().Volume
     delta = _frame_aus().Volume - v_eck
-    assert abs(delta - 31497.516538652) < 1.0, f"Delta driftete: {delta:.3f} mm³"
+    assert abs(delta - (-107336.38413470425)) < 1.0, \
+        f"Delta driftete: {delta:.3f} mm³"
     keepout = frame._corner_keepout(PRM.P)
     assert abs(keepout - 196.223956) < 1e-3, f"corner_keepout driftete: {keepout}"
 
@@ -234,12 +238,9 @@ def test_eckkammern_werkzeugzahl_konsistent_zu_slot_count_cell_l_53(p=None):
     an der Vent-Zahl je Slot oder je Ecke still auseinanderdriften könnte,
     ohne dass Volumen-/Kollisionstests das zwingend auffangen).
 
-    Je Slot (u-Position, siehe frame._chamber_cuts) entstehen GENAU 4
-    Werkzeuge: 2 Kammer-Kavitäten (Ring 1 + Ring 2) + 2 Vent-Bohrungen
-    (Innenwand->Ring1, Ring1->Ring2). Bei CORNER_CHAMBERS=True kommen GENAU
-    16 fixe Eck-Werkzeuge hinzu (frame._corner_chamber_cuts: 2 Ring-Profile x
-    4 Ecken = 8 Sektor-Kavitäten + 2 Diagonal-Vent-Positionen x 4 Ecken = 8
-    Vents), UNABHÄNGIG von CELL_L/Slot-Zahl -- deshalb testet dieser Test
+    Je Slot entstehen pro Ring eine Kavität und ein Vent. Bei
+    CORNER_CHAMBERS=True kommen pro Ring vier Sektor-Kavitäten und vier
+    Diagonal-Vents hinzu, unabhängig von CELL_L/Slot-Zahl. Deshalb testet dieser Test
     explizit mit CELL_L=53 (Reviewer-Regressionsrezept, siehe
     test_eckkammern_kein_kollision_zellraster_ecksektor_cell_l_53 oben), wo
     der Keepout-Filter das Zellraster bereits sichtbar verändert (3 Zellen
@@ -249,9 +250,11 @@ def test_eckkammern_werkzeugzahl_konsistent_zu_slot_count_cell_l_53(p=None):
     PRM.validate(p)
     tools = frame._chamber_cuts(p)
     slots = frame.chamber_slot_count(p)
-    assert len(tools) == 4 * slots + 16, (
-        f"{len(tools)} Werkzeuge != 4*{slots} (Slot-Kavitäten+Vents) + "
-        f"16 (fixe Eck-Werkzeuge)"
+    per_slot = 2 * p.CHAMBER_RING_COUNT
+    corner = 8 * p.CHAMBER_RING_COUNT
+    assert len(tools) == per_slot * slots + corner, (
+        f"{len(tools)} Werkzeuge != {per_slot}*{slots} "
+        f"(Slot-Kavitäten+Vents) + {corner} (Eck-Werkzeuge)"
     )
 
 
@@ -264,5 +267,5 @@ def test_eckkammern_werkzeugzahl_konsistent_ohne_eckkammern():
     p = PRM.Params(CORNER_CHAMBERS=False)
     tools = frame._chamber_cuts(p)
     slots = frame.chamber_slot_count(p)
-    assert len(tools) == 4 * slots
+    assert len(tools) == 2 * p.CHAMBER_RING_COUNT * slots
     assert frame._corner_chamber_cuts(p) == []

@@ -39,9 +39,12 @@ def test_wuerth_asa_gf15_planstand_abgebildet():
 
 def test_universal_segment_schraubraster():
     p = PRM.P
-    assert p.GEOM_REV == 6
+    assert p.GEOM_REV == 7
     assert p.PLATE_KRAGEN_W == 397.0 and p.PLATE_KRAGEN_MEASURED
-    assert p.BOT_KRAGEN_HOLE_OFFS == (-140.0, 140.0)
+    assert not p.ROOF_SIDE_SCREWS
+    assert p.BOT_KRAGEN_HOLE_OFFS == ()
+    assert p.JOINT_BOLT_OFFS == (40.0, 58.0)
+    assert PRM.joint_bolt_count(p) == 8
     assert p.PLATE_SCREW_OFFS == (-165.0, -140.0, 140.0, 165.0)
     assert p.PLATE_SCREW_BOSS_L == 25.0
 
@@ -56,7 +59,7 @@ def test_obere_schraubrippen_werden_ohne_unterkragen_validiert():
 
 def test_aussenmasse_und_hash():
     L, W = PRM.outer_dims()
-    assert L == 500.0 and W == 500.0
+    assert L == 540.0 and W == 540.0
     h1 = PRM.params_hash()
     h2 = PRM.params_hash(PRM.Params(H_RAISE=30.0))
     assert len(h1) == 8 and h1 != h2

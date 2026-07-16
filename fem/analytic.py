@@ -66,11 +66,18 @@ def joint_checks(p: PRM.Params, f_inplane: float) -> dict:
     tau = f_inplane / a_lap
     _, sig_kurz = PRM.allowables(p)               # sig_lang (dauerhaft) ungenutzt hier
     tau_zul = 0.5 * sig_kurz                     # Schub ~ 0.5 * sigma (v. Mises)
-    # Lochleibung der M5-Schraube im ASA (Kurzzeitfall):
-    lochleibung = f_inplane / (p.JOINT_BOLT_D * lap_h)
+    # Zwei M5 je Stoß; zusätzlich muss ein verbliebener Bolzen den vollen
+    # Fall noch allein tragen können.
+    bolt_count = len(p.JOINT_BOLT_OFFS)
+    lochleibung = (f_inplane / bolt_count) / (p.JOINT_BOLT_D * lap_h)
+    lochleibung_ein_rest = f_inplane / (p.JOINT_BOLT_D * lap_h)
     lochleibung_zul = sig_kurz
     return {
         "tau_MPa": tau, "tau_zul_MPa": tau_zul,
-        "lochleibung_MPa": lochleibung, "lochleibung_zul_MPa": lochleibung_zul,
-        "PASS": tau < tau_zul and lochleibung < lochleibung_zul,
+        "m5_count_per_joint": bolt_count,
+        "lochleibung_MPa": lochleibung,
+        "lochleibung_ein_rest_MPa": lochleibung_ein_rest,
+        "lochleibung_zul_MPa": lochleibung_zul,
+        "PASS": (tau < tau_zul
+                 and lochleibung_ein_rest < lochleibung_zul),
     }

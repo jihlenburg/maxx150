@@ -1,16 +1,20 @@
 # Projektstatus
 
-Stand: 16.07.2026 · GEOM_REV 6 · Parameterstand `83aeba39`
+Stand: 16.07.2026 · GEOM_REV 7 · Parameterstand `78f560c8`
 
 ## Abgeschlossen
 
 - Vier rotationsidentische Universal-L-Segmente statt vier Varianten.
 - 28-mm-Erhöhung, 400-mm-Öffnung und supportfreie Kammergeometrie.
-- Getrennte Schraubinterfaces: 8× Belluna-Platte → Adapter und 8× Adapter → Holz.
+- 540×540-mm-Rahmen mit 25-mm-Dachfuge vollständig über dem Holzrahmen.
+- Drei 17-mm-Kammerringe statt eines massiven Außenbands; Universalteil ca.
+  731 g und 295×270 mm im theoretischen CAD-Modell.
+- Acht Belluna-Plattenschrauben oben; keine Adapter-Holz-Verschraubung unten.
+- Zwei M5 je Segmentstoß einschließlich Ein-Bolzen-Restfall.
 - Digital vermessene Belluna-Rekonstruktion mit 397-mm-Unterkragen und
   1,5-mm-Wand; Metallclips und Dichtring als getrennte Referenzteile.
 - DFM-, FEM-, analytische, Passungs-, Export- und Referenztests.
-- Quellenbasierte Lastpfadabschätzung für Klebungen, beide Schraubengruppen,
+- Quellenbasierte Lastpfadabschätzung für Klebungen, obere Schraubengruppe,
   Segmentstöße und das Dachsandwich (`PASS_ASSUMPTION_BASED`).
 - Definiertes Kleb-/Dicht-/Lacksystem und reproduzierbarer Montagegenerator.
 - Einheitliche Pipeline und geordneter Build-/Release-/Referenzaufbau.

@@ -58,10 +58,14 @@ def classify(pt, p: PRM.Params = PRM.P) -> str:
     r = max(abs(x), abs(y))
     z_top = top_z(p)
     z_deck = z_top - p.DECK_T                          # Unterkante Deckplatte/Kammerdecke
-    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL               # Innenwand->Kammerring 1
-    r_out1 = r_in1 + p.CHAMBER_W                        # Kammerring 1->Steg
-    r_in2 = r_out1 + p.CHAMBER_RIB                      # Steg->Kammerring 2
-    r_out2 = r_in2 + p.CHAMBER_W                        # Kammerring 2->Aussenwand
+    r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL
+    ring_boundaries = []
+    r_in = r_in1
+    for _ in range(p.CHAMBER_RING_COUNT):
+        r_out = r_in + p.CHAMBER_W
+        ring_boundaries.append((r_in, r_out))
+        r_in = r_out + p.CHAMBER_RIB
+    r_out_last = ring_boundaries[-1][1]
     tol = p.CHAMBER_RIB
 
     if z < -0.5:
@@ -70,12 +74,14 @@ def classify(pt, p: PRM.Params = PRM.P) -> str:
         return "Bodenplatte/Kleberille"
     if z > z_deck + 0.5:
         return "Deckplatte/Freistellung"
-    if r > r_out2 + tol:
+    if r > r_out_last + tol:
         return "Außenwand"
     if r_in1 - tol < r < r_in1 + tol:
         return "Innenwand (Schraubgrund)"
-    if r_out1 - tol < r < r_in2 + tol:
-        return "Kammersteg Ring1/Ring2"
+    for index, ((_, r_out), (r_next, _)) in enumerate(
+            zip(ring_boundaries, ring_boundaries[1:]), start=1):
+        if r_out - tol < r < r_next + tol:
+            return f"Kammersteg Ring{index}/Ring{index + 1}"
     return "Kammerwand/-boden"
 
 

@@ -408,8 +408,8 @@ def img04_kleber_aktivator():
 def img05_m5_montage():
     scene = _new_scene()
     load_segments()
-    m = MK["m5"][0]
-    marker(m["p1"], m["p2"], radius=3.0)
+    for m in MK["m5"][:2]:
+        marker(m["p1"], m["p2"], radius=3.0)
     cam, target = _rig(scene)
     _cam(cam, target, (430, -140, 250), (228, -12, 12), lens=80)
     _render(scene, "05_m5_montage.png")
@@ -418,8 +418,8 @@ def img05_m5_montage():
 def img06_m5_mutter():
     scene = _new_scene()
     load_segments()
-    m = MK["m5"][0]
-    marker(m["p1"], m["p2"], radius=3.0)
+    for m in MK["m5"][:2]:
+        marker(m["p1"], m["p2"], radius=3.0)
     cam, target = _rig(scene, key=(-500, -700, -900))
     _cam(cam, target, (430, -140, -230), (228, -12, 8), lens=80)
     _render(scene, "06_m5_mutter.png")
@@ -477,17 +477,19 @@ def img10_aufsetzen():
     _render(scene, "10_aufsetzen.png")
 
 
-def img11_dachschrauben():
+def img11_dach_klebeflaeche():
     scene = _new_scene()
-    load_segments()
-    load_part("dach", _mat("dach", COL_DACH, rough=0.7, alpha=0.26))
-    load_part("holzrahmen", _mat("holz", COL_HOLZ, rough=0.6, alpha=0.5))
+    segs = load_segments()
+    for o in segs:
+        o.location = (0, 0, 55)
+        highlight(o, COL_GREEN, groove_faces, emission=1.0)
+    load_part("dach", _mat("dach", COL_DACH, rough=0.7, alpha=0.20))
+    load_part("holzrahmen", _mat("holz", COL_HOLZ, rough=0.6, alpha=0.82,
+                                  emission=0.35))
     load_part("xps_kern", _mat("xps", COL_XPS, rough=0.9, alpha=0.22))
-    for m in MK["dach_screws"]:
-        marker(m["p1"], m["p2"], radius=3.0)
     cam, target = _rig(scene)
-    _cam(cam, target, (740, -740, 430), (0, 0, -12), lens=58)
-    _render(scene, "11_dachschrauben.png")
+    _cam(cam, target, (740, -740, 410), (0, 0, 10), lens=58)
+    _render(scene, "11_dach_klebeflaeche.png")
 
 
 def img12_kleberaupe():
@@ -528,7 +530,7 @@ def img14_fertig():
 ALL = [img01_titel_explosion, img02_teile_uebersicht, img03_fuegeflaechen,
        img04_kleber_aktivator, img05_m5_montage, img06_m5_mutter,
        img07_rahmen_komplett, img08_maskierung_lack, img09_dach_holzrahmen,
-       img10_aufsetzen, img11_dachschrauben, img12_kleberaupe,
+       img10_aufsetzen, img11_dach_klebeflaeche, img12_kleberaupe,
        img13_platte_schrauben, img14_fertig]
 
 # Optionaler Filter über Env ONLY_IMG (Komma-Liste von Nummern) für gezieltes

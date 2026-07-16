@@ -15,13 +15,14 @@ def test_classify_zonen():
     r_in1 = p.CUTOUT_W / 2 + p.INNER_WALL          # 208 bei Defaults
     r_out1 = r_in1 + p.CHAMBER_W                   # 223
     r_in2 = r_out1 + p.CHAMBER_RIB                 # 227
-    r_out2 = r_in2 + p.CHAMBER_W                   # 242
+    r_out_last = (r_in1 + p.CHAMBER_RING_COUNT * p.CHAMBER_W
+                  + (p.CHAMBER_RING_COUNT - 1) * p.CHAMBER_RIB)
     z_deck = top_z(p) - p.DECK_T                   # 20
 
     assert classify((200.0, 0.0, -1.0), p) == "Noppenfuß (Fixierstelle — Lagerkonzentration)"
     assert classify((200.0, 0.0, 2.0), p) == "Bodenplatte/Kleberille"
     assert classify((0.0, 200.0, z_deck + 1.0), p) == "Deckplatte/Freistellung"
-    assert classify((r_out2 + p.CHAMBER_RIB + 1, 0.0, 10.0), p) == "Außenwand"
+    assert classify((r_out_last + p.CHAMBER_RIB + 1, 0.0, 10.0), p) == "Außenwand"
     assert classify((r_in1, 0.0, 10.0), p) == "Innenwand (Schraubgrund)"
     assert classify((0.0, (r_out1 + r_in2) / 2, 10.0), p) == "Kammersteg Ring1/Ring2"
     # Zwischen Innenwand- und Kammersteg-Toleranzband: Sammelzone.

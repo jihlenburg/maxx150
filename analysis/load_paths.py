@@ -80,15 +80,6 @@ SOURCES = {
             "Zugfestigkeit senkrecht zur Plattenebene; nicht das X150-Material"
         ),
     },
-    "wood_screw_reference": {
-        "url": "https://www.wuerth.de/web/media/downloads/assy/"
-               "ETA_110190_Wuerth_Holzschrauben_EN_23-7-2018_-"
-               "elektronische_Kopie_Z50406.18~1.pdf",
-        "basis": (
-            "ETA-11/0190: f_ax,k=12 N/mm² für zugelassene 3 bis 5 mm "
-            "Holzschrauben bei rho_k=350 kg/m³ und mindestens 4d Einbindung"
-        ),
-    },
     "carloflex": {
         "url": "../../../../references/datasheets/adhesives/"
                "carloflex-410-uv-source.md",
@@ -122,16 +113,6 @@ class Assumptions:
     # wird nur EINE der beiden großen GFK/Holz-Flächen angerechnet.
     panel_bond_normal_allow_MPa: float = 0.050
     panel_bond_shear_allow_MPa: float = 0.050
-
-    # Analogierechnung für die unbekannten beiliegenden ST4.2x25: zugelassene
-    # Holzschraube als Obermodell, dann kmod/gamma und nochmals 0,5, weil die
-    # Belluna-Schraube nicht als ETA-Holzschraube identifiziert ist.
-    wood_density_kg_m3: float = 350.0
-    wood_screw_fax_k_MPa: float = 12.0
-    wood_screw_effective_embed_mm: float = 18.0
-    wood_kmod: float = 0.50
-    wood_gamma_M: float = 1.30
-    supplied_screw_analogy_factor: float = 0.50
 
     # ASA-Pfad: bestehender dauerabgeminderter Gewindeauszug nochmals halbiert
     # für Pilotloch-, FDM- und lokale Kerbunsicherheit.
@@ -198,9 +179,9 @@ def _bond_check(load: LoadCase, moment_Nm: tuple[float, float, float],
     }
 
 
-def _screw_positions(p: PRM.Params) -> tuple[tuple[float, float], ...]:
+def _plate_screw_positions(p: PRM.Params) -> tuple[tuple[float, float], ...]:
     radius = p.PLATE_KRAGEN_W / 2.0
-    offset = min(abs(v) for v in p.BOT_KRAGEN_HOLE_OFFS)
+    offset = min(abs(v) for v in p.PLATE_SCREW_OFFS)
     return (
         (-radius, -offset), (-radius, offset),
         (radius, -offset), (radius, offset),
@@ -214,7 +195,7 @@ def _screw_group_check(load: LoadCase, moment_Nm: tuple[float, float, float],
                        a: Assumptions,
                        positions: tuple[tuple[float, float], ...] | None = None
                        ) -> dict:
-    positions = positions or _screw_positions(p)
+    positions = positions or _plate_screw_positions(p)
     n_screws = len(positions)
     sx2 = sum(x * x for x, _ in positions)
     sy2 = sum(y * y for _, y in positions)
@@ -247,7 +228,7 @@ def _screw_omission_sensitivity(
         capacity_per_screw_N: float, p: PRM.Params,
         a: Assumptions) -> dict:
     """Zeigt die Reserve gegen fehlende Schrauben ohne sie freizugeben."""
-    positions = _screw_positions(p)
+    positions = _plate_screw_positions(p)
     result = {}
     for missing in (1, 2):
         utilizations = []
@@ -268,32 +249,6 @@ def _screw_omission_sensitivity(
     return result
 
 
-def _roof_screw_capacity(p: PRM.Params, a: Assumptions) -> dict:
-    d = p.BOT_KRAGEN_SCREW_D
-    le = a.wood_screw_effective_embed_mm
-    density_factor = (a.wood_density_kg_m3 / 350.0) ** 0.8
-    characteristic = a.wood_screw_fax_k_MPa * d * le * density_factor
-    eta_design_reference = characteristic * a.wood_kmod / a.wood_gamma_M
-    project = eta_design_reference * a.supplied_screw_analogy_factor
-    return {
-        "characteristic_ETA_analogy_N": characteristic,
-        "after_kmod_gamma_N": eta_design_reference,
-        "project_capacity_per_screw_N": project,
-        "minimum_embed_4d_mm": 4.0 * d,
-        "assumed_embed_mm": le,
-        "required_characteristic_density_kg_m3": a.wood_density_kg_m3,
-        "grain_assumption": (
-            "Nadelvollholz-Faser längs zur Rahmenseite; Schraubenachse "
-            "senkrecht zur Faser"
-        ),
-        "embedment_PASS": le >= 4.0 * d,
-        "warning": (
-            "Analogiewert, keine Zulassung der beiliegenden Belluna-"
-            "ST4.2x25 als Holzschraube"
-        ),
-    }
-
-
 def _asa_screw_capacity(p: PRM.Params, a: Assumptions) -> dict:
     # Gleiche konservative Grundgleichung wie der bisherige Nachweis, aber
     # nicht mehr als scheinbar genauer Endwert ohne Detailfaktor ausgeben.
@@ -307,6 +262,10 @@ def _asa_screw_capacity(p: PRM.Params, a: Assumptions) -> dict:
         "detail_factor": a.asa_thread_detail_factor,
         "project_capacity_per_screw_N": project,
         "engagement_mm": engagement,
+        "warning": (
+            "Abgeminderte Geometrie-/Materialanalogie für ST4.2 in FDM-ASA-GF; "
+            "keine Zulassung oder herstellergeprüfte Schraubverbindung"
+        ),
     }
 
 
@@ -367,10 +326,11 @@ def _load_cfd_transfer() -> tuple[LoadCase | None, str | None]:
 
 def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
            include_cfd: bool = True) -> dict:
-    elastic_ring = _square_ring(
+    top_elastic_ring = _square_ring(
+        p.CUTOUT_W + 2.0 * p.PLATE_BOND_OFF, p.PLATE_BOND_W)
+    roof_elastic_ring = _square_ring(
         p.CUTOUT_W + 2.0 * p.GROOVE_OFF, p.GROOVE_W)
     wood_ring = _square_ring(p.CUTOUT_W, p.ROOF_WOOD_FRAME_W)
-    roof_capacity = _roof_screw_capacity(p, a)
     asa_capacity = _asa_screw_capacity(p, a)
     cases = _base_load_cases(p)
     cfd_path = None
@@ -382,17 +342,14 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
     case_results = {}
     for case in cases:
         top_bond = _bond_check(
-            case, case.moment_top_Nm, elastic_ring,
+            case, case.moment_top_Nm, top_elastic_ring,
             a.elastic_normal_allow_MPa, a.elastic_shear_allow_MPa)
         bottom_bond = _bond_check(
-            case, case.moment_base_Nm, elastic_ring,
+            case, case.moment_base_Nm, roof_elastic_ring,
             a.elastic_normal_allow_MPa, a.elastic_shear_allow_MPa)
         top_screws = _screw_group_check(
             case, case.moment_top_Nm,
             asa_capacity["project_capacity_per_screw_N"], p, a)
-        bottom_screws = _screw_group_check(
-            case, case.moment_base_Nm,
-            roof_capacity["project_capacity_per_screw_N"], p, a)
         panel_bond = _bond_check(
             case, case.moment_base_Nm, wood_ring,
             a.panel_bond_normal_allow_MPa,
@@ -407,18 +364,18 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
                 "elastic_ring_bond_only": top_bond,
                 "eight_side_screws_full_case": top_screws,
             },
-            "adapter_to_wood": {
-                "elastic_ring_bond_only": bottom_bond,
-                "eight_side_screws_full_case": bottom_screws,
+            "adapter_to_roof": {
+                "wide_elastic_ring_primary": bottom_bond,
+                "roof_side_screws": "not_installed",
             },
             "wood_to_roof_sandwich": {
                 "sikaforce_one_face_only": panel_bond,
             },
-            # Der mechanische Pfad wird für den kompletten Lastfall geprüft;
-            # dadurch wird ein Bond-only-FAIL nicht durch Addition von zwei
-            # inkompatibel steifen Teiltragfähigkeiten schöngerechnet.
+            # Oben trägt die vollständige Schraubengruppe. Unten muss die
+            # verbreiterte Klebefuge den vollständigen Lastfall allein tragen;
+            # es gibt keine Addition mit einer Holzverschraubung.
             "serial_load_path_PASS": (
-                top_screws["PASS"] and bottom_screws["PASS"]
+                top_screws["PASS"] and bottom_bond["PASS"]
                 and panel_bond["PASS"]
             ),
         }
@@ -427,7 +384,10 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
     wind = PRM.wind_force(p)
     rk_tau = wind / lap_area
     lap_h = PRM.lap_height(p)
-    bearing = wind / (p.JOINT_BOLT_D * lap_h)
+    bolts_per_joint = len(p.JOINT_BOLT_OFFS)
+    pair_bearing = ((wind / bolts_per_joint)
+                    / (p.JOINT_BOLT_D * lap_h))
+    one_remaining_bearing = wind / (p.JOINT_BOLT_D * lap_h)
     _, short_allow = PRM.allowables(p)
     segment = {
         "load_N": wind,
@@ -437,12 +397,16 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "rk1300_allow_MPa": a.rk1300_lap_shear_allow_MPa,
         "rk1300_utilization": rk_tau / a.rk1300_lap_shear_allow_MPa,
         "rk1300_PASS": rk_tau <= a.rk1300_lap_shear_allow_MPa,
-        "m5_bearing_MPa": bearing,
+        "m5_count_per_joint": bolts_per_joint,
+        "m5_pair_bearing_MPa": pair_bearing,
+        "m5_one_remaining_bearing_MPa": one_remaining_bearing,
         "asa_short_allow_MPa": short_allow,
-        "m5_bearing_utilization": bearing / short_allow,
-        "m5_PASS": bearing <= short_allow,
+        "m5_pair_bearing_utilization": pair_bearing / short_allow,
+        "m5_one_remaining_utilization": one_remaining_bearing / short_allow,
+        "m5_redundancy_PASS": one_remaining_bearing <= short_allow,
     }
-    segment["PASS"] = segment["rk1300_PASS"] and segment["m5_PASS"]
+    segment["PASS"] = (segment["rk1300_PASS"]
+                       and segment["m5_redundancy_PASS"])
 
     thermal_util = FEM_ANALYTIC.glue_shear_utilization(p)
     thermal = {
@@ -461,12 +425,9 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "top_group": _screw_omission_sensitivity(
             wind_case, wind_case.moment_top_Nm,
             asa_capacity["project_capacity_per_screw_N"], p, a),
-        "bottom_group": _screw_omission_sensitivity(
-            wind_case, wind_case.moment_base_Nm,
-            roof_capacity["project_capacity_per_screw_N"], p, a),
         "design_requirement": (
-            "Alle acht Schrauben je Schnittstelle montieren und intakt halten; "
-            "die Ein-Schrauben-Sensitivität ist keine Freigabe für sieben"
+            "Alle acht Belluna-Plattenschrauben montieren und intakt halten; "
+            "an der Dachschnittstelle sind keine Schrauben vorgesehen"
         ),
     }
     status = ("PASS_ASSUMPTION_BASED" if all_cases_pass
@@ -483,11 +444,11 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "assumptions": asdict(a),
         "sources": SOURCES,
         "geometry": {
-            "elastic_ring": elastic_ring,
+            "top_elastic_ring": top_elastic_ring,
+            "roof_elastic_ring": roof_elastic_ring,
             "wood_frame_one_face_only": wood_ring,
         },
         "capacities": {
-            "roof_screw": roof_capacity,
             "asa_screw": asa_capacity,
         },
         "load_cases": case_results,
@@ -497,12 +458,14 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "model_limitations": [
             "Starrer Ring und linear-elastische Lastverteilung; lokale "
             "Peelspitzen und Gehäusenachgiebigkeit sind nicht aufgelöst.",
-            "Der abgeminderte axiale Schrauben-Analogiewert wird konservativ "
-            "auf den resultierenden Axial-/Querlastvektor angewendet; eine "
-            "Zulassung der beiliegenden ST4.2x25 liegt nicht vor.",
-            "Acht gleichmäßig tragende Schrauben, ungerissenes trockenes "
-            "Vollholz sowie ausreichende Rand- und Schraubenabstände werden "
-            "vorausgesetzt.",
+            "Die untere 25-mm-Elastikfuge ist der primäre und einzige "
+            "Adapter-Dach-Lastpfad; Fehlstellen, Randablösung oder mangelhafte "
+            "Vorbehandlung besitzen keine mechanische Rückfallebene.",
+            "Die acht oberen ST4.2x25 werden mit einem abgeminderten axialen "
+            "Analogiewert auf den resultierenden Lastvektor geprüft.",
+            "Zwei M5 je Segmentstoß werden gleichmäßig belastet angenommen; "
+            "der Ein-Bolzen-Restfall wird separat geprüft, expliziter "
+            "Bolzenkontakt und Lochspiel aber nicht aufgelöst.",
             "Das reale X150-GFK/XPS-Sandwich ist nicht typgeprüft; deshalb "
             "werden nur eine Holz/GFK-Fläche und 0,050 MPa angerechnet.",
             "CFD, FEM und Lastpfadrechnung sind Modellplausibilisierungen, "
@@ -521,111 +484,97 @@ def to_markdown(result: dict) -> str:
     lines = [
         "# Abschätzung der Klebe-, Schraub- und Dachlastpfade",
         "",
-        f"Parameterstand `{result['parameter_hash']}` · "
-        f"**{result['status']}**",
+        f"Parameterstand `{result['parameter_hash']}` · **{result['status']}**",
         "",
-        "> Diese Rechnung ist eine konservative Plausibilisierung, keine "
-        "Bauteilzulassung. Herstellerwerte werden nicht direkt als reale "
-        "Grenzflächenfestigkeit verwendet.",
+        "> Konservative Plausibilisierung, keine Bauteilzulassung. Die untere "
+        "Dachschnittstelle ist bewusst eine reine Klebeverbindung ohne "
+        "mechanische Rückfallebene.",
         "",
         "## Ergebnisübersicht",
         "",
-        "| Lastfall | Elastikfuge oben, allein | 8 Schrauben oben | Elastikfuge unten, allein | "
-        "8 Schrauben unten | Holz–Dach, eine Fläche | serieller Pfad |",
-        "|---|---:|---:|---:|---:|---:|---|",
+        "| Lastfall | obere Elastikfuge allein | 8 Schrauben oben | "
+        "25-mm-Dachfuge allein | Holz–Dach, eine Fläche | serieller Pfad |",
+        "|---|---:|---:|---:|---:|---|",
     ]
     for name, case in result["load_cases"].items():
         top = case["belluna_to_adapter"]
-        bottom = case["adapter_to_wood"]
+        roof = case["adapter_to_roof"]["wide_elastic_ring_primary"]
         wood = case["wood_to_roof_sandwich"]["sikaforce_one_face_only"]
         lines.append(
             f"| `{name}` | "
             f"{_pct(top['elastic_ring_bond_only']['normalized_interaction'])} | "
             f"{_pct(top['eight_side_screws_full_case']['utilization'])} | "
-            f"{_pct(bottom['elastic_ring_bond_only']['normalized_interaction'])} | "
-            f"{_pct(bottom['eight_side_screws_full_case']['utilization'])} | "
+            f"{_pct(roof['normalized_interaction'])} | "
             f"{_pct(wood['normalized_interaction'])} | "
             f"{'PASS' if case['serial_load_path_PASS'] else 'FAIL'} |"
         )
 
     seg = result["segment_joint"]
     therm = result["thermal_movement"]
-    fasteners = result["fastener_sensitivity"]["bottom_group"]
-    roof = result["capacities"]["roof_screw"]
+    top_fasteners = result["fastener_sensitivity"]["top_group"]
     asa = result["capacities"]["asa_screw"]
+    top_ring = result["geometry"]["top_elastic_ring"]
+    roof_ring = result["geometry"]["roof_elastic_ring"]
     lines += [
         "",
-        "Die Elastikfugen-Spalten zeigen absichtlich den hypothetischen "
-        "**Bond-only**-Fall einschließlich Kippmoment. Ein Wert über 100 % "
-        "bedeutet deshalb nicht automatisch Systemversagen: Die daneben "
-        "geprüfte Acht-Schrauben-Gruppe übernimmt denselben kompletten "
-        "Lastfall mit einem zusätzlichen Lastkonzentrationsfaktor 1,5. "
-        "Tragfähigkeiten von Kleber und Schrauben werden nicht addiert.",
-        "Der Schubgrenzwert 0,050 MPa ist kein TDS-Schubkennwert, sondern "
-        "eine bewusst niedrige Projektannahme. Reale Grenzflächenhaftung und "
+        "Die obere Belluna-Verbindung bleibt hybrid: Kleber und acht "
+        "Seitenschrauben werden nicht addiert; die Schraubengruppe trägt den "
+        "vollständigen Fall mit Lastkonzentrationsfaktor 1,5. Unten muss die "
+        "25-mm-Elastikfuge den vollständigen Fall allein bestehen.",
+        "Der Schubgrenzwert 0,050 MPa ist kein TDS-Schubkennwert, sondern eine "
+        "bewusst niedrige Projektannahme. Reale Grenzflächenhaftung und "
         "Alterung bleiben unbekannt.",
         "",
         "## Maßgebende Festwerte",
         "",
-        f"- Elastische Ringfuge: {result['geometry']['elastic_ring']['area_mm2']:.0f} "
-        "mm²; Sikaflex-522 oder Carloflex 410 UV mit 0,030 MPa normal und "
-        "0,050 MPa Schub.",
-        f"- Holzrahmen: nur eine GFK/Holz-Fläche mit "
-        f"{result['geometry']['wood_frame_one_face_only']['area_mm2']:.0f} mm² "
-        "angerechnet; SikaForce-/Sandwich-Grenzwert 0,050 MPa.",
-        f"- Untere ST4.2x25: {roof['project_capacity_per_screw_N']:.0f} N je "
-        "Schraube als stark abgeminderte ETA-Analogie; 18 mm Einbindung "
-        f"gegen mindestens {roof['minimum_embed_4d_mm']:.1f} mm, "
-        "Nadelvollholz mit ρk ≥ 350 kg/m³ und Faser längs zur Rahmenseite.",
+        f"- Obere Ringfuge: {top_ring['area_mm2']:.0f} mm²; 0,030 MPa "
+        "normal / 0,050 MPa Schub, nicht allein maßgebend.",
+        f"- Untere Ringfuge: {roof_ring['area_mm2']:.0f} mm², Innenmaß "
+        f"{roof_ring['inner_side_mm']:.0f} mm, Außenmaß "
+        f"{roof_ring['outer_side_mm']:.0f} mm; vollständig über dem "
+        "30-mm-Holzrahmen, 0,030/0,050 MPa.",
         f"- Obere ST4.2x25 in ASA-GF: {asa['project_capacity_per_screw_N']:.0f} N "
-        "je Schraube nach zusätzlichem Detailfaktor 0,5.",
-        f"- Segmentstoß unter vollen 480 N: RK-1300 {_pct(seg['rk1300_utilization'])}, "
-        f"M5-Lochleibung {_pct(seg['m5_bearing_utilization'])}; "
+        "je Schraube nach Detailfaktor 0,5.",
+        f"- Segmentstoß unter vollen 480 N: RK-1300 "
+        f"{_pct(seg['rk1300_utilization'])}; zwei M5 gemeinsam "
+        f"{_pct(seg['m5_pair_bearing_utilization'])}, ein verbliebener M5 "
+        f"{_pct(seg['m5_one_remaining_utilization'])}; "
         f"{'PASS' if seg['PASS'] else 'FAIL'}.",
         f"- Thermische Scherbewegung der 3-mm-Fuge: "
         f"{_pct(therm['utilization'])} des 50-%-Grenzwerts; "
         f"{'PASS' if therm['PASS'] else 'FAIL'}.",
-        f"- Untere Schraubengruppe, 480-N-Sensitivität: eine fehlende Schraube "
-        f"ergibt {_pct(fasteners['1_missing']['best_utilization'])} bis "
-        f"{_pct(fasteners['1_missing']['worst_utilization'])}; bei zwei "
-        f"fehlenden Schrauben bereits mindestens "
-        f"{_pct(fasteners['2_missing']['best_utilization'])}. Alle acht sind "
-        "daher Montage- und Inspektionspflicht.",
+        f"- Obere Schraubengruppe: eine fehlende Schraube ergibt "
+        f"{_pct(top_fasteners['1_missing']['best_utilization'])} bis "
+        f"{_pct(top_fasteners['1_missing']['worst_utilization'])}; zwei "
+        "fehlende Schrauben bestehen nicht in jeder Anordnung. Alle acht "
+        "Belluna-Plattenschrauben bleiben Pflicht.",
         "",
         "## Konstruktive Interpretation",
         "",
-        "- Die beiden Elastikfugen-Ringe sind rechnerisch gut für direkte "
-        "Zug-/Schubkräfte, aber nicht als alleiniger Kippmomentpfad der "
-        "480-N-Hülle anzusetzen. Die acht Seitenschrauben sind daher "
-        "tragende Redundanz und nicht nur Montagehilfe.",
-        "- Der Holzrahmen ist mit nur einer angerechneten Klebefläche deutlich "
-        "weniger ausgenutzt als die Schraubgruppen. Seine Ausführung muss "
-        "trotzdem vollflächig und ohne große Fehlstellen erfolgen.",
-        "- Das neu vorliegende Carloflex-TDS liegt mit >1,8 MPa Zugfestigkeit, "
-        ">450 % Dehnung und 90 °C Dauergrenze in derselben Rechenklasse wie "
-        "Sikaflex-522. Die 0,030/0,050-MPa-Projektwerte gelten deshalb für "
-        "beide Produkte; Produkte innerhalb einer Baugruppe nicht mischen.",
-        "- Der knappste angenommene Pfad ist nicht der Klebstoff selbst, "
-        "sondern die nicht identifizierte ST4.2x25 im Holz. Eine tatsächlich "
-        "ETA-dokumentierte Holzschraube gleicher Geometrie würde diese "
-        "Unsicherheit gezielt beseitigen.",
+        "- Die Verbreiterung des Adapters allein wäre wirkungslos gewesen. "
+        "Entscheidend ist die Vergrößerung der unteren Klebefuge von 8 auf "
+        "25 mm und ihre vollständige Unterlegung durch den Holzrahmen.",
+        "- Der geschlossene Unterkragen zentriert nur noch; er besitzt keine "
+        "Dachschraubenlöcher. Der Holzrahmen bleibt als vollflächig mit beiden "
+        "GFK-Häuten verbundener Lastverteiler zwingend erforderlich.",
+        "- Zwei M5 je Stoß schaffen Segmentredundanz, ersetzen aber nicht die "
+        "frühere Holzverschraubung. Der untere Lastpfad wird ausschließlich "
+        "durch die breite Elastikfuge verbessert.",
+        "- Sikaflex-522 und Carloflex 410 UV werden weiterhin nur mit den "
+        "stark abgeminderten 0,030/0,050-MPa-Werten angesetzt. Produkte "
+        "innerhalb einer Baugruppe nicht mischen.",
         "",
         "## Oberflächenannahme für Sikaflex-522",
         "",
-        "Strukturelle Klebezonen bleiben lackfrei. ASA-GF und die unbekannte "
-        "Belluna-Kunststofffläche werden sehr fein angeschliffen, mit Sika "
-        "Cleaner P gereinigt und – als konservative ABS-Analogie – mit Sika "
-        "Primer-507 vorbehandelt. Das GFK-Gelcoat wird sehr fein angeschliffen, "
-        "gereinigt und mit Sika Aktivator-205 vorbehandelt. Weil die aktuelle "
-        "Sika-Tabelle ASA-GF nicht ausdrücklich nennt, steckt diese Unsicherheit "
-        "bereits in der sehr starken Festigkeitsabminderung; sie wird dadurch "
-        "nicht zu einer Herstellerfreigabe.",
+        "Die tragenden Klebezonen bleiben lackfrei. ASA-GF und Belluna-"
+        "Kunststoff werden sehr fein angeschliffen, mit Sika Cleaner P "
+        "gereinigt und als ABS-Analogie mit Sika Primer-507 vorbehandelt. "
+        "GFK-Gelcoat wird sehr fein angeschliffen, gereinigt und mit Sika "
+        "Aktivator-205 vorbehandelt. ASA-GF ist nicht ausdrücklich in der "
+        "Sika-Tabelle genannt; die Rechnung ist daher keine Herstellerfreigabe.",
         "",
-        "Carloflex nennt GFK, Hart-PVC, Holz und Glas, aber nicht ASA-GF. "
-        "Das TDS erwähnt Kunststoffprimer ohne exakten Produktnamen. Deshalb "
-        "bleibt Sikaflex-522 mit Cleaner P/Primer-507/Aktivator-205 der besser "
-        "reproduzierbar spezifizierte Prozessweg; Carloflex ist unter denselben "
-        "abgeminderten Rechenwerten eine technisch plausible, Belluna-konforme "
+        "Carloflex bleibt erst nach prozesssicherer Festlegung seines im TDS "
+        "nicht namentlich genannten Kunststoffprimers eine ausführbare "
         "Alternative.",
         "",
         "## Modellgrenzen",

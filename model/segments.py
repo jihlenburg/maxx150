@@ -24,14 +24,18 @@ def _bolt_cuts(p):
     h = top_z(p)
     cuts = []
     for k in range(4):
-        x = p.CUTOUT_W / 2 + p.JOINT_BOLT_OFF     # im Band, frei von Rille/Freistellung
-        y = -p.LAP_L / 2                           # mitten in der Überlappung
-        bolt = Part.makeCylinder(p.JOINT_BOLT_D / 2, h + 2, Vector(x, y, -1))
-        cb = Part.makeCylinder(p.JOINT_CB_D / 2, p.JOINT_CB_T + 1,
-                               Vector(x, y, h - p.JOINT_CB_T))
-        nut = F.hex_prism(p.JOINT_NUT_AF, p.JOINT_NUT_T + 1, (x, y), -1)
-        for c in (bolt, cb, nut):
-            cuts.append(F.rotz(c, k))
+        for bolt_off in p.JOINT_BOLT_OFFS:
+            x = p.CUTOUT_W / 2 + bolt_off  # radial zwischen Rille und Außenkante
+            y = -p.LAP_L / 2               # mitten in der Überlappung
+            bolt = Part.makeCylinder(
+                p.JOINT_BOLT_D / 2, h + 2, Vector(x, y, -1))
+            cb = Part.makeCylinder(
+                p.JOINT_CB_D / 2, p.JOINT_CB_T + 1,
+                Vector(x, y, h - p.JOINT_CB_T))
+            nut = F.hex_prism(
+                p.JOINT_NUT_AF, p.JOINT_NUT_T + 1, (x, y), -1)
+            for c in (bolt, cb, nut):
+                cuts.append(F.rotz(c, k))
     return cuts
 
 

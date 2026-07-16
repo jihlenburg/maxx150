@@ -32,8 +32,8 @@ def _allowed_bridge_area(p):
        druckbar, die Kammerböden selbst (47°-Chevron) tragen sich über die
        Flankenneigung, brauchen also keinen eigenen Term hier.
     6. Eck-Vents der Eckkammern (Task 17, nur wenn CORNER_CHAMBERS): 4 Ecken
-       x 2 radiale Ø VENT_D-Kanäle entlang der 45°-Diagonale (analog Zone 5,
-       siehe model/frame.py::_corner_chamber_cuts) = 8 Kanäle gesamt, obere
+       x CHAMBER_RING_COUNT radiale Ø VENT_D-Kanäle entlang der 45°-Diagonale
+       (analog Zone 5, siehe model/frame.py::_corner_chamber_cuts), obere
        Halbzylinder-Fläche je Kanal, Wandstärke wieder konservativ mit
        max(INNER_WALL, CHAMBER_RIB) angesetzt. Zusätzlicher Faktor 2
        gegenüber der Zone-5-Formel: die Eck-Kanäle liegen DIAGONAL (45° zu
@@ -53,11 +53,12 @@ def _allowed_bridge_area(p):
     nut = 4 * 2 * math.sqrt(3) * (p.JOINT_NUT_AF / 2) ** 2
     lap_step = ((p.LAP_L - p.TOL_JOINT)
                 * (p.W_TOP_FRONT + p.W_TOP_REAR + p.W_TOP_LEFT + p.W_TOP_RIGHT))
-    vent = (chamber_slot_count(p) * 2 * (math.pi / 2) * (p.VENT_D / 2)
+    vent = (chamber_slot_count(p) * p.CHAMBER_RING_COUNT
+            * (math.pi / 2) * (p.VENT_D / 2)
             * max(p.INNER_WALL, p.CHAMBER_RIB))
     eck_vent = 0.0
     if p.CORNER_CHAMBERS:
-        eck_vent = (8 * (math.pi / 2) * (p.VENT_D / 2)
+        eck_vent = (4 * p.CHAMBER_RING_COUNT * (math.pi / 2) * (p.VENT_D / 2)
                     * max(p.INNER_WALL, p.CHAMBER_RIB) * 2)
     # 7. Unterkragen-Schraubenlöcher: 8 horizontale Ø HOLE_D-
     #    Kanäle durch die Kragenwand (achsparallel, analog Zone 5); die
