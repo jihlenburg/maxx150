@@ -33,8 +33,9 @@ Stand: 17.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
   analytischen Gates (`scripts/toleranz_sweep.py`). Kernbefunde: `W_TOP` hat
   beim aktuellen Parameterstand nach unten null Toleranz (50,0 mm liegt exakt
   auf der 2-mm-Mindestbreite der Entwässerungsfase — Messwerte darunter
-  erfordern Nachparametrierung); die Lastpfad-Gates behalten im gesamten
-  Messtoleranzband ≥ 26 % Reserve; im Überlapp-Regime des Haubenfreigangs
+  erfordern Nachparametrierung); die knappste freigabewirksame Grenzfläche
+  (RK-1300-Stoß bzw. Doppelraupe) bleibt im gesamten Messtoleranzband bei
+  77 % Auslastung; im Überlapp-Regime des Haubenfreigangs
   wäre `EDGE_H` ≤ 53 mm gefordert (Schätzwert 55 mm) — B1 entscheidet das
   Regime, B2/B4 dann das Gate.
 

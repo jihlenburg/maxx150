@@ -127,7 +127,7 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
   Manifest ziehen (nicht hartkodieren); `de(x)` formatiert mit Dezimalkomma.
 - **Layout/Druck-CSS**: `build_pdf.py::CSS` — A4 mit 14-mm-Seitenrand,
   humanistische Avenir-Next-Typografie, Blau als Leitsystem, Gelb nur für
-  Warnungen und Rot nur für echte Freigabesperren. Die elf Seiten sind als
+  Warnungen und Rot nur für echte Freigabesperren. Die zwölf Seiten sind als
   stabile Orientierungseinheiten mit festen Seitenumbrüchen gebaut. Damit
   entstehen keine verwaisten Bilder, Tabellenfortsetzungen oder
   Hinweisboxen.

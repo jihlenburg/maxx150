@@ -77,10 +77,12 @@ Ergebnisse** — mit fünf Regeln:
 2. **Code fließt in eine Richtung.** `model` baut Geometrie, `fem`/`analysis`/
    `cfd` beweisen sie, `export`/`render`/`montage` erzeugen Artefakte,
    `pipeline` orchestriert das als Gate-Kette. Kein Modul greift rückwärts.
-3. **Versioniert wird Wissen, nicht Rechenergebnis.** `references/` und
-   `docs/` sind nicht regenerierbar und daher getrackt; `build/` ist
-   hash-segregierte Wegwerfware. Einzige Ausnahme: `release/current/` — genau
-   ein eingefrorener Stand, geschrieben ausschließlich von der Release-Stufe.
+3. **Versioniert wird Wissen, nicht Rechenergebnis.** `docs/` und der
+   Quellenbestand unter `references/` sind nicht regenerierbar und daher
+   getrackt; `build/` ist hash-segregierte Wegwerfware. Zwei getrackte Zonen
+   schreibt die Pipeline selbst: `release/current/` (genau ein eingefrorener
+   Stand, ausschließlich Release-Stufe) und `references/belluna/models/`
+   (Belluna-Rekonstruktion, references-Stufe).
 4. **Fremdes bleibt als Fremdes markiert.** Belluna-Modelle sind vermessene
    Rekonstruktionen; ihr Manifest pinnt sogar den SHA-256 der Quelldatei.
 5. **Doku kann nicht veralten.** `tests/test_documentation.py` erzwingt

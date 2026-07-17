@@ -127,12 +127,13 @@ sind dadurch weiterhin nicht abgebildet.
 Lastpfad-Indikatoren nach Modellfaktor:
 
 - Doppelraupe 33.313 mm²: 0,00191 MPa mittlere Schubspannung und
-  0,00840 MPa mittlere Zugspannung. Maßgebend bleiben die strengeren
+  0,00843 MPa mittlere Zugspannung. Maßgebend bleiben die strengeren
   0,050/0,030-MPa-Projektwerte unter der analytischen 480-N-Hülle.
 - Konservativ ein einzelner Segmentstoß unter der vollen Horizontallast:
   0,0509/5,625 MPa Schub und 0,926/11,25 MPa Lochleibung mit einem M5.
 - Ideale Verteilung der Auftriebslast auf acht Belluna-Schrauben: 35,1 N je
-  Schraube gegenüber 356 N rechnerischer ASA-Wand-Auszugreferenz.
+  Schraube gegenüber 178 N qualifizierter Kapazität (356-N-Auszugreferenz ×
+  Detailfaktor 0,5, s. [Lastpfade](load-paths.md)).
 - Die zwei 10-mm-Raupen sind der allein angerechnete Adapter-Dach-Primärpfad.
   Acht seitliche ST4.2×25 sind physisch vorhanden, bleiben mangels geprüfter
   Holz-/GFK-/Gewindetragfähigkeit jedoch unbewertete Reserve. Der vollständige
@@ -158,6 +159,7 @@ erforderlich:
 5. Sensitivität für Dachkantenabstand und vorgeschaltete Grenzschicht.
 6. Plausibilisierung gegen eine einfache Kraft- oder Druckmessung.
 
-Erst danach darf eine Lastkomponente automatisch an CalculiX übergeben
-werden. Bis dahin gilt komponentenweise mindestens die bestehende analytische
-Hülllast; CFD darf sie nur erhöhen, nicht reduzieren.
+Erst danach darf eine Lastkomponente freigabewirksam an CalculiX übergeben
+werden; die bestehende automatische Übergabe des open_front_medium-Falls
+bleibt bis dahin INFORMATIONAL_ONLY. Komponentenweise gilt mindestens die
+bestehende analytische Hülllast; CFD darf sie nur erhöhen, nicht reduzieren.

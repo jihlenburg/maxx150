@@ -6,22 +6,27 @@ Datum: __________  ·  Messmittel: Messschieber / Zollstock
 
 | Nr. | Maß | Default | Gemessen [mm] |
 |-----|-----|---------|----------------|
-| A1a | Flansch außen, Länge (Fahrtrichtung) | 593 | ______ |
+| A1a | Flansch außen, Länge (Fahrtrichtung) | 450 | ______ |
 | A1b | Flansch außen, Breite | 450 | ______ |
-| A1c | Flanschbreite Seite VORN (Kragen→Außenkante) | 50 | ______ |
-| A1d | Flanschbreite Seite HINTEN | 50 | ______ |
-| A1e | Flanschbreite Seite LINKS | 50 | ______ |
-| A1f | Flanschbreite Seite RECHTS | 50 | ______ |
+| A1c | Flanschbreite Seite VORN (Kragen→Außenkante) | 26,5 | ______ |
+| A1d | Flanschbreite Seite HINTEN | 26,5 | ______ |
+| A1e | Flanschbreite Seite LINKS | 26,5 | ______ |
+| A1f | Flanschbreite Seite RECHTS | 26,5 | ______ |
 | A2a | Ringklebenut: Abstand außen (Flanschkante→Rippenzone) | — | ______ |
 | A2b | Ringklebenut: Breite der Rippenzone | — | ______ |
 | A2c | Rippenhöhe (Tiefenmaß) | — | ______ |
-| A3a | Kragen Außenmaß (beide Richtungen) | ~399 | ____ / ____ |
+| A3a | Kragen Außenmaß (beide Richtungen) | 397 | ____ / ____ |
 | A3b | Kragenhöhe | — | ______ |
 | A3c | Kragenwandstärke | — | ______ |
 | A4a | Gusset-Überstand unter Kleberippen-Ebene | 3 | ______ |
 | A4b | Gusset-Reichweite radial ab Kragen | 18 | ______ |
 | A5a | Klips-Lochhöhe über Flansch-Unterkante | — | ______ |
 | A5b | Klips-Positionen je Seite (Abstände von Ecke) | — | ______ |
+
+Defaults der A-Tabelle aus der vermessenen Rekonstruktion
+(`reference_models/belluna.py`, 2026-07-14): Flansch 450 × 450 voll
+symmetrisch, Kragen 397 → Maßkette 397 + 2 × 26,5 = 450 muss schließen.
+Die 593 × 420 der Einbauanleitung gehören zur Haube, nicht zur Platte.
 
 ## B — Fahrzeug (ohne Demontage)
 

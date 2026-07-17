@@ -48,10 +48,14 @@ MESSFELDER: dict[str, tuple[float, str, str]] = {
     "EDGE_H": (2.0, "B2", "Gliedermassstab an der Dachkante"),
     "ROOF_T": (0.5, "B3", "Messschieber bei Demontage"),
     "HOOD_UNDERSIDE_H": (2.0, "B4", "schwer zugaenglich, Fuehlerlehre/Keil"),
-    "W_TOP_FRONT": (1.0, "A1c", "Gliedermassstab am Ausschnitt"),
-    "W_TOP_REAR": (1.0, "A1d", "Gliedermassstab am Ausschnitt"),
-    "W_TOP_LEFT": (1.0, "A1e", "Gliedermassstab am Ausschnitt"),
-    "W_TOP_RIGHT": (1.0, "A1f", "Gliedermassstab am Ausschnitt"),
+    # W_TOP_* ist eine KONSTRUKTIVE Wahl, kein Protokollfeld: A1c-f messen
+    # den Belluna-Plattenflansch (~26,5 mm) und werden bewusst nicht auf
+    # W_TOP gemappt (scripts/apply_measurements.py). Im Sweep steht W_TOP
+    # trotzdem, weil eine Nachparametrierung nach der Kampagne hier landet.
+    "W_TOP_FRONT": (1.0, "(konstruktiv)", "Deckflaechenbreite, kein Messfeld"),
+    "W_TOP_REAR": (1.0, "(konstruktiv)", "Deckflaechenbreite, kein Messfeld"),
+    "W_TOP_LEFT": (1.0, "(konstruktiv)", "Deckflaechenbreite, kein Messfeld"),
+    "W_TOP_RIGHT": (1.0, "(konstruktiv)", "Deckflaechenbreite, kein Messfeld"),
     "REC_GUSSET_D": (0.3, "A4a", "gemessen 2026-07-13, Messschieber"),
     "REC_GUSSET_W": (0.5, "A4b", "Messschieber"),
 }
@@ -89,25 +93,34 @@ def evaluate(p: PRM.Params) -> dict:
         "glue_PASS": glue_util < 1.0,
         "joint_PASS": joint["PASS"],
         "load_paths_PASS": paths["system_PASS"],
-        "max_utilization": round(_max_utilization(paths), 4),
+        "max_utilization": round(_max_utilization(paths, glue_util), 4),
         "all_gates_PASS": all(gates),
     }
 
 
-def _max_utilization(obj) -> float:
-    """Groesste ``utilization`` im (verschachtelten) assess-Ergebnis --
-    schemarobustes Einzelmass fuer die knappste Grenzflaeche."""
-    worst = 0.0
-    if isinstance(obj, dict):
-        for key, value in obj.items():
-            if key == "utilization" and isinstance(value, (int, float)):
-                worst = max(worst, float(value))
-            else:
-                worst = max(worst, _max_utilization(value))
-    elif isinstance(obj, (list, tuple)):
-        for value in obj:
-            worst = max(worst, _max_utilization(value))
-    return worst
+def _max_utilization(paths: dict, glue_util: float) -> float:
+    """Groesste Auslastung der FREIGABEWIRKSAMEN Nachweise.
+
+    Spiegelt exakt die system_PASS-Komposition von ``assess`` (je Lastfall
+    ``serial_load_path_PASS`` = Schraubgruppe + Doppelraupe + Sandwich, dazu
+    Segmentstoss und Thermik). Informative Alternativnachweise wie
+    ``elastic_ring_bond_only`` zaehlen bewusst NICHT (Audit 2026-07-17: eine
+    schluesselnamensbasierte Suche hatte 77 % als 74 % untertrieben). Wirft
+    bei Schema-Aenderung von ``assess`` einen KeyError statt still 0."""
+    werte = [glue_util]
+    for fall in paths["load_cases"].values():
+        werte.append(
+            fall["belluna_to_adapter"]["eight_side_screws_full_case"]
+            ["utilization"])
+        werte.append(
+            fall["adapter_to_roof"]["double_elastic_bead_primary"]
+            ["normalized_interaction"])
+        werte.append(
+            fall["wood_to_roof_sandwich"]["sikaforce_one_face_only"]
+            ["normalized_interaction"])
+    werte.append(paths["segment_joint"]["rk1300_utilization"])
+    werte.append(paths["segment_joint"]["m5_one_remaining_utilization"])
+    return max(float(w) for w in werte)
 
 
 def _variante(feld: str, wert: float) -> PRM.Params:
@@ -216,7 +229,7 @@ def _markdown(oat: dict, ecken: dict, regime: dict,
            if n["hood_clearance_mm"] is None
            else f"{n['hood_clearance_mm']} mm"),
         f"- Thermikfugen-Auslastung: {n['glue_utilization'] * 100:.0f} %",
-        f"- Knappste Lastpfad-Grenzflaeche: "
+        f"- Knappste freigabewirksame Grenzflaeche: "
         f"{n['max_utilization'] * 100:.0f} % Auslastung",
         "",
         "## Regime-Analyse Haubenfreigang (B1/B2/B4)",
@@ -254,8 +267,8 @@ def _markdown(oat: dict, ecken: dict, regime: dict,
         f"{ecken['ecken_validate_fail']} an der Parameter-Validierung "
         f"(Geometrie muesste nachparametriert werden), "
         f"{ecken['ecken_gate_fail']} an einem Last-/Freigang-Gate.",
-        f"- Hoechste Lastpfad-Auslastung unter den geometrisch gueltigen "
-        f"Ecken: {w['max_utilization'] * 100:.0f} %.",
+        f"- Hoechste freigabewirksame Auslastung unter den geometrisch "
+        f"gueltigen Ecken: {w['max_utilization'] * 100:.0f} %.",
     ]
     if ecken["ecken_fail"]:
         lines.append("- Erste Fail-Ecken (max. 10) stehen im JSON-Export "

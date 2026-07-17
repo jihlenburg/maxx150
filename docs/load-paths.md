@@ -15,8 +15,8 @@ Stand: 2026-07-16 · Parameterstand `8eb8b79f` · **PASS_ASSUMPTION_BASED**
 | Schnee/Druck | 0 % | 21 % | 0 % | 38 N (nicht qualifiziert) | 0 % | PASS |
 | CFD offen, mittel ×1,5 | 71 % | 32 % | 29 % | 54 N (nicht qualifiziert) | 12 % | PASS |
 
-Die obere Belluna-Verbindung bleibt hybrid: Kleber und acht Seitenschrauben
-werden nicht addiert; die Schraubengruppe trägt den vollständigen Fall mit
+Die obere Belluna-Verbindung bleibt hybrid: Kleber und die acht oberen
+Plattenschrauben werden nicht addiert; die Schraubengruppe trägt den vollständigen Fall mit
 Lastkonzentrationsfaktor 1,5. Unten müssen die beiden 10-mm-Raupen den
 vollständigen Fall allein bestehen. Die acht Holzschrauben werden weder zur
 Klebung addiert noch als PASS gewertet. Der Schubgrenzwert 0,050 MPa ist kein
@@ -88,8 +88,8 @@ Alternative.
   beseitigt die frühere künstliche Rundnoppen-Lagerkonzentration, bildet aber
   die reale Nachgiebigkeit des 3,6-mm-Klebstoffs und des GFK-Dachs noch nicht ab.
 - Die zwei unteren 10-mm-Elastikraupen sind der allein angerechnete
-  Adapter-Dach-Primärpfad. Die acht Seitenschrauben sind mangels Holz-/Dachtest
-  nur physische Reserve.
+  Adapter-Dach-Primärpfad. Die acht unteren Seitenschrauben sind mangels
+  Holz-/Dachtest nur physische Reserve.
 - Die acht oberen ST4.2×25 werden mit einem abgeminderten axialen Analogiewert
   auf den resultierenden Lastvektor geprüft.
 - Der einzelne M5 je Segmentstoß wird mit der vollen 480-N-Hülle geprüft;

@@ -24,7 +24,7 @@ ist Teil des reproduzierbaren Workflows.
 | Lochgröße (Dachausschnitt) | 400 × 400 mm, Eckenradius R5 |
 | Zulässige Einbauwandstärke | 27–80 mm |
 | Vierkantwellen (mitgeliefert) | 120 mm ↔ 27–47 mm · 140 mm ↔ 48–67 mm · 160 mm ↔ 68–80 mm |
-| Karosseriebefestigungsplatte | 593 × 420/450 mm, asymmetrischer Flansch (Überstand heckseitig) |
+| Karosseriebefestigungsplatte | 593 × 420/450 mm, asymmetrischer Flansch (Überstand heckseitig) — Achtung, eigene Vermessung weicht ab: Flansch 450 × 450 voll symmetrisch, Kragen 397 (`reference_models/belluna.py`); 593 × 420 entspricht der Haube |
 | Innenrahmen Lüfter | 445 × 445 mm |
 | Haubenhöhe über Dach | 127 mm (zu) / 182 mm (offen) |
 | Unterbau unter Dach | 31–47 mm |
@@ -77,14 +77,18 @@ Parametern und schreibt sie in die Montagenotiz.
    RAL 9017, 1,75 mm, Art.-Nr. 4954641200** aus lokaler FDM-Fertigung
    (Plan-of-Record 2026-07-15). 15 % Glasfaser; gehärtete Düse und geschlossener,
    temperierter Bauraum sind Projektpflicht. Drucklage ist Deckfläche nach unten;
-   47°-Kammerdächer, 47°-Entwässerungsfase und Ø4-Querkanäle sind supportfrei.
+   47°-Kammerdächer, 47°-Entwässerungsfase und Ø4-Querkanäle sind supportfrei
+   (47° zählen ab Horizontale = 43° Überhang aus der Senkrechten, konform zur
+   45°-DFM-Grenze in §7).
    Brim ≥10 mm und langsames Abkühlen bleiben Pflicht. Würth nennt Dichte
    1,1 g/cm³ und HDT/B 99 °C bei 0,45 MPa, aber keinen HDT-Wert bei 1,82 MPa.
    Die publizierten mechanischen Werte stammen ausdrücklich aus Halbzeug, nicht
    aus FDM-Probekörpern. Deshalb bleiben E=3000 MPa, Zug=45 MPa, CTE=60e-6 1/K
-   und Z-Faktor 0,5 konservative Projektannahmen. Da XY-/Z-Coupons aktuell
-   nicht realistisch verfügbar sind, werden diese Faktoren nicht hochgestuft
-   und der Status bleibt `PROTOTYPE_ONLY`. Pauschales Tempern ist nicht freigegeben.
+   und Z-Faktor 0,5 konservative Projektannahmen. Da typgeprüfte XY-/Z-Coupons
+   aktuell nicht realistisch verfügbar sind, werden diese Faktoren nicht
+   hochgestuft; das Ergebnis bleibt `PASS_ASSUMPTION_BASED` (den Status
+   `PROTOTYPE_ONLY` halten die offenen physischen Gates, s.
+   `docs/verification.md`). Pauschales Tempern ist nicht freigegeben.
    Der schwarze Rohling wird vor dem Dacheinbau zwingend weiß beschichtet:
    Mipa 1K-Plastic-Grundierfiller-Spray (Art.-Nr. 213390000) plus Mipa PUR HS
    2K-PUR-Acryl-Fahrzeuglack RAL 9003 Signalweiß glänzend und Mipa 2K-MS-Härter
@@ -159,7 +163,8 @@ Parametern und schreibt sie in die Montagenotiz.
   Zelle aus der Rippe verschoben.
 - **Außenwand:** geschlossen, unten gefast für die Elastikfugen-Kehlnaht zum Dach.
 - **Innenleben:** geschlossene Rippenkammern (zwei konzentrische Kammerringe je Seite,
-  Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden als 47°-Chevron
+  Zellenraster parametrisch, Wände/Platten voll dicht gedruckt). Kammerböden (in
+§3.5 aus der anderen Bezugslage „Kammerdächer" genannt) als 47°-Chevron
   (stützenfrei in Druckorientierung), horizontale Ø4-Druckausgleichsbohrungen je Zelle
   zur Innenseite. Stoß- und Schraubzonen bleiben
   massiv. Die zwei 17-mm-Ringe füllen das kompakte 50-mm-Band, ohne es als
@@ -195,9 +200,10 @@ prüft die Rotationsidentität über die symmetrische Differenz.
 Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit RK-1300 und M5 vollständig
 gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
 Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
-Differenzdehnung über die Kante; symmetrisch je Ende ergibt dies rund 38 %
-Auslastung des konservativ mit 3 mm angesetzten freien Dachabstands; die
-reale Raupenhöhe in den 0,6-mm-Führungen beträgt 3,6 mm.
+Differenzdehnung über die Kante; symmetrisch je Ende (0,57 mm) ergibt dies
+rund 38 % des zulässigen Scherbewegungsgrenzwerts (50 % der konservativ mit
+3 mm angesetzten Fugenhöhe = 1,5 mm); die reale Raupenhöhe in den
+0,6-mm-Führungen beträgt 3,6 mm.
 Die Lastaufnahme erfolgt ausschließlich durch die elastische Klebschicht.
 Die Pads sind Montageanschläge, kein dauerhafter rechnerischer Lastpfad.
 
@@ -263,10 +269,10 @@ statt fehlerhafte Artefakte zu exportieren.
 | # | Lastfall | Ansatz |
 |---|---|---|
 | LF1 | Fahrtwind | 200 km/h → q ≈ 1,85 kPa; Haube offen (zulässig lt. Anleitung), Worst Case MaxxFan Deluxe: A = 0,408 m × (0,236 + 0,028) m ≈ 0,108 m² (Maßblatt), cd ≈ 1,2 → ~240 N horizontal, ×2 Sicherheit = **480 N** am Hebelarm der Haubenhöhe (Kippmoment auf Deckfläche) |
-| LF2 | Schlechtweg | quasistatisch ±4 g vert. / ±2 g quer auf 6,5 kg → ±255 N / ±130 N |
+| LF2 | Schlechtweg | quasistatisch ±4 g vert. / ±2 g quer auf 6,5 kg → ±255 N / ±128 N |
 | LF3 | Klemmung/Montage | Vorspannung Innenrahmen-Verschraubung (aus 0,7 Nm Anzugsmoment lt. Anleitung ≈ 400–600 N je Schraube, konservativ 600 N × 4) + Anzug der Seitenschrauben; Schraubenauszug/Flächenpressung Innenwand. **Konservative Hüllkurve: real keine harte Klemmung (s. §3.6)** |
-| LF4 | Schnee/Stand | 0,75 kN/m² auf Grundfläche (~200 N) |
-| LF5 | Thermik | ΔT −20…+85 °C, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch) + Verformungscheck (FEM) |
+| LF4 | Schnee/Stand | 0,75 kN/m² auf 0,25 m² Grundfläche = 187,5 N, konservativ 200 N angesetzt |
+| LF5 | Thermik | Einsatzbereich −20…+85 °C; bemessungsrelevant ΔT 65 K ab 20 °C Klebetemperatur, CTE-Differenz ASA↔GFK; Nachweis Elastikfuge (analytisch, `fem/analytic.py`) |
 
 **Materialabminderung Würth ASA GF15:** Projektbasis 45 MPa / E 3000 MPa;
 keine Behauptung gedruckter Herstellerwerte, da Würth nur Halbzeugdaten nennt.
@@ -293,7 +299,8 @@ Auto-generierte Fertigungs-/Montagenotiz: Druckorientierung (liegend auf Deckfl�
 pauschales Tempern, Schraubenliste, exakte Kleb-/Dicht-/Lackprodukte und Dichtklebstoff-Bedarf (aus
 Raupenlänge/-querschnitt berechnet), berechnete Wellenwahl (140 mm bei 35+28).
 
-**DFM als Code-Invarianten:** Überhänge ≤ 45° (stützenfrei), Mindestwand 2,4 mm, Rippen 1,6 mm,
+**DFM als Code-Invarianten:** Überhänge ≤ 45° aus der Senkrechten (stützenfrei;
+die 47°-Chevronflächen zählen ab Horizontale = 43° Überhang und sind konform), Mindestwand 2,4 mm, Rippen 1,6 mm,
 Nut-Feder-Toleranz parametrisch.
 
 **Tests (headless in FreeCADCmd):**
@@ -335,13 +342,13 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Segmentierung | 1 rotationsidentisches L-Ecksegment ×4, Stoß in Seitenmitte | vier seitenspezifische Dateien (Logistik/Verwechslung) · Monolith (kein Bauraum) · 8 Teile (mehr Fugen) |
 | Erhöhung | 28 mm (Forum-Vorbild), als Parameter | am realen Haubenfreigang zu verifizieren |
 | Welle | 140 mm (aus 35+28 berechnet) | — Pipeline rechnet bei Parameteränderung neu |
-| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 2,5×20×3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; erst nach Primärhärtung eine zugängliche, nichttragende 7×7-mm-Schutzkehle außen; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung (540-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
+| Dach-Befestigung | Zwei 10-mm-Sikaflex-522-Raupen mit 406/454-mm-Hüllmaß vollständig über dem vollflächig eingeklebten Holzrahmen; 16 schmale 2,5×20×3-mm-Abstandspads außerhalb der Klebeflächen, 0,6-mm-Applikationsführungen (drei 0,2-mm-Layer) und 3,6-mm-Raupenhöhe; äußere Raupe geschlossen, innerer Mittelkanal gezielt zur trockenen Seite belüftet; erst nach Primärhärtung eine zugängliche, nichttragende 7×7-mm-Schutzkehle außen; acht seitliche, abgedichtete ST4.2×25 als nicht angerechnete Reserve | 68 Ø8-mm-Rundnoppen mit 5-mm-Raupenhöhe und Punktlasten · ursprüngliche 8-mm-Fuge (unzureichend) · 25-mm-Bond-only-Verbreiterung je Seite (550-mm-Außenmaß und höheres Teilegewicht) · Schrauben durch nasse Dachfläche |
 
 ## 10. Risiken und Gegenmaßnahmen
 
 | Risiko | Gegenmaßnahme |
 |---|---|
-| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; Klemmpfad läuft primär über Dach+Adapter-Druckflächen; FEM LF3 |
+| Kriechen unter Dauerklemmung bei Hitze | Dauerlast-Zulässigkeit 4,50 MPa; LF3-Hüllkurvenannahme: ein etwaiger Klemmpfad läuft über Dach+Adapter-Druckflächen (real keine harte Klemmkette, s. §3.6); FEM LF3 |
 | Schichthaftung (Z) versagt | Drucklage: Lasten in XY; permanenter Knockdown 0,5; kein pauschales Tempern |
 | Thermodehnung reißt Klebfuge | 16 Pads erzwingen 3 mm Dachabstand; in den flachen Führungen entstehen 3,6 mm Raupenhöhe. LF5 rechnet konservativ weiter mit 3 mm und erreicht 38 % des thermischen Scherbewegungsgrenzwerts. |
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |

@@ -2,7 +2,7 @@
 
 ## Rechnerische Gates
 
-Die Engineering-Stufe prüft vor jedem Export:
+Die rechnerische Gate-Kette prüft vor jeder Release-Paketierung:
 
 1. Parameterkonsistenz und geometrische Invarianten.
 2. Wasserdichte, valide B-Reps und vier rotationsidentische Segmente.
@@ -43,8 +43,8 @@ keine Freigabe.
 
 ## Aktuelle Ersatzstrategie für nicht verfügbare Werkstoffversuche
 
-Zerstörende Druck-, Klebe- und Sandwichcoupons stehen derzeit realistisch
-nicht zur Verfügung. Sie werden deshalb **nicht als angeblich bald
+Zerstörende, typgeprüfte Druck-, Klebe- und Sandwichcoupons auf
+Originalsubstraten stehen derzeit realistisch nicht zur Verfügung. Sie werden deshalb **nicht als angeblich bald
 schließbare Voraussetzung behandelt**. Für den Prototypenentscheid gilt
 stattdessen die reproduzierbare Abschätzung in [`load-paths.md`](load-paths.md):
 stark abgeminderte Grenzflächenwerte, nur eine angerechnete Holz/GFK-Fläche,
@@ -93,9 +93,10 @@ Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
   kontrollieren, FDM-Gewinde nicht überdrehen.
 
 Ohne Werkstoffversuche bleibt das Ergebnis ehrlich
-`PASS_ASSUMPTION_BASED` und der Projektstatus `PROTOTYPE_ONLY`; die Rechnung
-ist keine Zulassung. Das ist eine benannte Erkenntnisgrenze, kein verstecktes
-Versprechen späterer Prüfwerte.
+`PASS_ASSUMPTION_BASED`; den Status `PROTOTYPE_ONLY` halten die offenen
+physischen Gates (reale Maße, Einbaukontrollen), nicht die Coupons. Die
+Rechnung ist keine Zulassung. Das ist eine benannte Erkenntnisgrenze, kein
+verstecktes Versprechen späterer Prüfwerte.
 
 ## Günstige Validierungen ohne Gate-Charakter
 
@@ -108,10 +109,12 @@ Freigabe-Gates zu erzeugen (Reihenfolge nach Aufwand):
    E-Modul-skalierten FEM-Vorhersage vergleichen. Akzeptanz: Ort und Form der
    Maximalverformung stimmen überein, Betrag innerhalb Faktor 2.
 2. **Z-Zugstäbe aus dem realen Druckprozess**: gedruckte Z- und XY-Stäbe
-   (gleiches Profil und Tempern wie die Serienteile) bis zum Bruch belasten
+   (gleiches Druckprofil und gleiche Nachbehandlung wie die Serienteile —
+   derzeit ungetempert, s. `docs/design.md`) bis zum Bruch belasten
    (Hebel plus Gewichte genügt). Akzeptanz: Z/XY-Verhältnis ≥ dem angesetzten
    `DERATE_Z` 0,5 — bestätigt die Konservativität der Schätzung, die Würth
-   mangels FDM-Z-Werten offenlässt.
+   mangels FDM-Z-Werten offenlässt. Ersetzt keinen typgeprüften Coupon,
+   liefert aber Prozess-Istwerte.
 3. **Dachtemperatur-Logging**: IR-/Loggermessung der weiß lackierten
    Dachoberfläche an einem heißen Sommertag. Akzeptanz: Maximum ≤ `T_MAX`
    85 °C; darüber Eskalation (Werkstoff- und Lackentscheid neu bewerten).

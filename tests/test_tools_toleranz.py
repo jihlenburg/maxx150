@@ -45,6 +45,26 @@ def test_sweep_json_ist_vollstaendig_und_konsistent():
     # Nominalparameter muessen alle analytischen Gates bestehen -- sonst
     # waere der committete Parameterstand selbst nicht baubar.
     assert daten["oat"]["nominal"]["all_gates_PASS"] is True
+    # Die gemeldete Maximalauslastung muss die freigabewirksamen Nachweise
+    # unabhaengig nachgerechnet abdecken (Audit 2026-07-17: eine
+    # schluesselnamensbasierte Suche uebersah rk1300_utilization und
+    # normalized_interaction und untertrieb 77 % als 74 %).
+    from analysis import load_paths as LP
+    from fem import analytic as A
+    r = LP.assess(include_cfd=False)
+    erwartet = [A.glue_shear_utilization(PRM.P),
+                r["segment_joint"]["rk1300_utilization"],
+                r["segment_joint"]["m5_one_remaining_utilization"]]
+    for fall in r["load_cases"].values():
+        erwartet += [
+            fall["belluna_to_adapter"]["eight_side_screws_full_case"]
+            ["utilization"],
+            fall["adapter_to_roof"]["double_elastic_bead_primary"]
+            ["normalized_interaction"],
+            fall["wood_to_roof_sandwich"]["sikaforce_one_face_only"]
+            ["normalized_interaction"]]
+    assert abs(daten["oat"]["nominal"]["max_utilization"]
+               - max(erwartet)) < 0.001
     # Regime-Formeln direkt gegen params.py (robust gegen Wertaenderungen).
     p = PRM.P
     regime = daten["regime"]

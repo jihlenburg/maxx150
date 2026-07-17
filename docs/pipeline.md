@@ -31,7 +31,9 @@ params.py
 | `references` | Belluna-Rekonstruktion als STEP/STL | separates Provenienz-/Dateimanifest |
 | `release` | geprüfte Universaldatei + Report + Fit-Summary nach `release/current` | aktueller Quellcommit, Report-SHA256 und Fit-PASS |
 
-`python3 -m pipeline all` führt die Stufen in dieser Reihenfolge aus. Die
+`python3 -m pipeline all` führt die Stufen in dieser Reihenfolge aus;
+`connections` läuft dabei nicht als eigene Stufe, sondern wird von
+`engineering` und `cfd` mit aufgerufen. Die
 Heatmap berechnet die Lastfälle bewusst erneut, weil sie rohe Knotenspannungen
 benötigt; der Engineering-Report verwendet aggregierte Ergebnisgrößen.
 Die Release-Stufe akzeptiert keine Engineering-Dateien aus einem älteren
