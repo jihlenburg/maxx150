@@ -1,3 +1,4 @@
+"""Referenzkatalog: Vollständigkeit/Unveränderlichkeit und Abdeckung aller Produktklassen."""
 import hashlib
 import json
 from pathlib import Path

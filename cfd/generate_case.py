@@ -403,6 +403,13 @@ cache { grad(U); }
 
 
 def generate_case(case: CaseConfig = REFERENCE_CASE) -> Path:
+    """Legt einen vollständigen OpenFOAM-Fallordner (0/, constant/, system/) an.
+
+    Kopiert die zustandsabhängigen STL-Hüllen (belluna_<state>, adapter,
+    roof_edge) aus dem CFD-Geometrie-Build-Baum, schreibt block-/snappy-/
+    control-Dicts, Transport-/Turbulenz-Properties und Feldrandwerte sowie ein
+    Provenienz-Manifest (Geometrie- und Fall-Commit). Erwartet vorher gebaute
+    CFD-Geometrie; Rückgabe: Pfad des Fallordners."""
     digest = cfd_hash(case)
     root = cfd_dir(digest)
     geometry = root / "geometry"
@@ -466,6 +473,7 @@ RAS
 
 
 def main() -> None:
+    """Generiert den per Umgebung gewählten CFD-Fall (``selected_case``)."""
     generate_case(selected_case())
 
 

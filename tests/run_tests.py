@@ -12,6 +12,9 @@ sys.path.insert(0, str(ROOT))
 
 
 def main():
+    """Lädt alle ``tests/test_*.py`` (optional via TEST_FILTER auf Dateinamen
+    eingegrenzt), ruft jede ``test_*``-Funktion auf, zählt PASS/FAIL und
+    beendet mit Exit-Code 1, sobald mindestens ein Test fehlschlägt."""
     flt = os.environ.get("TEST_FILTER", "")
     passed, failed = 0, 0
     for tf in sorted((ROOT / "tests").glob("test_*.py")):

@@ -103,10 +103,16 @@ def write_ply(f, vertices, colors, facets):
 
 
 def voxel_index(pt, size=12.0):
+    """Ganzzahliger Voxel-Index (ix, iy, iz) des Punktes pt bei Rasterweite
+    size (mm) -- Schlüssel des räumlichen Nachschlagerasters."""
     return (int(pt[0] // size), int(pt[1] // size), int(pt[2] // size))
 
 
 def build_lookup(vm, coords):
+    """Sortiert alle Knoten mit bekannter von-Mises-Spannung in ein Voxelraster
+    ``{voxel_index -> [(Koordinate, vM), ...]}``. vm: {Knoten -> vM}, coords:
+    {Knoten -> (x, y, z)}. Beschleunigt die Nachbarschaftssuche in
+    ``nearest_vm``."""
     grid = {}
     for n, c in coords.items():
         if n in vm:
@@ -115,6 +121,9 @@ def build_lookup(vm, coords):
 
 
 def nearest_vm(grid, pt, size=12.0):
+    """von-Mises-Spannung des dem Punkt pt nächstgelegenen FEM-Knotens, gesucht
+    nur im eigenen und den 26 direkt benachbarten Voxeln des Lookups grid; 0.0,
+    falls dort kein Knoten liegt."""
     ix, iy, iz = voxel_index(pt, size)
     best, best_d = 0.0, 1e18
     for dx in (-1, 0, 1):

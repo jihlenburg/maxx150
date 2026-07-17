@@ -32,6 +32,9 @@ def parse_vector_line(line: str) -> dict | None:
 
 
 def read_vectors(path: Path) -> list[dict]:
+    """Liest alle auswertbaren v2606-Vektorzeilen einer OpenFOAM-force- bzw.
+    -moment-Datei (via ``parse_vector_line``); wirft, wenn keine Zeile
+    verwertbar ist."""
     rows = []
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         parsed = parse_vector_line(line)
@@ -43,6 +46,9 @@ def read_vectors(path: Path) -> list[dict]:
 
 
 def read_forces(force_path: Path, moment_path: Path) -> list[dict]:
+    """Fügt Kraft- und Momentzeitreihen über gemeinsame Zeitstempel zu
+    ``{time, force_N, moment_Nm}``-Zeilen zusammen; wirft, wenn es keine
+    gemeinsamen Zeiten gibt."""
     forces = read_vectors(force_path)
     moments = read_vectors(moment_path)
     moment_by_time = {row["time"]: row for row in moments}
@@ -122,6 +128,16 @@ def _mesh_metrics(log_path: Path) -> dict:
 
 
 def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
+    """Wertet einen gerechneten OpenFOAM-Fall aus und schreibt result.json +
+    report.md in ``case_dir``.
+
+    Liest Kräfte/Momente beider Körper (Belluna-Haube + Adapter), summiert sie
+    auf den gemeinsamen Momentbezug Adapterbasis (0,0,0), mittelt über ein
+    Endfenster der Iterationen (5..50 Samples) und leitet Widerstand/Seiten-
+    kraft/Auftrieb im Gierwinkel-System des Falls sowie Netzkennwerte aus
+    log.checkMesh ab. Status PRELIMINARY_CFD / INFORMATIONAL_ONLY -- die
+    bestehende 480-N-Hülllast bleibt maßgebend. Rückgabe: result-Dict
+    (Schema 2)."""
     body_rows = {}
     for body in ("Belluna", "Adapter"):
         root = case_dir / "postProcessing" / f"forces{body}"
@@ -152,7 +168,7 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
     lift = force[2]
     drag_cov = pstdev(drags) / max(abs(drag), 1e-12)
     result = {
-        "schema": 1,
+        "schema": 2,
         "status": "PRELIMINARY_CFD",
         "structural_use": "INFORMATIONAL_ONLY",
         "case": case.name,
@@ -186,7 +202,6 @@ def summarize(case_dir: Path, case: CaseConfig = REFERENCE_CASE) -> dict:
             "not yet mesh-converged or experimentally correlated",
         ],
     }
-    result["schema"] = 2
     try:
         result["postprocess_source_commit"] = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True

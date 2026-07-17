@@ -1,3 +1,4 @@
+"""Geometrie-Bausteine (model.features): rounded_box, ring, hex_prism, rect_path_points."""
 import math
 
 from model import features as F

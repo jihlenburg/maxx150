@@ -59,6 +59,44 @@ Candidate werden versioniert.
 | `references/` | Datenblätter, Belluna-Unterlagen und Referenzmodelle |
 | `release/current/` | aktueller, manifestierter STL-/STEP-Stand |
 | `docs/` | aktuelle Doku; historische Arbeitspläne nur unter `docs/archive/` |
+| `tests/` | Suite inklusive Geometrie-, FEM-, Referenz- und Doku-Wächtern |
+| `scripts/` | Bedienhelfer (Messwertübernahme nach `params.py`) |
+| `bin/` | `fc`-Wrapper für headless FreeCAD |
+| `project_paths.py` | zentrale Build-/Artefaktpfade für alle Stufen |
+| `messwerte.json` | reale Messwerte (Eingabe für `scripts/apply_measurements.py`; kann uncommittete Nutzerdaten enthalten) |
+| `messwerte.beispiel.json` | dokumentierte Feldvorlage des Messprotokolls |
+
+### Ordnungsprinzipien
+
+Die Struktur folgt vier Schichten — **Eingaben → Verwandlung → Wissen →
+Ergebnisse** — mit fünf Regeln:
+
+1. **Eine Quelle, ein Hash.** Alles beginnt bei `params.py`; der achtstellige
+   Parameter-Hash steckt im Namen jedes Artefakts. Ein Artefakt ohne
+   zugehörigen Report gilt als nicht nachvollziehbar.
+2. **Code fließt in eine Richtung.** `model` baut Geometrie, `fem`/`analysis`/
+   `cfd` beweisen sie, `export`/`render`/`montage` erzeugen Artefakte,
+   `pipeline` orchestriert das als Gate-Kette. Kein Modul greift rückwärts.
+3. **Versioniert wird Wissen, nicht Rechenergebnis.** `references/` und
+   `docs/` sind nicht regenerierbar und daher getrackt; `build/` ist
+   hash-segregierte Wegwerfware. Einzige Ausnahme: `release/current/` — genau
+   ein eingefrorener Stand, geschrieben ausschließlich von der Release-Stufe.
+4. **Fremdes bleibt als Fremdes markiert.** Belluna-Modelle sind vermessene
+   Rekonstruktionen; ihr Manifest pinnt sogar den SHA-256 der Quelldatei.
+5. **Doku kann nicht veralten.** `tests/test_documentation.py` erzwingt
+   intakte Links, aktuelle Einstiegspunkte und den aktuellen Parameterstand
+   in README und Projektstatus.
+
+Einsortierregel für neue Dateien: „Ist es Eingabe, Code, Wissen oder
+Ergebnis?" beantwortet fast immer allein, wohin sie gehört.
+
+## Offene Punkte und Historie
+
+- Offene Arbeitspunkte: [`docs/project-status.md`](docs/project-status.md)
+  (testgesichert aktuell; `TODO.md` in der Wurzel ist ein Symlink darauf).
+- Projekthistorie: [`docs/archive/logbook.md`](docs/archive/logbook.md)
+  sowie die SDD-Ledger unter `docs/archive/` (nicht normativ; `LOGBOOK.md`
+  in der Wurzel ist ein Symlink darauf).
 
 ## Dokumentation
 

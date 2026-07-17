@@ -39,6 +39,10 @@ def _axis(value: float, axis: tuple[float, float, float]) -> Vector:
 
 def _load_case(force: list[float], moment: list[float]) -> Case:
     def loads(shape, p):
+        """ConstraintForce-Einträge des offenen CFD-Falls: die CFD-Kraft-
+        komponenten auf der Deckfläche plus My als vertikales Kräftepaar über
+        die Front-/Heck-Außenwände (Mx/Mz werden hier bewusst nicht
+        eingeleitet)."""
         out = []
         axes = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
         deck = top_faces(shape, p)
@@ -68,6 +72,14 @@ def _load_case(force: list[float], moment: list[float]) -> Case:
 
 
 def main() -> dict:
+    """Nicht freigabewirksamer FEM-Check der offenen CFD-Mittelnetzlast.
+
+    Liest die ausgewertete CFD-Fallmatrix, rechnet den kombinierten offenen
+    Lastfall (CFD-Deckkräfte + My als Kräftepaar über Front-/Heck-Außenwand)
+    auf dem Produktionsnetz und ergänzt einfache Lastpfad-Indikatoren
+    (Raupenschub/-zug, Segmentstoß, Belluna-Schraubenanteil). Schreibt
+    structural_check.json + .md; lässt LF1--LF4 unverändert. Rückgabe:
+    Ergebnis-Dict."""
     matrix_dir = cfd_matrix_dir(comparison_hash())
     comparison_path = matrix_dir / "comparison.json"
     if not comparison_path.exists():

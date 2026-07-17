@@ -2,7 +2,7 @@
   "schema": 2,
   "description": "Vermessene Rekonstruktion; kein Belluna-Hersteller-CAD",
   "source": "reference_models/belluna.py",
-  "source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
+  "source_sha256": "2e48c5d47514e5093e48143af62b238587faf58286c10ca7b573b2a0f676fa41",
   "provenance": {
     "classification": "MEASURED_RECONSTRUCTION",
     "manufacturer_cad": false,

@@ -1,3 +1,4 @@
+"""Analytische Nachweise: Haubenfreigang, Fugen-/Stoßlast, Klebfugenschub, Schraubenauszug."""
 import params as PRM
 from fem import analytic as A
 

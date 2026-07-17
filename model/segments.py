@@ -77,6 +77,14 @@ def _one_segment(frame, p, k):
 
 
 def build_segments(p: PRM.Params = PRM.P):
+    """Zerlegt den Monolithen in vier rotationsidentische L-Ecksegmente.
+
+    Zieht zuerst die Stoß-Bohrungen/-Senkungen/-Muttertaschen (``_bolt_cuts``)
+    vom ungeteilten Rahmen ab -- so erhalten beide Stoßpartner automatisch
+    deckungsgleiche Halbfeatures -- und schneidet dann je Quadrant k das
+    Halbüberlappungs-Segment heraus (``_one_segment``). Rückgabe: Liste der
+    vier ``Part.Shape`` in Quadrantenreihenfolge (k=0: +x/+y, dann gegen den
+    Uhrzeigersinn). Nur N_SEGMENTS=4 wird unterstützt."""
     if p.N_SEGMENTS != 4:
         raise ValueError("nur N_SEGMENTS=4 (Quadranten) unterstützt")
     frame = build_frame(p)

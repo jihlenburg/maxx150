@@ -1,3 +1,4 @@
+"""Stoß-Submodell (fem.joint_check): der Halbüberlappungsstoß trägt die Windlast."""
 import params as PRM
 from fem.joint_check import run_joint_submodel
 

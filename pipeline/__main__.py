@@ -1,3 +1,4 @@
+"""Modul-Einstiegspunkt: ``python3 -m pipeline`` ruft ``pipeline.cli.main``."""
 from pipeline.cli import main
 
 

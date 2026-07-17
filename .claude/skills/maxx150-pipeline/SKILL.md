@@ -11,8 +11,8 @@ Vor Änderungen `README.md`, `docs/pipeline.md` und bei Freigabefragen
 ## Einstieg
 
 Alle normalen Abläufe über `python3 -m pipeline <stage>` ausführen. Verfügbare
-Stufen: `doctor`, `test`, `engineering`, `fit`, `render`, `heatmap`, `manual`,
-`references`, `release`, `all`.
+Stufen: `doctor`, `test`, `engineering`, `connections`, `fit`, `cfd`,
+`render`, `heatmap`, `manual`, `references`, `release`, `all`.
 
 ## Invarianten
 
@@ -29,6 +29,20 @@ Stufen: `doctor`, `test`, `engineering`, `fit`, `render`, `heatmap`, `manual`,
 für fachliche Parameter verwenden; Umgebungsvariablen oder Manifestdateien
 nutzen. stdout explizit flushen. `FemMesh.Nodes` nur einmal lesen und
 `SecondOrderLinear=True` nicht entfernen.
+
+Fehlermeldungs-Falle: `Exception while processing file: <skript> [<text>]`
+heißt, `<text>` ist die Exception AUS dem laufenden Skript — ein
+`[File does not exist]` zeigt fast immer auf einen falschen Dateipfad IM
+Skript, nicht auf ein fehlendes Skript (Fehldiagnose 2026-07-16 kostete eine
+komplette Debugging-Schleife samt Watcher-Verdacht; erst der Minimaltest
+`print("DA")` isolierte die Ursache).
+
+## Konventionen als Wächter
+
+Jede Konvention, die dauerhaft halten soll, bekommt einen Test statt eines
+Doku-Appells (Vorbilder: Doku-Hash-Wächter in `tests/test_documentation.py`,
+Provenienz-Pin des Belluna-Quellcodes, Referenzkatalog-Vollständigkeit).
+Regeln ohne Wächter gelten als unverbindlich.
 
 ## Tests und Git
 

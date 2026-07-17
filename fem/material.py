@@ -5,6 +5,10 @@ import params as PRM
 
 
 def fem_material_dict(p: PRM.Params = PRM.P) -> dict:
+    """CalculiX-Materialkarte für den homogenisierten ASA-Druckkörper:
+    E-Modul mit INFILL_FACTOR abgemindert (MPa), Querkontraktion NU und Dichte
+    RHO (kg/m^3). Enthält bewusst keine Festigkeit -- die wird gegen
+    ``params.allowables()`` bewertet."""
     return {
         "Name": "ASA-homogenisiert",
         "YoungsModulus": f"{p.E_BASE * p.INFILL_FACTOR} MPa",

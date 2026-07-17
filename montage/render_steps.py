@@ -2,7 +2,7 @@
 
 Zweck
 -----
-Rendert die 14 illustrierten Schrittbilder nach
+Rendert die 15 illustrierten Schrittbilder nach
 ``build/documentation/<hash>/img/``. Alle Geometrien kommen als STL aus
 ``montage/build_stls.py`` (FreeCAD-Seite); alle Koordinaten (Markerachsen,
 Explosions-Offsets, Filtergrenzen) werden aus dem benachbarten Manifest
@@ -187,6 +187,8 @@ def _flat(obj):
 
 
 def load_part(name, mat):
+    """Importiert eine einzelne STL (name.stl) als flach gerendertes Objekt mit
+    dem Material mat."""
     o = _stl_import(_stl_path(f"{name}.stl"))
     o.name = name
     o.data.materials.append(mat)
@@ -195,6 +197,9 @@ def load_part(name, mat):
 
 
 def load_seg(k, alpha=1.0, tint=None):
+    """Importiert Segment k (seg{k}.stl), färbt es (tint oder SEG_TINT[k],
+    optional transparent über alpha) und hängt es in die Freestyle-
+    Kantencollection ein."""
     o = _stl_import(_stl_path(f"seg{k}.stl"))
     o.name = f"seg{k}"
     rgb = tint if tint is not None else SEG_TINT[k]
@@ -205,6 +210,8 @@ def load_seg(k, alpha=1.0, tint=None):
 
 
 def load_segments(alpha=1.0):
+    """Importiert alle vier Segmente (optional transparent über alpha) als
+    Liste."""
     return [load_seg(k, alpha=alpha) for k in range(4)]
 
 
@@ -376,6 +383,8 @@ def groove_faces(c, n):
 # Bilder
 # ==========================================================================
 def img01_titel_explosion():
+    """Bild 01 (Titel): Explosionsansicht der vier Segmente mit aufgesetzter
+    Belluna-Platte, Clips und Dichtring."""
     scene = _new_scene()
     segs = load_segments()
     for o in segs:
@@ -395,6 +404,8 @@ def img01_titel_explosion():
 
 
 def img02_teile_uebersicht():
+    """Bild 02: Teileübersicht -- ein Segment neben Belluna-Platte, Clips und
+    Dichtring im Lieferzustand."""
     scene = _new_scene()
     seg = load_seg(0)
     seg.location = (-330, -120, 0)
@@ -412,6 +423,8 @@ def img02_teile_uebersicht():
 
 
 def img03_fuegeflaechen():
+    """Bild 03: Fügeflächen der unteren Lappe (Stoß A) an Segment 0, grün
+    hervorgehoben."""
     scene = _new_scene()
     seg = load_seg(0)
     highlight(seg, COL_GREEN, lapA_faces, emission=1.0)
@@ -421,6 +434,8 @@ def img03_fuegeflaechen():
 
 
 def img04_kleber_aktivator():
+    """Bild 04: Kleber-/Aktivatorschritt -- die beiden Überlappungsschultern
+    des +y-Band-Stoßes (Stoß B), obere Hälfte grün, untere blau markiert."""
     # Beide Fuegeflaechen (Ueberlappungsschulter) des geteilten +y-Band-Stosses
     # liegen bei x in [0, LAP_L], z=lap_h: seg0 haelt die obere (Schulter nach
     # -z), seg1 die untere Lappe (Schulter nach +z). Zwei nach oben/unten
@@ -444,6 +459,8 @@ def img04_kleber_aktivator():
 
 
 def img05_m5_montage():
+    """Bild 05: M5-Verschraubung des Stoßes von oben, zwei Schraubachsen als
+    Marker."""
     scene = _new_scene()
     load_segments()
     for m in MK["m5"][:2]:
@@ -454,6 +471,8 @@ def img05_m5_montage():
 
 
 def img06_m5_mutter():
+    """Bild 06: dieselbe M5-Verbindung von unten (Muttertaschen), Schraubachsen
+    als Marker."""
     scene = _new_scene()
     load_segments()
     for m in MK["m5"][:2]:
@@ -464,6 +483,7 @@ def img06_m5_mutter():
 
 
 def img07_rahmen_komplett():
+    """Bild 07: kompletter verschraubter Rahmen mit allen M5-Stoßmarkern."""
     scene = _new_scene()
     load_segments()
     for m in MK["m5"]:
@@ -474,6 +494,8 @@ def img07_rahmen_komplett():
 
 
 def img08_maskierung_lack():
+    """Bild 08: Lackmaskierung -- Kleberführungs- und Abstandspad-Auflageflächen
+    gelb markiert (Schrägansicht von unten)."""
     scene = _new_scene()
     segs = load_segments()
     for o in segs:
@@ -487,6 +509,8 @@ def img08_maskierung_lack():
 
 
 def img09_dach_holzrahmen():
+    """Bild 09: Halbschnitt des Dachaufbaus (Deckhaut, XPS-Kern, Holzrahmen) an
+    der Schnittebene y=0."""
     # Halbschnitt (y>0 entfernt): Schnittflaeche bei y=0 zeigt nach +y -> Kamera
     # und Zusatzlicht auf die +y-Seite, sonst bleibt der Schnitt unbeleuchtet.
     scene = _new_scene()
@@ -500,6 +524,8 @@ def img09_dach_holzrahmen():
 
 
 def img10_aufsetzen():
+    """Bild 10: Rahmen 60 mm über dem Dach schwebend vor dem Aufsetzen, der nach
+    unten tauchende Unterkragen bleibt sichtbar."""
     # Rahmen schwebt 60 mm ueber dem Dach; Blick schraeg unten-vorne (Kamera
     # unter der angehobenen Rahmenunterseite, aber ueber der Dachoberkante),
     # damit der nach unten tauchende Unterkragen sichtbar bleibt.
@@ -516,6 +542,8 @@ def img10_aufsetzen():
 
 
 def img11_hybrid_dachinterface():
+    """Bild 11: transparenter Adapter über dem Dach, alle acht radialen
+    Dachschraubachsen als Marker (Hybrid-Dachschnittstelle)."""
     scene = _new_scene()
     # Transparenter Adapter als technische Durchsicht: So bleiben alle acht
     # radialen Schraubachsen erkennbar, auch wenn sie geometrisch im Kragen
@@ -535,6 +563,8 @@ def img11_hybrid_dachinterface():
 
 
 def img12_kleberaupe():
+    """Bild 12: Böden der zwei unteren Kleberführungen grün markiert
+    (Unteransicht)."""
     scene = _new_scene()
     segs = load_segments()
     for o in segs:
@@ -545,6 +575,8 @@ def img12_kleberaupe():
 
 
 def img13_aussenkehle():
+    """Bild 13: äußere Sikaflex-Schutzkehle als grüner Rundquadrat-Marker in der
+    Außenfase über dem Dachspalt."""
     scene = _new_scene()
     load_segments()
     load_part("dach", _mat("dach", COL_DACH, rough=0.72))
@@ -564,6 +596,8 @@ def img13_aussenkehle():
 
 
 def img14_platte_schrauben():
+    """Bild 14: transparente Belluna-Platte mit acht Plattenschraubachsen als
+    Marker, Clips deckend silbern."""
     scene = _new_scene()
     load_segments()
     load_part("platte", _mat("platte", COL_PLATTE, rough=0.5, alpha=0.30))
@@ -578,6 +612,8 @@ def img14_platte_schrauben():
 
 
 def img15_fertig():
+    """Bild 15: fertige Baugruppe mit deckender Belluna-Platte, Clips und
+    Dichtring."""
     scene = _new_scene()
     load_segments()
     load_part("platte", _mat("platte", COL_PLATTE, rough=0.5))

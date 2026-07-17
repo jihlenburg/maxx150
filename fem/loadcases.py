@@ -86,18 +86,29 @@ def couple_force(shape, p) -> float:
 
 @dataclass(frozen=True)
 class Case:
+    """Ein FEM-Lastfall (LF1--LF4).
+
+    ``kind`` "kurz"/"lang" wählt die Kurzzeit- bzw. Dauerzulässigkeit;
+    ``fixed`` liefert die zu fixierenden Flächennamen, ``load_fn`` die
+    ConstraintForce-Einträge (Flächennamen, Richtung, Betrag_N)."""
+
     name: str
     kind: str                      # "kurz" oder "lang"
     fixed: Callable
     load_fn: Callable
 
     def fixed_faces(self, shape, p):
+        """Fixierte Flächennamen dieses Lastfalls für die Geometrie shape."""
         return self.fixed(shape, p)
 
     def loads(self, shape, p):
+        """ConstraintForce-Einträge ``(Flächennamen, Richtung, Betrag_N)``
+        dieses Lastfalls für die Geometrie shape."""
         return self.load_fn(shape, p)
 
     def allowable(self, p) -> float:
+        """Zulässige von-Mises-Spannung (MPa): Dauerwert bei kind 'lang', sonst
+        der Kurzzeitwert."""
         lang, kurz = PRM.allowables(p)
         return lang if self.kind == "lang" else kurz
 

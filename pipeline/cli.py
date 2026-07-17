@@ -15,10 +15,8 @@ from pathlib import Path
 
 import params as PRM
 from pipeline.checks import validate_manual
-from project_paths import BUILD_ROOT, ROOT, heatmap_dir, manual_dir, render_dir
-
-
-CHROME = Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
+from project_paths import (CHROME, BUILD_ROOT, ROOT, heatmap_dir, manual_dir,
+                           render_dir)
 
 
 def _env() -> dict[str, str]:
@@ -53,6 +51,9 @@ def _blender(script: str, *args: Path | str, label: str) -> None:
 
 
 def stage_doctor() -> None:
+    """Stufe 'doctor': prüft, ob alle externen Werkzeuge (FreeCAD, Blender,
+    Chrome, pdfinfo, OpenFOAM) vorhanden sind, und meldet Projekt-/Build-Pfad
+    und Parameterstand; wirft bei fehlenden Werkzeugen."""
     blender = os.environ.get("BLENDER_BIN") or shutil.which("blender")
     required = {
         "FreeCAD": ROOT / "bin" / "fc",
@@ -76,20 +77,27 @@ def stage_doctor() -> None:
 
 
 def stage_test() -> None:
+    """Stufe 'test': volle Testsuite und Toolchain-Smokes unter freecadcmd."""
     _freecad("tests/run_tests.py", "Tests und Toolchain-Smokes")
 
 
 def stage_engineering() -> None:
+    """Stufe 'engineering': Konstruktion, DFM, FEM, Analytik und Export
+    (FreeCAD), anschließend die Lastpfadabschätzung (``stage_connections``)."""
     _freecad("pipeline/engineering.py", "Konstruktion, DFM, FEM, Analytik und Export")
     stage_connections()
 
 
 def stage_connections() -> None:
+    """Stufe 'connections': Klebe-, Schraub- und Dachlastpfad-Abschätzung
+    (``analysis.load_paths``, reines Python ohne FreeCAD)."""
     _run([sys.executable, "-m", "analysis.load_paths"],
          label="Klebe-, Schraub- und Dachlastpfade")
 
 
 def stage_render() -> None:
+    """Stufe 'render': Rendergeometrien (FreeCAD) und Konstruktionsrenderings
+    (Blender); MAXX150_RENDER_VIEWS grenzt optional die Ansichten ein."""
     h = PRM.params_hash(PRM.P)
     target = render_dir(h)
     _freecad("render/make_views_stl.py", "Rendergeometrien")
@@ -101,6 +109,8 @@ def stage_render() -> None:
 
 
 def stage_heatmap() -> None:
+    """Stufe 'heatmap': FEM-Heatmaps je Lastfall (FreeCAD) und deren
+    Renderings (Blender)."""
     h = PRM.params_hash(PRM.P)
     target = heatmap_dir(h)
     _freecad("pipeline/heatmap_stage.py", "FEM-Heatmaps")
@@ -108,10 +118,15 @@ def stage_heatmap() -> None:
 
 
 def stage_fit() -> None:
+    """Stufe 'fit': digitaler Belluna-Passungscheck (FreeCAD)."""
     _freecad("pipeline/fit_stage.py", "Digitaler Belluna-Passungscheck")
 
 
 def stage_cfd() -> None:
+    """Stufe 'cfd': je CFD-Fall Hüllgeometrie bauen (FreeCAD), OpenFOAM-Fall
+    erzeugen und rechnen, dann Fallmatrix/Netzsensitivität vergleichen und den
+    nicht-freigabewirksamen CFD->CalculiX-Strukturcheck; schließt mit
+    ``stage_connections``."""
     from cfd.config import CASE_ORDER
 
     for case_name in CASE_ORDER:
@@ -139,6 +154,9 @@ def stage_cfd() -> None:
 
 
 def stage_manual() -> None:
+    """Stufe 'manual': Montagegeometrien (FreeCAD), Schrittrenderings (Blender)
+    und Montage-PDF, abschließend per ``validate_manual`` auf Vollständigkeit
+    geprüft."""
     h = PRM.params_hash(PRM.P)
     target = manual_dir(h)
     stl_dir = target / "stl"
@@ -151,10 +169,13 @@ def stage_manual() -> None:
 
 
 def stage_references() -> None:
+    """Stufe 'references': exportiert die Belluna-Referenzmodelle (FreeCAD)."""
     _freecad("reference_models/export_belluna.py", "Belluna-Referenzmodelle")
 
 
 def stage_release() -> None:
+    """Stufe 'release': paketiert den verifizierten Stand als Release Candidate
+    (``pipeline.release``)."""
     _run([sys.executable, "-m", "pipeline.release"], label="Release Candidate paketieren")
 
 
@@ -174,6 +195,10 @@ STAGES = {
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI-Einstieg: validiert die Parameter und führt die gewählte Stufe aus;
+    'all' läuft die Stufen doctor, test, engineering, fit, cfd, render,
+    heatmap, manual, references, release der Reihe nach. Rückgabe: Exit-Code
+    0."""
     parser = argparse.ArgumentParser(description="maxx150-Projektpipeline")
     parser.add_argument("stage", choices=[*STAGES, "all"],
                         help="auszuführende Pipeline-Stufe")

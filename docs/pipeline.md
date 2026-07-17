@@ -55,8 +55,9 @@ build/
 ```
 
 `MAXX150_BUILD_ROOT` kann für CI oder isolierte Versuche gesetzt werden. Der
-alte lokale Ordner `out/` ist nur noch eine ignorierte historische Ablage und
-wird von keiner aktuellen Pipeline-Stufe gelesen.
+frühere Ausgabeordner `out/` aus der Zeit vor der Konsolidierung wurde bei der
+Repo-Aufräumung entfernt; der `.gitignore`-Eintrag bleibt als Schutz bestehen,
+keine aktuelle Pipeline-Stufe liest oder schreibt ihn.
 
 ## Werkzeugversionen
 
@@ -64,6 +65,15 @@ Der aktuell geprüfte lokale Stack ist FreeCAD 1.1.1, Blender 5.1, OpenFOAM
 v2606 und Google Chrome Headless. `bin/fc` akzeptiert über `FREECAD_BUNDLE`
 eine alternative FreeCAD-App. `BLENDER_BIN` überschreibt den Blender-Pfad.
 Die CFD-Stufe verwendet den `openfoam`-Wrapper aus `PATH`.
+
+Die Release-Stufe erfasst die tatsächlich vorgefundenen Versionen
+maschinenlesbar im `toolchain`-Block von `release/current/manifest.json`
+(Manifest-Schema 3) und verweigert die Paketierung, wenn getrackte
+Quelldateien uncommittete Änderungen tragen — sonst würde `source_commit`
+einen Stand behaupten, dem der Code nicht entspricht. Nicht als Blocker
+zählen untracked Dateien sowie die Pfade, die die Pipeline selbst schreibt
+(`release/current/`, `references/belluna/models/`), und `messwerte.json`
+(Nutzer-Messdaten, die kein Build liest).
 
 ## Messwertübernahme
 

@@ -114,6 +114,8 @@ def _load_assembly():
 
 
 def view_iso(tag, cam_loc, target_loc):
+    """Isometrische Ansicht der 4-Segment-Baugruppe aus Kameraposition cam_loc
+    mit Blick auf target_loc; schreibt v_<tag>.png."""
     scene = _new_scene()
     _load_assembly()
     cam, target = _rig(scene)
@@ -123,6 +125,8 @@ def view_iso(tag, cam_loc, target_loc):
 
 
 def view_explosion():
+    """Explosionsansicht: schiebt die vier Segmente radial nach aussen und
+    rendert nach v_explosion.png."""
     scene = _new_scene()
     segs = _load_assembly()
     cam, target = _rig(scene)
@@ -138,6 +142,8 @@ def view_explosion():
 
 
 def view_einzelteil():
+    """Einzelteilansicht: nur Segment 0 sichtbar (die uebrigen ausgeblendet),
+    Nahaufnahme nach v_einzelteil.png."""
     scene = _new_scene()
     segs = _load_assembly()
     cam, target = _rig(scene)
@@ -152,6 +158,8 @@ def view_einzelteil():
 
 
 def view_schnitt():
+    """Vertikalschnitt-Ansicht des Rahmens (frame_xcut.stl); die Schnittflaeche
+    bei x=XCUT wird orange eingefaerbt hervorgehoben, Ausgabe v_schnitt.png."""
     scene = _new_scene()
     o = _stl_import(os.path.join(STL_DIR, "frame_xcut.stl"))
     o.data.materials.append(_make_mat("asa", (0.85, 0.85, 0.85)))

@@ -1,3 +1,4 @@
+"""Adapterrahmen: Gültigkeit/Dichtheit, Hauptmaße, 400-mm-Öffnung, Volumen, Vent-Abstände."""
 import params as PRM
 from model.frame import build_frame, top_z
 

@@ -168,5 +168,8 @@ def run_case(shape, case, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
 
 
 def run_all_cases(shape, p: PRM.Params = PRM.P, mesh_mm: float = None) -> dict:
+    """Rechnet alle vier Standard-Lastfälle LF1--LF4 (fem.loadcases.CASES) auf
+    shape und gibt ``{Lastfallname -> run_case-Ergebnisdict}`` zurück.
+    mesh_mm=None übernimmt die Default-Netzweite von ``run_case``."""
     from fem.loadcases import CASES
     return {name: run_case(shape, c, p, mesh_mm) for name, c in CASES.items()}

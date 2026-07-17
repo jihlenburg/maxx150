@@ -1,3 +1,4 @@
+"""Belluna-Referenz: Provenienz, Gültigkeit, digitaler Passungscheck, Dateimanifest."""
 import hashlib
 import json
 from pathlib import Path

@@ -1,3 +1,4 @@
+"""Segmentierung: vier valide Segmente, Druckservice-BBox, Vereinigung, Überschneidungsfreiheit."""
 import params as PRM
 from FreeCAD import Vector
 from model.frame import build_frame

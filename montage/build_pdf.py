@@ -552,6 +552,9 @@ def _boxes(warn):
 
 
 def render_html(m):
+    """Baut das komplette Montageanleitungs-HTML (Titelseite, zwei
+    Vorbereitungsseiten, Montageschritte) aus dem aufbereiteten Modell m (siehe
+    ``build_model``) und gibt es als String zurück."""
     h = m["hash"]
     datum = m["datum"]
     fuss = (f'Parameterstand {h} &nbsp;&bull;&nbsp; generiert am {datum} '
@@ -680,6 +683,9 @@ def render_html(m):
 # Chrome-PDF
 # ---------------------------------------------------------------------------
 def print_pdf(html_path, pdf_path):
+    """Rendert das HTML per Headless-Chrome nach pdf_path (A4, ohne Kopf-/
+    Fußzeile). Gibt True zurück, wenn das PDF entstand; False, wenn Chrome
+    fehlt oder scheitert."""
     if not os.path.exists(CHROME):
         print(f"WARNUNG: Chrome nicht gefunden ({CHROME}) -- nur HTML erzeugt.",
               flush=True)
@@ -695,6 +701,9 @@ def print_pdf(html_path, pdf_path):
 
 
 def main():
+    """CLI-Einstieg: liest das Montage-Manifest (--manifest), baut daraus das
+    HTML und (ohne --no-pdf) das PDF im selben Verzeichnis; Exit-Code 1, wenn
+    das PDF nicht erzeugt werden konnte."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", default=os.path.join(OUT_MONTAGE, "manifest.json"))
     ap.add_argument("--no-pdf", action="store_true", help="nur HTML erzeugen")

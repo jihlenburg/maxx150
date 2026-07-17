@@ -1,3 +1,4 @@
+"""Parameter (params): Wellenwahl, Windlast, Zulässigkeiten, Schraubraster, validate()."""
 from dataclasses import FrozenInstanceError
 
 import params as PRM

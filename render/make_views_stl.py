@@ -59,6 +59,10 @@ def _load_or_build_segments(p, h):
 
 
 def main():
+    """Baut alle Render-STLs fuer den aktuellen Parameterstand: vollen Rahmen
+    (aus Engineering-STEP oder frisch aus params.P), vier positionierte
+    Segmente sowie Horizontalschnitt (z=ZCUT) und Vertikalschnitt (x=XCUT),
+    nach ``build/render/<hash>/``. Laeuft unter freecadcmd."""
     p = PRM.P
     PRM.validate(p)
     h = PRM.params_hash(p)

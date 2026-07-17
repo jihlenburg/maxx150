@@ -35,6 +35,10 @@ def _run(case_dir: Path, command: list[str], log_name: str) -> None:
 
 
 def run_case(case: CaseConfig) -> dict:
+    """Vernetzt und rechnet den bereits generierten OpenFOAM-Fall
+    (surfaceCheck -> blockMesh -> snappyHexMesh -> checkMesh -> potentialFoam
+    -> simpleFoam) und wertet ihn per ``summarize`` aus. Erwartet den von
+    ``cfd.generate_case`` erzeugten Fallordner; Rückgabe: result-Dict."""
     target = cfd_dir(cfd_hash(case)) / "cases" / case.name
     if not (target / "case_manifest.json").exists():
         raise RuntimeError("CFD-Fall fehlt; zuerst cfd.generate_case ausführen")

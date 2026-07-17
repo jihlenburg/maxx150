@@ -38,6 +38,26 @@ def test_aktuelle_dokumentation_hat_keine_toten_relativlinks():
     assert not broken, "Tote Dokumentationslinks: " + ", ".join(broken)
 
 
+def test_readme_und_status_tragen_den_aktuellen_parameterstand():
+    """Repo-Aufraeumung 2026-07-16: README und Projektstatus nennen den
+    Parameterstand prominent -- dieser Waechter erzwingt, dass beide bei
+    jeder Parameteraenderung nachgezogen werden (Hash UND GEOM_REV),
+    statt still zu veralten."""
+    import sys
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    import params as PRM
+    hash_ist = PRM.params_hash()
+    rev_ist = f"GEOM_REV:** `{PRM.P.GEOM_REV}`"
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    status = (ROOT / "docs" / "project-status.md").read_text(encoding="utf-8")
+    assert hash_ist in readme, f"README.md: Parameterstand {hash_ist} fehlt"
+    assert rev_ist in readme, f"README.md: GEOM_REV {PRM.P.GEOM_REV} fehlt"
+    assert hash_ist in status, f"project-status.md: Parameterstand {hash_ist} fehlt"
+    assert f"GEOM_REV {PRM.P.GEOM_REV}" in status, \
+        f"project-status.md: GEOM_REV {PRM.P.GEOM_REV} fehlt"
+
+
 def test_aktuelle_dokumentation_nennt_keine_alten_einstiegspunkte():
     hits = []
     for document in CURRENT_DOCS:

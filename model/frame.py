@@ -9,6 +9,10 @@ from model import features as F
 
 
 def top_z(p: PRM.Params = PRM.P) -> float:
+    """Oberkante der Deckfläche (mm) über der Dachebene z=0: Zielerhöhung
+    H_RAISE minus dem freien Klebespalt GLUE_GAP (der als Pads/Kleberaupe
+    ausgeführte Spalt zählt nicht zur festen Adapterhöhe). Bezugsgröße für
+    fast alle z-Koordinaten des Modells (Deckfläche, Kammerdecke, Stoßhöhe)."""
     return p.H_RAISE - p.GLUE_GAP
 
 
@@ -367,7 +371,6 @@ def _corner_chamber_cuts(p: PRM.Params):
     corner_z_top = top_z(p) - p.DECK_T - corner_drop
 
     tools = []
-    cr_out1 = r_out1 - off
     for r_in_abs, r_out_abs in bands:
         r_in, r_out = r_in_abs - off, r_out_abs - off
         face = _chamber_profile_face(r_in, r_out, apex_z, 0.0, p,
@@ -624,6 +627,26 @@ def _bot_kragen_tools(p):
 
 
 def build_frame(p: PRM.Params = PRM.P) -> Part.Shape:
+    """Baut den kompletten Adapter-Monolithen (vor der Segmentierung) und gibt
+    ihn als ``Part.Shape`` zurück. Koordinaten: z=0 = Dachoberfläche/Bettebene,
+    +x = Fahrtrichtung (REAR), Ursprung in der Ausschnittmitte.
+
+    Baureihenfolge (jeder boolesche Block schließt mit ``removeSplitter()`` und
+    einer ``isValid()``-Wächterprüfung ab, damit ein defekter Zwischenkörper
+    sofort abbricht statt still ein Fehlartefakt zu exportieren):
+      1. ``validate(p)`` -- Parameter-Gate (bricht bei Inkonsistenz ab);
+      2. Außenquader minus Ausschnitt -> Grundkörper;
+      3. Gusset-Freistellungsring oben innen (No-Op bei REC_GUSSET_D=0);
+      4. Kammer-Cuts (geschlossene Rippenzellen + Vent-Bohrungen, ersetzen den
+         Slicer-Infill; inkl. Eckkammern falls CORNER_CHAMBERS);
+      5. universelle Belluna-Schraubrippen (Fuse NACH den Kammern, damit die
+         Kavitäten bis auf die lokalen Vollmaterialpfade erhalten bleiben);
+      6. Entwässerungsfasen der bewitterten Außenablage;
+      7. zwei untere Kleberführungen (Doppelraupe);
+      8. optionaler Unterkragen (Fuse + Seitenlöcher, VOR der Außenfase);
+      9. Außenfase unten (Elastikfugen-Kehle) an den z=0-Kanten nahe der
+         Außenkontur;
+     10. 16 Abstandspads über dem Holzrahmen."""
     PRM.validate(p)
     L, W = PRM.outer_dims(p)
     h = top_z(p)

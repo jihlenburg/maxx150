@@ -16,6 +16,9 @@ def _vertical_edges(solid, tol=1e-7):
 
 
 def rounded_box(length, width, height, radius, origin=Vector(0, 0, 0)):
+    """Quader (length x width x height) ab origin (untere Ecke), mit an allen
+    vier senkrechten Kanten auf radius verrundeten Ecken. radius=0 lässt den
+    scharfkantigen Quader unverändert; z läuft von origin.z bis origin.z+height."""
     box = Part.makeBox(length, width, height, origin)
     if radius > 0:
         box = box.makeFillet(radius, _vertical_edges(box))
@@ -58,6 +61,8 @@ def rect_path_points(half_x, half_y, spacing):
     pts = []
 
     def line(p0, p1):
+        """Verteilt gleichmäßig Punkte auf die Strecke p0->p1 (Abstand <=
+        spacing, mindestens 2 Punkte) und hängt sie an pts an."""
         dx, dy = p1[0] - p0[0], p1[1] - p0[1]
         length = math.hypot(dx, dy)
         n = max(2, math.ceil(length / spacing) + 1)

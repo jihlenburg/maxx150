@@ -30,6 +30,10 @@ def _write_stl(shape, path: Path) -> None:
 
 
 def main() -> None:
+    """Exportiert die Belluna-Rekonstruktion (Einzelteile plus Baugruppen-
+    Compound) als STEP und STL nach ``references/belluna/models`` und schreibt
+    ein Manifest mit Quell-/Datei-SHA256 und Provenienz. Läuft unter
+    freecadcmd."""
     target = REFERENCES_ROOT / "belluna" / "models"
     target.mkdir(parents=True, exist_ok=True)
     components = shapes()

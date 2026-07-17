@@ -22,6 +22,13 @@ COMPARISON_SCHEMA_REV = 2
 
 @dataclass(frozen=True)
 class AeroGeometry:
+    """Rekonstruierte Belluna-Außenhüllmaße für die CFD-Domäne (mm).
+
+    Alle Werte maßstäblich aus den Ansichten auf Seite 10 der Belluna-
+    Einbauanleitung abgegriffen -- kein Hersteller-CAD. Haube geschlossen
+    (closed_height_mm) bzw. offen (open_height_mm); roof_edge_* beschreibt die
+    mitmodellierte Dachkanten-Störkontur."""
+
     hood_length_mm: float = 593.0
     hood_width_mm: float = 420.0
     mounting_plate_mm: float = 450.0
@@ -34,6 +41,14 @@ class AeroGeometry:
 
 @dataclass(frozen=True)
 class CaseConfig:
+    """Ein einzelner CFD-Fall: Anströmung, Domäne und Netzniveau.
+
+    ``state`` closed/open (Haube), ``speed_ms`` = 200 km/h Frontanströmung;
+    ``model_factor`` 1,5 skaliert die rohen CFD-Kräfte zur nicht-freigabe-
+    wirksamen Lastübergabe. Die ``*_level``/``base_cells``-Felder steuern das
+    snappyHexMesh-Verfeinerungsniveau -- Grob- und Mittelnetz unterscheiden
+    sich nur darin (Netzsensitivität, kein Konvergenznachweis)."""
+
     name: str = "closed_front_coarse"
     state: str = "closed"
     speed_ms: float = 200.0 / 3.6
@@ -87,6 +102,8 @@ def selected_case(name: str | None = None) -> CaseConfig:
 
 
 def manual_path() -> Path:
+    """Pfad zur Belluna-Einbauanleitung (PDF), die als CFD-Provenienzquelle
+    gehasht wird."""
     return (Path(__file__).resolve().parent.parent / "references" / "belluna" /
             "manuals" / "belluna-super-fan-installation.pdf")
 

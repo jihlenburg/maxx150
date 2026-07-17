@@ -1,3 +1,4 @@
+"""DFM-Prüfung: Stützenfreiheit der Segmente in Druckorientierung und Facetten-Fallback."""
 import params as PRM
 from model.segments import build_segments
 from model import dfm

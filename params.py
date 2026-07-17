@@ -10,6 +10,15 @@ from dataclasses import dataclass, asdict
 
 @dataclass(frozen=True)
 class Params:
+    """Unveränderlicher Satz aller Konstruktions-, Last- und FEM-Parameter.
+
+    Einzige Quelle der Wahrheit (``frozen=True``): Dachausschnitt/Fahrzeug,
+    obere Plattenschnittstelle, Unterseiten-Klebung, Segmentierung, Unterkragen,
+    Lasten, Material und FEM-Steuerung. Einheiten wie im Modulkopf
+    (mm/N/MPa/°C). Herkunft und Messpunkt-Bezug je Feld stehen in den
+    Zeilenkommentaren. ``GEOM_REV`` bei jeder geometrie-wirksamen Code-Änderung
+    erhöhen -- das ändert ``params_hash`` und hält Report und Druckdateien
+    eindeutig einer Geometrie zugeordnet."""
     # --- Meta: Geometrie-Revision. Erhöhen bei geometrie-wirksamen CODE-
     # Änderungen (z. B. neue Fillets/Radien), auch wenn kein Messwert
     # wechselt -- ändert params_hash, damit Druckfiles/Report eindeutig
@@ -216,6 +225,11 @@ def effective_wall(p: Params = P) -> float:
 
 
 def select_shaft(p: Params = P) -> float:
+    """Vierkantwellenlänge (mm) laut Belluna-Anleitung für die effektive
+    Einbauwandstärke (Dach + Adapter inkl. Klebefuge): erste Zeile der
+    SHAFT_TABLE, deren [min,max]-Wandstärkenband die effektive Wandstärke
+    enthält. Wirft, wenn diese außerhalb 27..80 mm liegt (keine passende Welle
+    im Belluna-Lieferumfang)."""
     t = effective_wall(p)
     for length, lo, hi in SHAFT_TABLE:
         if lo <= t <= hi:

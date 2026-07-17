@@ -1,3 +1,4 @@
+"""Export-Stufe: Druck-/Archivdateien, STEP-Reimport, STL-Drucklage und Montagenotiz."""
 import Mesh
 import Part
 

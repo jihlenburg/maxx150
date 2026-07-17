@@ -43,7 +43,10 @@ def _allowed_bridge_area(p):
        x-/y-achsparallele; konservativ verdoppelt statt exakt hergeleitet
        (die Chevron-Sektorböden selbst brauchen weiterhin keinen eigenen
        Term -- gleiches Argument wie Zone 5: >45° in JEDER Radialebene des
-       Sektors, siehe _corner_chamber_cuts-Docstring)."""
+       Sektors, siehe _corner_chamber_cuts-Docstring);
+    7. Unterkragen-Schraubenlöcher (nur wenn BOT_KRAGEN): horizontale
+       Ø HOLE_D-Kanäle durch die Kragenwand, achsparallel analog Zone 5 --
+       Berechnung siehe kragen_loch unten."""
     # Zone 1 nur, solange die Freistellung existiert (REC_GUSSET_D=0 seit der
     # Messbefund 2026-07-13: kein Recess -> keine Brücke -> kein Freibetrag,
     # sonst würde das Gate um ~30000 mm² zu lasch)
@@ -89,6 +92,15 @@ def _facet_area(facet, pts):
 
 
 def overhang_area(shape, p: PRM.Params = PRM.P):
+    """Stützpflichtige Überhangfläche in Druckorientierung, mm².
+
+    Kippt shape um 180° um x (Deckfläche auf dem Bett, Teil kopfüber),
+    vernetzt es und summiert die Fläche aller Facetten, deren Normale steiler
+    als 45° nach unten zeigt und die nicht auf der Bettebene (zmin+0.3) liegen.
+    Rückgabe ``(stützpflichtig, zulässig)`` mit der bewusst zugelassenen
+    Brückenfläche aus ``_allowed_bridge_area`` als Vergleichswert -- der
+    DFM-Test besteht, solange stützpflichtig die zulässige Fläche nicht
+    wesentlich überschreitet."""
     flipped = shape.copy()
     flipped = flipped.transformGeometry(Matrix(1, 0, 0, 0,
                                                0, -1, 0, 0,

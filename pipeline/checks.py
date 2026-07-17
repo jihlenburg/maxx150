@@ -8,7 +8,10 @@ import struct
 import subprocess
 from pathlib import Path
 
+import os
+
 import params as PRM
+from project_paths import CHROME, ROOT
 
 
 EXPECTED_MANUAL_IMAGES = (
@@ -41,6 +44,8 @@ def png_dimensions(path: Path) -> tuple[int, int]:
 
 
 def parse_pdfinfo_pages(output: str) -> int:
+    """Zieht die Seitenzahl aus einer ``pdfinfo``-Ausgabe (Zeile ``Pages: N``);
+    wirft, wenn keine vorkommt."""
     match = re.search(r"^Pages:\s+(\d+)\s*$", output, re.MULTILINE)
     if not match:
         raise ValueError("pdfinfo-Ausgabe enthaelt keine Seitenzahl")
@@ -48,6 +53,7 @@ def parse_pdfinfo_pages(output: str) -> int:
 
 
 def pdf_page_count(path: Path) -> int:
+    """Seitenzahl eines PDF via ``pdfinfo`` (Poppler muss im PATH liegen)."""
     pdfinfo = shutil.which("pdfinfo")
     if not pdfinfo:
         raise RuntimeError("pdfinfo fehlt; Poppler installieren")
@@ -55,6 +61,49 @@ def pdf_page_count(path: Path) -> int:
         [pdfinfo, str(path)], check=True, capture_output=True, text=True
     )
     return parse_pdfinfo_pages(result.stdout)
+
+
+def _version_line(cmd: list[str], pattern: str | None = None,
+                  timeout: float = 30.0) -> str:
+    """Erste Ausgabezeile eines Versionskommandos, defensiv erfasst; bei jedem
+    Fehler (fehlendes Binary, Exit-Code != 0, Timeout, kein Treffer)
+    ``"nicht ermittelbar"`` -- die Versionserfassung darf einen Release nie
+    verhindern, aber auch nie Fehlertext als Version ausgeben. Mit ``pattern``
+    zaehlt die erste Regex-Fundstelle in stdout+stderr (ein Treffer ist selbst
+    der Beleg, z. B. im openfoam-Hilfetext); ohne ``pattern`` die erste Zeile
+    von stdout, ersatzweise stderr (pdfinfo schreibt seine Version dorthin)."""
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True,
+                                timeout=timeout)
+        if pattern:
+            match = re.search(pattern, result.stdout + result.stderr)
+            return match.group(0) if match else "nicht ermittelbar"
+        if result.returncode != 0:
+            return "nicht ermittelbar"
+        output = result.stdout.strip() or result.stderr.strip()
+        return output.splitlines()[0].strip() if output else "nicht ermittelbar"
+    except Exception:
+        return "nicht ermittelbar"
+
+
+def toolchain_versions() -> dict[str, str]:
+    """Best-effort-Erfassung der extern beteiligten Werkzeugversionen fuer
+    das Release-Manifest (Provenienz: mit WELCHEM Stack wurde der Stand
+    erzeugt?). Schluessel sind stabil; Werte sind Versionszeilen oder
+    ``"nicht ermittelbar"`` (Erfassung blockiert nie)."""
+    blender = os.environ.get("BLENDER_BIN") or shutil.which("blender")
+    openfoam = shutil.which("openfoam")
+    pdfinfo = shutil.which("pdfinfo")
+    return {
+        "freecad": _version_line([str(ROOT / "bin" / "fc"), "--version"]),
+        "blender": _version_line([blender, "--version"]) if blender
+        else "nicht ermittelbar",
+        "openfoam": _version_line([openfoam, "-help"], pattern=r"v\d{4}")
+        if openfoam else "nicht ermittelbar",
+        "chrome": _version_line([str(CHROME), "--version"]),
+        "pdfinfo": _version_line([pdfinfo, "-v"]) if pdfinfo
+        else "nicht ermittelbar",
+    }
 
 
 def validate_manual(target: Path) -> None:

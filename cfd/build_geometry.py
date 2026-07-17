@@ -50,6 +50,10 @@ def _write_stl_m(shape, path: Path) -> None:
 
 
 def main() -> None:
+    """Exportiert die drei CFD-Hüllgeometrien (Belluna, Adapter, Dachkante) als
+    mm-STEP und Meter-STL in den CFD-Geometrie-Build-Baum und schreibt ein
+    Provenienz-Manifest (Quell-Commit, Anleitungs-SHA256, Datei-Hashes). Läuft
+    unter freecadcmd."""
     case = selected_case()
     digest = cfd_hash(case)
     target = cfd_dir(digest) / "geometry"

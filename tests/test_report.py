@@ -1,3 +1,4 @@
+"""Verifikationsreport (fem.report): PASS/FAIL, Vorbehalt, Leerfall, Deckverformungs-Fallback."""
 from pathlib import Path
 
 import params as PRM

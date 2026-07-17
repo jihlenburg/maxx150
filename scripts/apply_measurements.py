@@ -114,6 +114,11 @@ def patch_params_text(text: str, mapping: dict):
 
 
 def main(argv=None) -> int:
+    """CLI-Einstieg: liest die messwerte.json, berechnet das params-Mapping
+    (``compute_mapping``) und patcht die Zieldatei (--target, Default
+    ./params.py) -- mit .bak-Backup, oder bei --dry-run nur die Diff-Tabelle.
+    Bewusst nicht uebernommene Protokollfelder werden gemeldet. Rueckgabe:
+    Prozess-Exitcode (0 ok, 1 bei Fehler oder leerem Patch)."""
     ap = argparse.ArgumentParser(description="Messwertübernahme: Messprotokoll -> params.py")
     ap.add_argument("messwerte", help="Pfad zur messwerte.json (Vorlage: messwerte.beispiel.json)")
     ap.add_argument("--target", default="./params.py",

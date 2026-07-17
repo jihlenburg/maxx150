@@ -64,6 +64,9 @@ def rr(half, r, z0, z1):
 
 
 def ring(half_out, r_out, half_in, r_in, z0, z1):
+    """Rechteckiger Ring: gerundetes Aussenquadrat (Halbseite half_out,
+    Eckradius r_out) minus gerundetes Innenquadrat (half_in, r_in); z von z0
+    bis z1."""
     return rr(half_out, r_out, z0, z1).cut(rr(half_in, r_in, z0 - 1, z1 + 1))
 
 

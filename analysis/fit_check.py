@@ -39,6 +39,16 @@ def _git_revision() -> str:
 
 
 def run_fit_check(p: PRM.Params = PRM.P, source_commit: str | None = None) -> dict:
+    """Digitaler Passungscheck Adapterrahmen <-> Belluna-Rekonstruktion.
+
+    Setzt die Belluna-Platte auf die Deckfläche (z = top_z) und misst vier
+    Kriterien: Nominalkollision (Durchdringungsvolumen mm³, soll ~0), seitliches
+    Montagespiel bei 0,5..2,0 mm Querversatz, Auflagegrad der drei Belluna-
+    Unterseitenstege (common-Volumen / Probevolumen, >= 0,95) und die Ø4-
+    Belluna-Schraubkorridore (freier Anteil >= 0,95). Rückgabe: maschinen-
+    lesbares Ergebnis-Dict (Schema 2) inkl. Parameter-Hash, Quell-Provenienz
+    und PASS = alle Checks erfüllt; ``source_commit`` wird unverändert
+    übernommen."""
     PRM.validate(p)
     frame = build_frame(p)
     plate = B.PLATTE.copy()
@@ -55,6 +65,10 @@ def run_fit_check(p: PRM.Params = PRM.P, source_commit: str | None = None) -> di
     h = top_z(p)
     for name, (ri, ro) in zip(("innen", "mitte", "aussen"), B.STEGE):
         def radius(half: float) -> float:
+            """Eckradius (mm) der ringförmigen Auflage-Probe für die Steg-
+            Halbbreite half: vom Belluna-Außenradius R_OUT_ANN linear nach innen
+            reduziert, mindestens 3 mm, damit die Probe der gerundeten
+            Stegkontur folgt."""
             return max(3.0, B.R_OUT_ANN - (B.FL_HALF - half))
 
         probe = F.ring(2 * ro, 2 * ro, radius(ro),
@@ -96,6 +110,9 @@ def run_fit_check(p: PRM.Params = PRM.P, source_commit: str | None = None) -> di
 
 
 def main() -> None:
+    """Rechnet den Passungscheck für PRM.P mit dem aktuellen Git-Commit,
+    schreibt das Ergebnis nach ``fit_dir/<hash>/fit_summary.json``, gibt es auf
+    stdout aus und beendet mit SystemExit(1), falls ein Check fehlschlägt."""
     result = run_fit_check(PRM.P, source_commit=_git_revision())
     target = fit_dir(result["parameter_hash"])
     target.mkdir(parents=True, exist_ok=True)

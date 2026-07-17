@@ -1,3 +1,4 @@
+"""FEM-Lastfälle (fem.loadcases): Materialkarte, Flächenselektoren, Kennzahlen LF1/LF2."""
 import params as PRM
 from model.frame import build_frame, top_z
 from fem import loadcases as LC

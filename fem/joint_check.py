@@ -18,6 +18,12 @@ def _lap_shape(p):
 
 def run_joint_submodel(p: PRM.Params = PRM.P, f_inplane: float = None,
                        mesh_mm: float = 4.0) -> dict:
+    """Rechnet das Kragarm-Submodell des Halbüberlappungsstoßes (siehe
+    Moduldocstring): spannt die Lappe an ihrer x=0-Stirnfläche (Übergang zum
+    Segmentkern) ein, leitet die in-plane-Last f (Default: Windlast) als Schub
+    auf die Kontakt-Oberseite ein und gibt das FEM-Ergebnisdict von
+    ``run_case`` zurück. mesh_mm steuert die Netzfeinheit (Default 4 mm, feiner
+    als das Produktionsnetz)."""
     f = f_inplane if f_inplane is not None else PRM.wind_force(p)
     lap = _lap_shape(p)
 

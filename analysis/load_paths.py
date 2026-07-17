@@ -20,7 +20,6 @@ from dataclasses import asdict, dataclass
 from itertools import combinations
 import json
 import math
-from pathlib import Path
 
 import params as PRM
 from fem import analytic as FEM_ANALYTIC
@@ -98,8 +97,7 @@ class Assumptions:
     # Sikaflex-522 bzw. Carloflex 410 UV: nur 1,7 % bzw. 2,8 % der
     # publizierten 1,8-MPa-Zugfestigkeit als Größenskala. Der Schubwert ist
     # eine Projektannahme, weil die TDS keinen Grenzflächen-Schubwert nennen.
-    # Diese
-    # starke Reduktion deckt 85 °C nahe der 90-°C-Grenze, Dauer/Ermüdung,
+    # Diese starke Reduktion deckt 85 °C nahe der 90-°C-Grenze, Dauer/Ermüdung,
     # Alterung, FDM-/GFK-Streuung und fehlende Originalsubstrat-Coupons ab.
     elastic_normal_allow_MPa: float = 0.030
     elastic_shear_allow_MPa: float = 0.050
@@ -128,6 +126,14 @@ DEFAULTS = Assumptions()
 
 @dataclass(frozen=True)
 class LoadCase:
+    """Ein Bemessungs-Lastfall an der Dachbaugruppe.
+
+    ``force_N`` = resultierende Kraft (Fx, Fy, Fz) in N; ``moment_top_Nm`` bzw.
+    ``moment_base_Nm`` = freies Moment (Mx, My, Mz) in Nm, bezogen auf die
+    Adapter-Deckfläche bzw. die Adapter-Basis (Dachebene) -- zwei Bezugspunkte,
+    weil obere Verschraubung und untere Klebung an unterschiedlichen z-Ebenen
+    angreifen. ``provenance`` nennt die Herkunft der Werte."""
+
     name: str
     description: str
     force_N: tuple[float, float, float]
@@ -162,6 +168,10 @@ def _rounded_square_ring(inner_side_mm: float, width_mm: float,
     outer_radius = inner_radius_mm + width_mm
 
     def rounded_square(side: float, radius: float) -> tuple[float, float]:
+        """(Fläche, Flächenträgheitsmoment) eines gefüllten Quadrats der
+        Seitenlänge side mit auf radius gerundeten Ecken -- exakt über
+        abgezogene Eckquadrate und wieder addierte Viertelkreise (jeweils mit
+        Steiner-Anteil), Bezugsachse durch den Mittelpunkt."""
         area = side * side - (4.0 - math.pi) * radius * radius
         square_i = side**4 / 12.0
         corner_center = side / 2.0 - radius
@@ -458,6 +468,18 @@ def _load_cfd_transfer() -> tuple[LoadCase | None, str | None]:
 
 def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
            include_cfd: bool = True) -> dict:
+    """Bewertet alle Grenzflächen der Dachbaugruppe gegen die konservativen
+    Bemessungswerte ``a`` und gibt das Ergebnis-Dict (Schema 2) zurück.
+
+    Prüft je Lastfall (``_base_load_cases`` plus optional den CFD-Transferfall,
+    wenn ``include_cfd`` und die Fallmatrix vorliegt) den seriellen Lastpfad
+    Belluna-Platte -> Adapter -> Dach: obere Elastikringfuge und Achtfach-
+    Schraubengruppe, untere Doppelraupe (allein tragender Primärpfad), die acht
+    seitlichen Holzschrauben (nur als Bedarfswert, NICHT zum PASS addiert) und
+    die Holz-Dach-Sandwichfläche. Zusätzlich Segmentstoß (RK-1300 + einzelner
+    M5 unter voller 480-N-Hülle), thermische Fugenscherung und die Schrauben-
+    Ausfallsensitivität. ``status`` ist PASS_ASSUMPTION_BASED nur, wenn alle
+    Nachweise halten -- ausdrücklich eine Plausibilisierung, keine Zulassung."""
     top_elastic_ring = _square_ring(
         p.CUTOUT_W + 2.0 * p.PLATE_BOND_OFF, p.PLATE_BOND_W)
     roof_elastic_ring = _roof_double_bead(p)
@@ -628,6 +650,9 @@ def _pct(value: float) -> str:
 
 
 def to_markdown(result: dict) -> str:
+    """Formatiert das ``assess``-Ergebnis-Dict als deutschsprachigen Markdown-
+    Report (Ergebnisübersicht, maßgebende Festwerte, konstruktive
+    Interpretation, Oberflächenannahmen, Modellgrenzen, Primärquellen)."""
     lines = [
         "# Abschätzung der Klebe-, Schraub- und Dachlastpfade",
         "",
@@ -769,6 +794,9 @@ def to_markdown(result: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI-Einstieg: rechnet ``assess`` (CFD-Sensitivität via ``--without-cfd``
+    abschaltbar), schreibt assessment.json + assessment.md in den Lastpfad-
+    Build-Baum und liefert Exit-Code 0 nur bei system_PASS, sonst 1."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--without-cfd", action="store_true",

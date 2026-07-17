@@ -71,6 +71,8 @@ def _base_body() -> Part.TopoShape:
 
 
 def closed_shape() -> Part.TopoShape:
+    """Geschlossene Belluna-Hülle als ein Körper: Haubenloft verschmolzen mit
+    dem Sockelkörper (450-mm-Montageplatte)."""
     return _hood_loft().fuse(_base_body()).removeSplitter()
 
 
@@ -92,11 +94,16 @@ def open_shape() -> Part.TopoShape:
 
 
 def adapter_shape() -> Part.TopoShape:
+    """Vereinfachter Adapter-Hüllquader (Außenmaße x R_OUT, z von 0 bis
+    H_RAISE) als CFD-Referenzkörper unter der Haube."""
     length, width = PRM.outer_dims(PRM.P)
     return _rounded_box(length, width, PRM.P.R_OUT, 0.0, PRM.P.H_RAISE)
 
 
 def roof_edge_shape() -> Part.TopoShape:
+    """Quaderförmiger Dachkanten-Störkörper an der Ausschnitt-Hinterkante
+    (x = CUTOUT_W/2 + EDGE_DIST, Höhe EDGE_H), obere Kanten verrundet; liefert
+    die anströmseitige Dachkante der CFD-Domäne."""
     edge_x = PRM.P.CUTOUT_W / 2 + PRM.P.EDGE_DIST
     shape = Part.makeBox(AERO.roof_edge_depth_mm, AERO.roof_edge_span_mm,
                          PRM.P.EDGE_H,
@@ -111,6 +118,8 @@ def roof_edge_shape() -> Part.TopoShape:
 
 
 def shapes() -> dict[str, Part.TopoShape]:
+    """Alle CFD-Hüllgeometrien als Dict: belluna_closed, belluna_open, adapter
+    und roof_edge."""
     return {
         "belluna_closed": closed_shape(),
         "belluna_open": open_shape(),
@@ -120,6 +129,9 @@ def shapes() -> dict[str, Part.TopoShape]:
 
 
 def metadata() -> dict:
+    """Provenienz-Metadaten der CFD-Hüllrekonstruktion (Klassifikation, Quelle
+    Seite 10, dokumentierte vs. angenommene Maße, Einbaulage); fließt in den
+    CFD-Hash und die Manifeste ein."""
     return {
         "classification": "AERODYNAMIC_ENVELOPE_RECONSTRUCTION",
         "manufacturer_cad": False,

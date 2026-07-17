@@ -18,6 +18,8 @@ from project_paths import cfd_dir, cfd_matrix_dir
 
 
 def result_path(case_name: str) -> Path:
+    """Pfad zur result.json des benannten CFD-Falls im fallspezifischen
+    CFD-Build-Baum (nach dem cfd_hash des Falls)."""
     case = CASES[case_name]
     return cfd_dir(cfd_hash(case)) / "cases" / case.name / "result.json"
 
@@ -31,6 +33,15 @@ def _vector_changes(coarse: list[float], medium: list[float]) -> list[float]:
 
 
 def compare() -> dict:
+    """Liest die drei CFD-Fallergebnisse, bildet die Netzsensitivität (offenes
+    Grob- vs. Mittelnetz) und die nicht-freigabewirksame Lastübergabe und
+    schreibt comparison.json + comparison.md in den Matrix-Build-Baum.
+
+    Die Lastübergabe skaliert das offene Mittelnetz mit model_factor 1,5 und
+    rechnet das Basismoment zusätzlich auf die Adapter-Deckfläche um
+    (M_frei = M_Basis - r×F). Status bleibt PRELIMINARY_CFD_MATRIX /
+    INFORMATIONAL_NON_GATING und ändert die bestehenden Freigabelastfälle
+    nicht. Rückgabe: das geschriebene Datendict."""
     results = {}
     for name in CASE_ORDER:
         path = result_path(name)
