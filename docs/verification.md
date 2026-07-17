@@ -51,6 +51,16 @@ stark abgeminderte Grenzflächenwerte, nur eine angerechnete Holz/GFK-Fläche,
 1,5-fache Schrauben-Lastkonzentration und keine Addition von Kleber- und
 Schraubentragfähigkeit.
 
+Eine benannte Ausnahme entsteht bei der Heki-Demontage: Der ausgebaute
+Dachausschnitt ist Originalsubstrat (gealtertes GFK samt Lackaufbau). Er wird
+aufbewahrt und für eine einfache Haftprobe genutzt — Sikaflex-522-Raupe nach
+Vorbehandlungstabelle applizieren, nach TDS-Durchhärtung von Hand schälen bzw.
+mit Kofferwaage abscheren, Bruchbild fotografisch dokumentieren (Adhäsions-
+oder Kohäsionsbruch). Das ersetzt keine typgeprüften Coupons, stützt aber
+erstmals die Grenzflächenannahmen am realen Substrat; überwiegender
+Adhäsionsbruch wäre ein Eskalationssignal **vor** der Verklebung. Dieses
+Zeitfenster existiert nur einmal.
+
 Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
 
 - Ebenheit, Öffnungsmaß und Trockenpassung des realen Segmentsatzes.
@@ -77,11 +87,42 @@ Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
 - Flutungstest nach Montage sowie jährliche Sicht-/Handprüfung der äußeren
   Schutzkehle, aller übrigen Nähte,
   der unteren Doppelraupe, der oberen und unteren Schrauben sowie der Lackkanten.
+- Setzkontrolle der oberen Schraubgruppe nach den ersten Fahrten
+  (Größenordnung 500 km): Kunststoff im Klemmpaket setzt und relaxiert
+  (siehe Modellgrenzen in [`load-paths.md`](load-paths.md)); handfest
+  kontrollieren, FDM-Gewinde nicht überdrehen.
 
 Ohne Werkstoffversuche bleibt das Ergebnis ehrlich
 `PASS_ASSUMPTION_BASED` und der Projektstatus `PROTOTYPE_ONLY`; die Rechnung
 ist keine Zulassung. Das ist eine benannte Erkenntnisgrenze, kein verstecktes
 Versprechen späterer Prüfwerte.
+
+## Günstige Validierungen ohne Gate-Charakter
+
+Geplante Versuche, die zentrale Annahmen zu Messwerten machen, ohne neue
+Freigabe-Gates zu erzeugen (Reihenfolge nach Aufwand):
+
+1. **PLA-Passformdruck als FEM-Korrelation**: den ohnehin geplanten
+   Passformdruck zusätzlich mit definierter Last prüfen (bekannte Gewichte
+   über die Plattenschnittstelle, Messuhr auf Durchbiegung) und mit der
+   E-Modul-skalierten FEM-Vorhersage vergleichen. Akzeptanz: Ort und Form der
+   Maximalverformung stimmen überein, Betrag innerhalb Faktor 2.
+2. **Z-Zugstäbe aus dem realen Druckprozess**: gedruckte Z- und XY-Stäbe
+   (gleiches Profil und Tempern wie die Serienteile) bis zum Bruch belasten
+   (Hebel plus Gewichte genügt). Akzeptanz: Z/XY-Verhältnis ≥ dem angesetzten
+   `DERATE_Z` 0,5 — bestätigt die Konservativität der Schätzung, die Würth
+   mangels FDM-Z-Werten offenlässt.
+3. **Dachtemperatur-Logging**: IR-/Loggermessung der weiß lackierten
+   Dachoberfläche an einem heißen Sommertag. Akzeptanz: Maximum ≤ `T_MAX`
+   85 °C; darüber Eskalation (Werkstoff- und Lackentscheid neu bewerten).
+4. **Demontage-Haftprobe** auf dem ausgebauten Dachausschnitt (siehe oben):
+   Bruchbild dokumentieren; überwiegender Kohäsionsbruch stützt die
+   Grenzflächenannahmen.
+
+Der deterministische Toleranz-Sweep (`python3 scripts/toleranz_sweep.py`)
+gehört als Planungsschritt **vor** die Messkampagne: Er zeigt je Messfeld, ob
+das erwartete Messband ein analytisches Gate oder die Parameter-Validierung
+kippen kann, und beziffert die Freigang-Regimegrenzen der B-Messungen.
 
 ## Nachvollziehbarkeit
 

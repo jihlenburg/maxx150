@@ -1,6 +1,6 @@
 # Projektstatus
 
-Stand: 16.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
+Stand: 17.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
 
 ## Abgeschlossen
 
@@ -29,6 +29,14 @@ Stand: 16.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
 - Einheitliche Pipeline und geordneter Build-/Release-/Referenzaufbau.
 - Reproduzierbarer erster OpenFOAM-Grobfall für die geschlossene Belluna-
   Aerohülle bei 200 km/h; noch kein Freigabe-Gate.
+- Deterministischer Toleranz-Sweep der Messkampagnen-Parameter durch alle
+  analytischen Gates (`scripts/toleranz_sweep.py`). Kernbefunde: `W_TOP` hat
+  beim aktuellen Parameterstand nach unten null Toleranz (50,0 mm liegt exakt
+  auf der 2-mm-Mindestbreite der Entwässerungsfase — Messwerte darunter
+  erfordern Nachparametrierung); die Lastpfad-Gates behalten im gesamten
+  Messtoleranzband ≥ 26 % Reserve; im Überlapp-Regime des Haubenfreigangs
+  wäre `EDGE_H` ≤ 53 mm gefordert (Schätzwert 55 mm) — B1 entscheidet das
+  Regime, B2/B4 dann das Gate.
 
 ## Offen vor Produktionsfreigabe
 
@@ -48,6 +56,10 @@ Stand: 16.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
   bleiben sie dokumentierte Modellunsicherheit, kein kurzfristiges Gate.
 - CFD-Netzkonvergenz sowie offene Haube, Schräg- und Seitenwind ergänzen.
 - Zusammenhängenden Massivquerschnitt als quantitative Warp-Metrik ergänzen.
+- Günstige Validierungen ohne Gate-Charakter umsetzen (PLA-Lasttest mit
+  Messuhr, Z-Zugstäbe, Dachtemperatur-Logging, Demontage-Haftprobe auf dem
+  ausgebauten Dachausschnitt) — Plan und Akzeptanzkriterien in
+  [`verification.md`](verification.md).
 
 Historische Tasks, verworfene Materialien und frühere Parameterstände stehen
 im [`archive/logbook.md`](archive/logbook.md) und sind nicht mehr normativ.

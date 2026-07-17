@@ -96,6 +96,19 @@ Alternative.
   expliziter Bolzenkontakt und Lochspiel sind nicht aufgelöst.
 - Das reale X150-GFK/XPS-Sandwich ist nicht typgeprüft; deshalb werden nur eine
   Holz/GFK-Fläche und 0,050 MPa angerechnet.
+- Werkstoffkriechen unter Dauerlast ist pauschal über `DERATE_CREEP` (0,4 auf
+  die dauerhaft zulässige Spannung) abgedeckt. Nicht modelliert ist das
+  Setzen/die Vorspannkraftrelaxation der oberen Schraubgruppe (Kunststoff im
+  Klemmpaket, beschleunigt nahe `T_MAX`): Die Schraubnachweise sind
+  Tragfähigkeits-, keine Reibschlussnachweise und bleiben davon unberührt;
+  gegen Lockern unter Fahrvibration gilt die Setzkontrolle nach den ersten
+  Fahrten und die jährliche Prüfung (`verification.md`).
+- Thermozyklen sind nur als statische Extremfälle geprüft (LF5, ΔT 65 K).
+  Tag/Nacht-Zyklen (ΔT ≈ 40 K, tausendfach über die Lebensdauer) erzeugen in
+  der unteren Elastikfuge eine Schubverzerrungs-Amplitude von rund 60 % des
+  statischen LF5-Werts — bei 38 % statischer Auslastung gegen die bereits
+  stark abgeminderte Elastikfugen-Annahme wird das als abgedeckt eingestuft,
+  bleibt aber eine dokumentierte Annahme ohne Ermüdungsversuch.
 - CFD, FEM und Lastpfadrechnung sind Modellplausibilisierungen, keine
   Bauteilprüfung oder Herstellerfreigabe.
 

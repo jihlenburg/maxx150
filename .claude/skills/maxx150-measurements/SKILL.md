@@ -17,6 +17,13 @@ Die automatische Zuordnung umfasst `B1a+B1b → EDGE_DIST`, `B2 → EDGE_H`,
 `B3 → ROOF_T` und `B4 → HOOD_UNDERSIDE_H`. Konstruktive Entscheidungen wie
 Deckflächenbreite oder Gusset-Freistellung werden nicht automatisch verändert.
 
+Vor der Kampagne den Toleranz-Sweep rechnen (`python3
+scripts/toleranz_sweep.py`): Er zeigt je Messfeld, ob das erwartete Messband
+ein Gate oder die Parameter-Validierung kippt. Bekannte harte Grenze beim
+aktuellen Parameterstand: `W_TOP_*` unter 50,0 mm macht die Geometrie ungültig
+(Entwässerungsfase unterschreitet 2 mm) — solche Messwerte erfordern eine
+Nachparametrierung mit GEOM_REV-Erhöhung, keine blinde Übernahme.
+
 ## Fremdteile vermessen (Belluna-Muster)
 
 Beim Digitalisieren eines physischen Fremdteils NICHT nur Zahlen sammeln,
