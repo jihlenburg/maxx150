@@ -1,10 +1,17 @@
 {
-  "schema": 2,
+  "schema": 3,
   "status": "PROTOTYPE_ONLY",
   "parameter_hash": "8eb8b79f",
   "geom_rev": 10,
-  "source_commit": "e9645dbbec030ab6b5802cfd9228f6577b315f62",
-  "source_commit_time": "2026-07-16T18:04:55+02:00",
+  "source_commit": "6c5d3517d4e7c1550701f112a8b76b3607c69d5a",
+  "source_commit_time": "2026-07-17T09:26:36+02:00",
+  "toolchain": {
+    "freecad": "FreeCAD 1.1.1 Revision: 20260414 (Git shallow)",
+    "blender": "Blender 5.1.2",
+    "openfoam": "v2606",
+    "chrome": "Google Chrome 150.0.7871.125",
+    "pdfinfo": "pdfinfo version 26.07.0"
+  },
   "part": "Universal-L-Ecksegment",
   "quantity": 4,
   "step_orientation": "Einbaulage",
@@ -19,11 +26,11 @@
       "bytes": 246084
     },
     "verification_report_8eb8b79f.md": {
-      "sha256": "9fde88bf88301e9351e2ca6121f5e2b875d2031b921e69eb98f8dda29f21fc68",
+      "sha256": "cbc3c4e549d339dd0ed96425131854d5714f1b3e933893e4a3a472d7e675e4c1",
       "bytes": 2586
     },
     "fit_summary_8eb8b79f.json": {
-      "sha256": "4e0df34057079c133e7a03cab4aa193041b02d69652960e3b457da8fcddb51f9",
+      "sha256": "542024ad11a5dd6434f686c2eb3535a0198090c7fe4b20b6dd101497caa95c55",
       "bytes": 748
     }
   },

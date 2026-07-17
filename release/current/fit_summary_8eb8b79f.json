@@ -1,9 +1,9 @@
 {
   "schema": 2,
   "parameter_hash": "8eb8b79f",
-  "source_commit": "e9645dbbec030ab6b5802cfd9228f6577b315f62",
+  "source_commit": "6c5d3517d4e7c1550701f112a8b76b3607c69d5a",
   "belluna_model": "MEASURED_RECONSTRUCTION",
-  "belluna_source_sha256": "496745d1a6bafa9f4282c890d14eccb4fcc87f1d57a7007a1d7666ca55bf31c8",
+  "belluna_source_sha256": "2e48c5d47514e5093e48143af62b238587faf58286c10ca7b573b2a0f676fa41",
   "nominal_collision_mm3": 0.0,
   "nominal_radial_clearance_mm_per_side": 1.5,
   "offset_collision_mm3": {

@@ -29,12 +29,12 @@ max vM 3.37 MPa ≤ 11.25 MPa → PASS
 
 ## Datei-Manifest
 
-Git-Commit: `e9645dbbec030ab6b5802cfd9228f6577b315f62` · GEOM_REV: `10`
+Git-Commit: `6c5d3517d4e7c1550701f112a8b76b3607c69d5a` · GEOM_REV: `10`
 
 | Datei | SHA256 |
 |---|---|
 | frame_8eb8b79f.step | `0145b91ee00d65c850f49524f62542607f6f7115cf4381003b1a721431b9481d` |
 | universal_segment_x4_8eb8b79f.step | `d48444b3afd927f0b3dbd2dbb8ca766b97bc7aa6afc55df7b21337729d799144` |
 | universal_segment_x4_8eb8b79f.stl | `40da5109b71d5772a0f19312ba4cf4c6cc985fa55ae8e95669a2c36519101e60` |
-| universal_segment_x4_8eb8b79f.3mf | `abc19e059e771ac8075742693cb161f4cbb4def0fce49e419eb2b5f8a8b4d42d` |
+| universal_segment_x4_8eb8b79f.3mf | `c8b41d2fbd7e81b83d3717eb17a9d21da4d2501545db2f133669820d293183b3` |
 | montagenotiz_8eb8b79f.md | `e0791de36e661ec4fbf2c24c4342eb9445d97bb0cdd8cc1df8019ddcc76e9ef8` |
