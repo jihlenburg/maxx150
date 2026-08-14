@@ -32,8 +32,8 @@ Dateien. Der Test `test_reference_catalog.py` schützt die Ablage gegen stille
 
 | Funktion | Produkt | Status |
 |---|---|---|
-| Segmentstöße | UHU plus endfest (90 min), 2K-Epoxid | ausgewählt; rechnerisch auf 0,50 MPa abgemindert |
-| Segmentstöße | WEICON RK-1300 | am realen Bauteil gescheitert, 2026-08-14 durch UHU plus endfest ersetzt |
+| Segmentstöße | UHU plus endfest 300, 2K-Epoxid | ausgewählt; rechnerisch auf 0,50 MPa abgemindert (Faktor 33) |
+| Segmentstöße | WEICON RK-1300 | am realen Bauteil gescheitert, 2026-08-14 durch UHU plus endfest 300 ersetzt |
 | Dach/Belluna | Sikaflex-522 weiß | Standardweg; 0,030 MPa normal / 0,050 MPa Schub, Vorbehandlung namentlich dokumentiert |
 | Äußere Schutzkehle | Sika Abglättmittel N | ausgewähltes, wasserbasiertes Sika-Glättmittel; Verträglichkeit am ausgehärteten Originallack vorprüfen |
 | Dach/Belluna | Carloflex 410 UV weiß | Belluna-konforme Alternative mit denselben Projektgrenzwerten; erst einsetzen, wenn der im TDS nicht benannte Kunststoffprimer prozesssicher festgelegt ist |

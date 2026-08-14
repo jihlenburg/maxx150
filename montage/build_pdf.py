@@ -74,15 +74,15 @@ def build_model(mf):
          f"{de(t['wood_frame_w'])} mm, Höhe = real gemessener Dachkern; "
          "Faser längs zu jeder Rahmenseite."),
         ("Werkzeug", "Vorbereitung und Montage",
-         f"K240, MP Softpad Superfine, 3-mm-Bohrer, Drehmomentschlüssel "
+         f"Schleifleinen K100, Isopropanol, MP Softpad Superfine, 3-mm-Bohrer, Drehmomentschlüssel "
          f"({de(t['torque_nm'])} Nm), Vierkantwelle {de(t['shaft_mm'])} mm."),
     ]
 
     material_system = [
-        dict(rolle="Segmentstöße", menge="1× 33 g",
-             produkt="UHU plus endfest · 2K-Epoxid, 90 min · "
-                     "Doppelkammerspritze mit Mischdüse",
-             warum="Die Mischdüse dosiert 1:1 selbst, es braucht weder Waage "
+        dict(rolle="Segmentstöße", menge="2× 15 g",
+             produkt="UHU plus endfest 300 · 2K-Epoxid · "
+                     "Doppelkammerspritze inkl. statischem Mischer",
+             warum="Der Mischer dosiert 1:1 selbst, es braucht weder Waage "
                    "noch Aktivator. 90 Minuten Topfzeit reichen für alle vier "
                    "Stöße in Ruhe. −40 bis +100 °C decken die Dachtemperatur ab."),
         dict(rolle="Dach + Belluna + Schutzfuge", menge="2× 300 ml",
@@ -128,12 +128,14 @@ def build_model(mf):
                  "auf Vollständigkeit, Ebenheit, Maßhaltigkeit, Risse und "
                  "Transportschäden prüfen. Beschädigte Teile nicht montieren.",
                  "Die vier Halbüberlappungs-Fügeflächen (grün im Bild: Ober- "
-                 "und Unterseite der Lappe sowie die Stirn) mit Schleifpapier K240 "
-                 "aufrauen und gemäß UHU-Merkblatt reinigen und trocknen.",
+                 "und Unterseite der Lappe sowie die Stirn) mit Schleifleinen "
+                 "Körnung 100 aufrauen, danach mit Isopropanol entfetten und "
+                 "trocknen lassen.",
              ],
-             warn=[("warn", "Keine ungeprüften Lösemittel verwenden. Kleb- und "
-                            "Lackflächen strikt silikon-, fett- und staubfrei "
-                            "halten.")]),
+             warn=[("warn", "Das UHU-Merkblatt nennt Aceton zum Entfetten. Auf "
+                            "den Druckteilen NICHT verwenden, es greift ASA an. "
+                            "Isopropanol nehmen und Kleb- und Lackflächen "
+                            "strikt silikon-, fett- und staubfrei halten.")]),
         dict(nr=2, titel="Stöße verkleben und verschrauben",
              bild=("04_kleber_auftrag.png",
                    "Bild 4: Zwei Segmente am Stoß 60 mm auseinandergezogen. "
@@ -145,10 +147,10 @@ def build_model(mf):
                       ("07_rahmen_komplett.png",
                        f"Bild 7: Gefügter Rahmen, alle {de(t['m5_count'])} M5-Positionen.")],
              absaetze=[
-                 "Mischdüse auf die Doppelkammerspritze stecken und den ersten "
-                 "Zentimeter Strang verwerfen: erst danach stimmt die Mischung. "
-                 "Ohne Mischdüse beide Stränge gleich lang auspressen und zwei "
-                 "Minuten streifenfrei verrühren.",
+                 "Erst auspressen, bis aus BEIDEN Kammern Material austritt, "
+                 "dann die Mischdüse aufsetzen, so das Merkblatt. Ohne "
+                 "Mischdüse beide Stränge gleich lang auspressen und "
+                 "streifenfrei verrühren.",
                  "Klebstoff dünn auf BEIDE Fügeflächen und die Stirn auftragen, "
                  "im Bild grün. Die raue Druckoberfläche muss überall benetzt "
                  "sein, trockene Stellen tragen nicht.",
@@ -157,16 +159,18 @@ def build_model(mf):
                  f"anziehen. Die 90 Minuten Topfzeit lassen dafür Zeit. Bei "
                  f"{de(t['tol_joint'])} mm Passungsluft gehen die Teile von Hand zusammen.",
                  f"Reihenfolge: erst 2+2 Segmente zu zwei Halbrahmen, dann die "
-                 f"beiden Halbrahmen, je Ansatz eine frische Mischdüse. Handfest "
-                 f"nach 6 h, belastbar nach {de(t['cure_h'])} h. Danach die "
+                 f"beiden Halbrahmen, je Ansatz ein frischer Mischer. Handfest "
+                 f"nach 6 h, endfest nach {de(t['cure_h'])} h. Danach die "
                  f"{de(t['m5_count'])} M5-Kopftaschen bündig versiegeln, offene Taschen "
                  f"wären oben Wasserreservoirs.",
              ],
-             warn=[("warn", "Nur die aktuelle Variante mit 90 Minuten Topfzeit "
-                            "verwenden, schnelle 5-Minuten-Epoxide erweichen "
-                            "unterhalb der Dachtemperatur. Für den Druckteilwerkstoff "
-                            "nennt der Hersteller keinen Kennwert: die Rechnung setzt "
-                            "deshalb nur 0,50 statt 19 MPa an und prüft den "
+             warn=[("warn", "Bei 18 bis 20 °C verkleben, darunter nennt das "
+                            "Merkblatt schlechte Bindefestigkeiten. In der "
+                            "kalten Garage also heizen. 5-Minuten-Epoxide sind "
+                            "ungeeignet, sie erweichen unterhalb der "
+                            "Dachtemperatur. Für den Druckteilwerkstoff nennt "
+                            "der Hersteller keinen Kennwert: die Rechnung setzt "
+                            "nur 0,50 statt 16,5 MPa an und prüft den "
                             "480-N-Pfad zusätzlich über M5.")]),
         dict(nr=3, titel="Weiße Schutzlackierung (Pflicht)",
              bild=("08_maskierung_lack.png",

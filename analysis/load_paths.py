@@ -55,13 +55,14 @@ SOURCES = {
             "Tabelle ist nur Leitlinie und nennt ASA-GF nicht ausdrücklich"
         ),
     },
-    "uhu_plus_endfest": {
+    "uhu_plus_endfest_300": {
         "url": "../../../../references/datasheets/adhesives/"
-               "uhu-plus-endfest-source.md",
+               "uhu-plus-endfest-300.pdf",
         "basis": (
-            "2K-Epoxid, 1:1, 90 min Topfzeit, -40 bis +100 °C und rund "
-            "19 MPa Zugscherfestigkeit auf Aluminium; kein Kunststoffwert "
-            "und keine Glasübergangstemperatur veröffentlicht"
+            "2K-Epoxid, 1:1 Volumen, 90 min Topfzeit, -40 bis +100 °C und "
+            "16,5 MPa Zugscherfestigkeit nach 24 h (DIN EN 1465, gestrahltes "
+            "AlCuMg1, 0,2 mm Klebstoffdicke); kein Kunststoffwert und keine "
+            "Glasübergangstemperatur im Merkblatt"
         ),
     },
     "sikaforce_710_l35": {
@@ -103,11 +104,12 @@ class Assumptions:
     elastic_normal_allow_MPa: float = 0.030
     elastic_shear_allow_MPa: float = 0.050
 
-    # UHU plus endfest veröffentlicht nur rund 19 MPa auf Aluminium und keinen
-    # Kunststoffwert. 0,5 MPa ist daher Faktor 38 und deckt Substratwechsel auf
-    # ASA-GF, FDM-Oberfläche, Alterung und den Festigkeitsabfall bis T_MAX ab.
-    # Der Zahlenwert bleibt gegenüber dem abgelösten RK-1300 unverändert, damit
-    # der Klebstoffwechsel die Nachweiskette nicht rechnerisch entlastet.
+    # UHU plus endfest 300 nennt 16,5 MPa nach 24 h auf gestrahltem AlCuMg1
+    # (DIN EN 1465) und keinen Kunststoffwert. 0,5 MPa ist daher Faktor 33 und
+    # deckt Substratwechsel auf ASA-GF, FDM-Oberfläche, Alterung und den
+    # Festigkeitsabfall bis T_MAX ab. Der Zahlenwert bleibt gegenüber dem
+    # abgelösten RK-1300 unverändert, damit der Klebstoffwechsel die
+    # Nachweiskette nicht rechnerisch entlastet.
     segment_bond_lap_shear_allow_MPa: float = 0.50
 
     # Nicht die 9/14 MPa des SikaForce-Klebstoffs ansetzen: 0,05 MPa ist nur
@@ -563,7 +565,7 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "load_N": wind,
         "assumption": "volle 480-N-Horizontallast durch genau EINEN Stoß",
         "lap_area_mm2": lap_area,
-        "segment_bond_product": "UHU plus endfest (90 min), 2K-Epoxid",
+        "segment_bond_product": "UHU plus endfest 300, 2K-Epoxid",
         "segment_bond_shear_MPa": bond_tau,
         "segment_bond_allow_MPa": a.segment_bond_lap_shear_allow_MPa,
         "segment_bond_utilization": bond_tau / a.segment_bond_lap_shear_allow_MPa,
@@ -767,7 +769,7 @@ def to_markdown(result: dict) -> str:
         "- Ein M5 je Stoß trägt die volle 480-N-Hülle bereits allein. Die "
         "2K-Epoxidklebung bildet einen davon getrennt geprüften Fügepfad. "
         "Diese Trennung trägt den Klebstoffwechsel von RK-1300 auf UHU plus "
-        "endfest: der Stoß bleibt auch ohne jede Klebwirkung nachgewiesen.",
+        "endfest 300: der Stoß bleibt auch ohne jede Klebwirkung nachgewiesen.",
         "- Sikaflex-522 und Carloflex 410 UV werden weiterhin nur mit den "
         "stark abgeminderten 0,030/0,050-MPa-Werten angesetzt. Produkte "
         "innerhalb einer Baugruppe nicht mischen.",

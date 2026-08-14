@@ -530,3 +530,41 @@ Anleitung darauf umzustellen.
   `reference_catalog` laufen grün. FreeCAD, Blender und Chrome fehlen hier,
   deshalb sind `test_export` und der Seitenzahl-Check des Montage-PDFs
   **offen**. `python3 -m pipeline manual` muss die zwölf Seiten bestätigen.
+
+## 2026-08-14 — Nachtrag: echtes UHU-Merkblatt ersetzt die Recherchewerte
+
+Der Nutzer hat das technische Merkblatt nachgereicht (UHU PLUS ENDFEST 300,
+Doppelkammerkartusche 50 ml). Es liegt jetzt unverändert unter
+`references/datasheets/adhesives/uhu-plus-endfest-300.pdf` im Katalog. Das
+vorher angelegte Quellenprotokoll ist entfallen, weil das Original vorliegt.
+
+Korrekturen gegenüber dem Recherchestand von heute Vormittag:
+
+- **Produkt ist die 300er Variante**, nicht die 90-min-Konsumentenvariante.
+  Beide existieren nebeneinander. Die 300 gibt es weiter als Kartusche,
+  Doppelkammerspritze mit statischem Mischer, Tuben und Dosen. Die Anleitung
+  weist jetzt ausdrücklich auf den Zusatz „300" beim Kauf hin.
+- **Zugscherfestigkeit 16,5 N/mm² nach 24 h** und 17,5 nach einem Monat
+  (DIN EN 1465, gestrahltes AlCuMg1, 0,2 mm Klebstoffdicke) statt der aus der
+  Websuche übernommenen 19 N/mm². Abminderungsfaktor damit 33 statt 38, der
+  Bemessungswert bleibt 0,50 MPa und die Auslastung 77 %.
+- **Zwei laienkritische Punkte neu in der Anleitung.** Erstens: unter 18 °C
+  bremst das Merkblatt die Härtung ausdrücklich und nennt schlechte
+  Bindefestigkeiten. Das ist ein plausibler Kandidat für gescheiterte
+  Verklebungen und stand vorher nirgends. Zweitens: das Merkblatt nennt Aceton
+  zum Entfetten, was ASA angreift. Auf den Druckteilen gilt jetzt Isopropanol,
+  und die Warnung sagt das ausdrücklich gegen das Merkblatt.
+- **Schleifkörnung 100** statt K240 an den Fügeflächen, wie im Merkblatt für
+  Kunststoffe angegeben. K240 war eine Projektannahme ohne Quelle.
+- Härtungsstufen ergänzt: handfest 6 h, funktionsfest 12 h, endfest 24 h.
+- Mischerhinweis wörtlich nach Merkblatt: erst auspressen, bis aus beiden
+  Kammern Material austritt, dann die Mischdüse aufsetzen.
+- Bewusst nicht genutzt: die im Merkblatt beschriebene Warmhärtung zwischen
+  70 und 180 °C mit bis zu 30 N/mm². Für ASA-GF ist kein pauschales Tempern
+  freigegeben, deshalb bleibt es bei Raumtemperaturhärtung.
+- Bewusst dokumentiert: die geprüften Klebstoffdicken liegen bei 0,1 und
+  0,2 mm, also unter der Passungsluft von 0,25 mm je Fügefläche. Das ist in
+  der Abminderung mit abgedeckt.
+- Die Temperaturabhängigkeit auf Seite 3 des Merkblatts ist ein Diagramm und
+  in dieser Umgebung nicht auswertbar. Angesetzt bleibt allein der genannte
+  Bereich −40 bis +100 °C.

@@ -118,7 +118,7 @@ Alternative.
 - [Sika-Leitfaden: zusätzliche, zugängliche Schutzdichtung sowie verzögerte Durchhärtung bei zu frühem Schließen angrenzender Fugen](https://industry.sika.com/dam/dms/global-industry/4/bonding-and-sealingwith1-componentsikaflex.pdf)
 - [Sika-Kompendium: Abminderung und typische zulässige thermische Scherverformung](https://industry.sika.com/dms/getdocument.get/8ffff4cd-c90d-4d24-969d-ee4db9093cf3_global-industry/compendium-elasticbonding.pdf)
 - [Sika-STP-Vorbehandlungstabelle, Version 8, 02/2026](https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf)
-- [UHU plus endfest: Topfzeit, Temperaturbereich und Zugscherfestigkeit](../references/datasheets/adhesives/uhu-plus-endfest-source.md)
+- [UHU plus endfest 300: Topfzeit, Temperaturbereich und Zugscherfestigkeit](../references/datasheets/adhesives/uhu-plus-endfest-300.pdf)
 - [SikaForce-710 L35 für Holz/GFK-Sandwich mit EPS/XPS-Kern](https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf)
 - [URSA-XPS-Vergleichswert TR 200; nicht das X150-Material](https://ursa.de/wp-content/uploads/2023/05/DB-xps.pdf)
 - [Carloflex-410-UV-Quelldokument](../references/datasheets/adhesives/carloflex-410-uv-source.md)

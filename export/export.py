@@ -93,15 +93,20 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Ebenheit/Öffnungsmaß prüfen. Kein pauschales Tempern: Würth nennt für diesen
   Artikel keinen allgemeinen Temperprozess.
 ## Fügen — UHU plus endfest (2K-Epoxid, 90 min)
-- Rohes ASA-GF K240 anschleifen. **UHU plus endfest, 33-g-Doppelkammerspritze
-  mit Mischdüse** verwenden. Wegen der rauen/porösen FDM-Flächen den Klebstoff
+- Rohes ASA-GF mit Schleifleinen Körnung 100 anschleifen und mit Isopropanol
+  entfetten. Das TDS nennt dafür Aceton; das greift ASA an und wird hier
+  bewusst nicht übernommen. **UHU plus endfest 300, Doppelkammerspritze inkl.
+  statischem Mischer** verwenden. Wegen der rauen/porösen FDM-Flächen den Klebstoff
   beidseitig auftragen, fügen und je Stoß mit **{len(p.JOINT_BOLT_OFFS)}× M5x{_m5_bolt_length(p)} DIN 912 +
-  Muttern** bei 0,8 Nm sichern. Handfest nach 6 h, Endfestigkeit nach 24 h.
+  Muttern** bei 0,8 Nm sichern. Handfest nach 6 h, funktionsfest nach 12 h,
+  endfest nach 24 h.
+- Bei **18 bis 20 °C** verarbeiten. Unter 18 °C bremst das TDS die Härtung
+  ausdrücklich und nennt schlechte Bindefestigkeiten.
 - Alle {PRM.joint_bolt_count(p)} M5-Kopftaschen bündig mit dem Epoxid versiegeln. Das Produkt
   ersetzt seit 2026-08-14 WEICON RK-1300, das am realen Bauteil nicht getragen
-  hat. Es ist laientauglich, weil die Mischdüse 1:1 dosiert und 90 min Topfzeit
+  hat. Es ist laientauglich, weil der Mischer 1:1 dosiert und 90 min Topfzeit
   ohne Aktivator und Zeitdruck bleiben. ASA-GF ist nicht gelistet. Die Rechnung
-  setzt deshalb nur 0,50 statt 19 MPa an und prüft den vollständigen
+  setzt deshalb nur 0,50 statt 16,5 MPa an und prüft den vollständigen
   480-N-Pfad zusätzlich über M5.
 - Keine schnellen 5-Minuten-Epoxide verwenden: sie erweichen unterhalb der
   Dachtemperatur von {p.T_MAX:.0f} °C.

@@ -15,10 +15,10 @@
       "sha256": "8c99e0c1268adb1087aff0202708243383e6258432d32d0bc0e231a828f85991"
     },
     {
-      "path": "datasheets/adhesives/uhu-plus-endfest-source.md",
+      "path": "datasheets/adhesives/uhu-plus-endfest-300.pdf",
       "status": "selected_design_basis",
-      "source": "UHU plus endfest (90 min), veroeffentlichtes Herstellermerkblatt und Produktdaten, abgerufen 2026-08-14; Original-PDF liegt noch nicht im Repo",
-      "sha256": "af6bb1b4cb299d904f3ae079f7fdb349d88e0ace734924e6f1ddea0b20bfed7b"
+      "source": "Technisches Merkblatt UHU PLUS ENDFEST 300, Doppelkammerkartusche 50 ml, vom Nutzer bereitgestellt 2026-08-14 (de_tds_4026700457353_uhu_plus_endfest_300_doppelkammerkartusche_50ml.pdf)",
+      "sha256": "b0d440b405f0dde1e4c450c60bee7b0d739ffcf351474d9618e6f63e1a10d4c1"
     },
     {
       "path": "datasheets/adhesives/sikaforce-710-l35.pdf",

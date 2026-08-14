@@ -220,17 +220,28 @@ Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyri
 
 **Klebstoffwechsel 2026-08-14:** WEICON RK-1300 ist abgelöst. Der MMA-Klebstoff
 war rechnerisch passend, hat am realen gedruckten ASA-GF aber nicht getragen.
-Ausgewählt ist jetzt **UHU plus endfest**, ein 2K-Epoxid mit 90 min Topfzeit,
-−40 bis +100 °C und 1:1-Doppelkammerspritze. Es ist ohne Aktivator, Waage und
-Zeitdruck zu verarbeiten und deshalb für die Laienmontage geeignet. Der
-Bemessungswert bleibt bewusst 0,50 MPa, obwohl er nun aus rund 19 MPa auf
-Aluminium statt aus 6 MPa auf ABS abgeleitet wird: der Wechsel soll die
-Nachweiskette nicht rechnerisch entlasten. Der WEICON Epoxyd-Minutenkleber
+Ausgewählt ist jetzt **UHU plus endfest 300**, ein 2K-Epoxid mit 90 min
+Topfzeit, −40 bis +100 °C und 1:1 aus der Doppelkammerspritze mit statischem
+Mischer. Es ist ohne Aktivator, Waage und Zeitdruck zu verarbeiten und deshalb
+für die Laienmontage geeignet. Der Bemessungswert bleibt bewusst 0,50 MPa,
+obwohl er nun aus 16,5 MPa nach DIN EN 1465 statt aus 6 MPa auf ABS abgeleitet
+wird: der Wechsel soll die Nachweiskette nicht rechnerisch entlasten. Der
+Abminderungsfaktor steigt damit von 12 auf 33. Der WEICON Epoxyd-Minutenkleber
 bleibt trotzdem verworfen, sein TDS nennt nur 2,7 % Bruchdehnung und Tg 44,7 °C
 (46,1 °C nach Tempern), also deutlich unter `T_MAX = 85 °C`. Dieselbe Grenze
 schließt alle schnellen 5-Minuten-Epoxide aus. Die 0,25 mm `TOL_JOINT` bleiben
 unverändert, denn sie liegen im gut verklebbaren Bereich des Epoxids. Damit ist
 keine Geometrieänderung verbunden und `GEOM_REV` bleibt stehen.
+
+Drei Punkte aus dem Merkblatt sind ausdrücklich nicht übernommen. Das Merkblatt
+nennt Aceton zum Entfetten, das ASA angreift. Auf den Druckteilen wird deshalb
+Isopropanol verwendet. Das Merkblatt erlaubt eine Warmhärtung zwischen 70 und
+180 °C mit deutlich höheren Festigkeiten, etwa 20 N/mm² nach 45 min bei 70 °C.
+Das bleibt ungenutzt, weil für ASA-GF kein pauschales Tempern freigegeben ist.
+Die geprüften Klebstoffdicken liegen bei 0,1 und 0,2 mm und damit unter der
+Passungsluft von 0,25 mm je Fügefläche, was in der Abminderung mit abgedeckt
+ist. Verbindlich bleibt die Verarbeitung bei 18 bis 20 °C: unter 18 °C nennt
+das Merkblatt ausdrücklich schlechte Bindefestigkeiten.
 FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; der festgelegte Mipa-Primer +
 RAL-9003-2K-PUR-Decklack ist PFLICHT (Solarreflexion, Porenschluss, Wetterschutz).
 Validierung praktisch (Flutungstest, dann Hochdruck aus
@@ -364,7 +375,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | reale Fahrzeugmaße + geometrischer Freigang-Check vor Produktionsfreigabe |
 | Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Lack trägt keine Struktur; jährliche Kontrolle und sofortige Ausbesserung |
-| Reale Grenzfläche schwächer als Datenblatt | `analysis/load_paths.py`: Sikaflex bis Faktor 60, Segmentstoß-Epoxid Faktor 38 und Sandwich auf 0,05 MPa abgemindert; Ergebnis bleibt `PASS_ASSUMPTION_BASED`, nicht zugelassen |
+| Reale Grenzfläche schwächer als Datenblatt | `analysis/load_paths.py`: Sikaflex bis Faktor 60, Segmentstoß-Epoxid Faktor 33 und Sandwich auf 0,05 MPa abgemindert; Ergebnis bleibt `PASS_ASSUMPTION_BASED`, nicht zugelassen |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Defaults (`EDGE_DIST/EDGE_H`) | Report und Release bleiben `PROTOTYPE_ONLY`, bis reale Fahrzeugmaße vorliegen |

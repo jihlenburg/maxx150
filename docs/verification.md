@@ -66,7 +66,7 @@ Segmentstöße. WEICON RK-1300 hat dort nicht getragen, ein handelsüblicher
 2K-Epoxidklebstoff dagegen schon (Nutzerbefund 2026-08-14). Daraus folgt eine
 belastbare Negativaussage und eine schwache Positivaussage: der MMA-Weg ist
 ausgeschieden, die Eignung des Epoxidwegs ist gezeigt, aber nicht beziffert.
-Der ausgewählte UHU plus endfest ist damit **nicht** quantitativ qualifiziert.
+Der ausgewählte UHU plus endfest 300 ist damit **nicht** quantitativ qualifiziert.
 Der Bemessungswert bleibt deshalb bei 0,50 MPa, und der Stoß bleibt so
 ausgelegt, dass ein M5 je Stoß die volle 480-N-Hülle auch ohne jede Klebwirkung
 trägt.

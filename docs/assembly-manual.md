@@ -82,7 +82,7 @@ Materialliste oder die Montageschritte aufgenommen werden.
 | Funktion | Exaktes Produkt | Warum dieses Produkt |
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben permanente FDM-Abminderungen und `PROTOTYPE_ONLY`. |
-| Segmentstöße | UHU plus endfest, 2K-Epoxid mit 90 min Topfzeit, 33-g-Doppelkammerspritze mit Mischdüse | Ersetzt seit 2026-08-14 WEICON RK-1300, das am realen Bauteil nicht getragen hat. Laientauglich, weil die Mischdüse 1:1 selbst dosiert und weder Waage noch Aktivator nötig sind. −40 bis +100 °C decken `T_MAX` ab. Für ASA-GF wird rechnerisch nur 0,50 statt der 19 MPa auf Aluminium angesetzt. |
+| Segmentstöße | UHU plus endfest 300, 2K-Epoxid mit 90 min Topfzeit, Doppelkammerspritze inkl. statischem Mischer | Ersetzt seit 2026-08-14 WEICON RK-1300, das am realen Bauteil nicht getragen hat. Laientauglich, weil der Mischer 1:1 selbst dosiert und weder Waage noch Aktivator nötig sind. −40 bis +100 °C decken `T_MAX` ab. Für ASA-GF wird rechnerisch nur 0,50 statt der 16,5 MPa nach DIN EN 1465 angesetzt (Faktor 33). Verarbeitung zwingend bei 18 bis 20 °C, darunter nennt das Merkblatt schlechte Bindefestigkeiten. |
 | Dach-, Belluna- und Wetterschutzfugen | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Zwei 10-mm-Raupen tragen den unteren Primärnachweis allein; die äußere bleibt geschlossen, die innere belüftet den Mittelkanal an acht definierten Stellen. Erst nach vollständiger Durchhärtung schützt eine zugängliche, nichttragende 7×7-mm-Außenkehle die verdeckte Klebung. Acht Seitenschrauben bleiben eine rechnerisch nicht angerechnete Reserve. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
 | Vorbehandlung und Glätten der 522-Fugen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205, Sika Tooling Agent N | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Vollständig ausgehärteter Mipa-2K-PUR-Decklack wird nach der aktuellen Sika-STP-Tabelle für 2K-PUR-Lack behandelt. Tooling Agent N ist das festgelegte Glättmittel der sichtbaren Außenkehle; keine Spülmittel-, Alkohol- oder Lösemittellösung. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
 | Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Rechnerisch nur 0,05 MPa und eine GFK/Holz-Fläche angesetzt. |
@@ -106,6 +106,19 @@ von 44,7 °C (46,1 °C nach Tempern), also deutlich unter `T_MAX = 85 °C`.
 Dieselbe Grenze schließt alle schnellen 5-Minuten-Epoxide aus. Gewählt wurde
 deshalb ausdrücklich die langsam härtende Variante mit 90 Minuten Topfzeit und
 einer Temperaturbeständigkeit bis +100 °C.
+
+Beim Kauf auf den Zusatz **300** achten. UHU führt für den privaten
+Endverbrauch zusätzlich ein umformuliertes „UHU plus endfest 90 min", das ohne
+kindersicheren Verschluss verkauft werden darf und niedrigere Festigkeiten
+erreicht. Maßgeblich für dieses Projekt ist allein das Merkblatt der 300er
+Variante unter `references/datasheets/adhesives/uhu-plus-endfest-300.pdf`.
+
+Zwei Verarbeitungspunkte stehen im Merkblatt und sind für Laien die
+wahrscheinlichsten Fehlerquellen. Erstens die Temperatur: unter 18 °C bremst
+das Merkblatt die Härtung ausdrücklich und nennt schlechte Bindefestigkeiten.
+Zweitens das Entfetten: das Merkblatt nennt Aceton, das aber ASA angreift.
+Auf den Druckteilen wird deshalb Isopropanol verwendet, angeschliffen wird mit
+Schleifleinen Körnung 100 nach Merkblatt.
 
 ## Bildliste (`build/documentation/<hash>/img/`)
 
