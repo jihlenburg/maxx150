@@ -67,9 +67,9 @@ Prozess erzeugt bewusst kein scheinbar vollständiges PDF.
   Schraubenzahlen/-durchmesser, Materialname, HDT/T_MAX …).
 
 **Keine hartkodierten Geometriemaße** in Bild-/Textlogik. Produktbezogene
-Prozesswerte (beispielsweise RK-Ablüftzeit, Lackschichtdicke und RAL 9003)
-stehen bewusst als Fixtext in `build_pdf.py::build_model`, weil sie aus den
-jeweiligen Produktdatenblättern und nicht aus `params.py` stammen.
+Prozesswerte (beispielsweise die 90 min Topfzeit des Epoxids, Lackschichtdicke
+und RAL 9003) stehen bewusst als Fixtext in `build_pdf.py::build_model`, weil
+sie aus den jeweiligen Produktdatenblättern und nicht aus `params.py` stammen.
 
 ## Festgelegtes Materialsystem
 
@@ -82,7 +82,7 @@ Materialliste oder die Montageschritte aufgenommen werden.
 | Funktion | Exaktes Produkt | Warum dieses Produkt |
 |----------|-----------------|----------------------|
 | Druckteil | Würth ASA GF15, Verkehrsschwarz ähnlich RAL 9017, 1,75 mm, Art.-Nr. 4954641200 | 15 % GF, UV-/Witterungseignung, hohe Steifigkeit und geringerer Verzug; mechanische Werte sind jedoch nur Halbzeugwerte, daher bleiben permanente FDM-Abminderungen und `PROTOTYPE_ONLY`. |
-| Segmentstöße | WEICON RK-1300, 60-g-Set inkl. Aktivator, Art.-Nr. 10000118 | MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau; höchste Zugscherfestigkeit bei 0,15–0,25 mm und bis 130 °C spezifiziert. Für ASA-GF wird rechnerisch nur 0,50 statt 6 MPa auf ABS angesetzt. |
+| Segmentstöße | UHU plus endfest, 2K-Epoxid mit 90 min Topfzeit, 33-g-Doppelkammerspritze mit Mischdüse | Ersetzt seit 2026-08-14 WEICON RK-1300, das am realen Bauteil nicht getragen hat. Laientauglich, weil die Mischdüse 1:1 selbst dosiert und weder Waage noch Aktivator nötig sind. −40 bis +100 °C decken `T_MAX` ab. Für ASA-GF wird rechnerisch nur 0,50 statt der 19 MPa auf Aluminium angesetzt. |
 | Dach-, Belluna- und Wetterschutzfugen | Sikaflex-522 weiß, 2× 300 ml (Standard); Carloflex 410 UV weiß als Belluna-konforme Alternative | Beide TDS nennen mindestens 1,8 MPa Zugfestigkeit und hohe Dehnung; die Lastpfadrechnung setzt für beide nur 0,030 MPa normal und 0,050 MPa Schub an. Zwei 10-mm-Raupen tragen den unteren Primärnachweis allein; die äußere bleibt geschlossen, die innere belüftet den Mittelkanal an acht definierten Stellen. Erst nach vollständiger Durchhärtung schützt eine zugängliche, nichttragende 7×7-mm-Außenkehle die verdeckte Klebung. Acht Seitenschrauben bleiben eine rechnerisch nicht angerechnete Reserve. 522 bleibt Standard, weil Sika den Vorbehandlungsweg namentlich dokumentiert. Carloflex erst einsetzen, wenn der passende Kunststoffprimer prozesssicher festgelegt ist; Produkte innerhalb einer Baugruppe nicht mischen. |
 | Vorbehandlung und Glätten der 522-Fugen | Sika Cleaner P, Sika Primer-507, Sika Aktivator-205, Sika Tooling Agent N | Lackfreie ASA-GF-/Belluna-Kunststoffflächen: Cleaner P + Primer-507 als ABS-Analogie. GFK-Gelcoat: Cleaner P + Aktivator-205. Vollständig ausgehärteter Mipa-2K-PUR-Decklack wird nach der aktuellen Sika-STP-Tabelle für 2K-PUR-Lack behandelt. Tooling Agent N ist das festgelegte Glättmittel der sichtbaren Außenkehle; keine Spülmittel-, Alkohol- oder Lösemittellösung. Aktuelle Sika-TDS und Ablüftzeiten beachten. |
 | Holzrahmen | SikaForce-710 L35 + SikaForce-010, 1,2-kg-A+B-Set | 2K-PUR-System ausdrücklich für Holz/GFK mit EPS/XPS-Sandwichkernen; kontrollierte Härtung in der geschlossenen Dachfuge. Rechnerisch nur 0,05 MPa und eine GFK/Holz-Fläche angesetzt. |
@@ -93,11 +93,19 @@ Primärquellen, unveränderte lokale Datenblätter und nachvollziehbare
 Quellenprotokolle sind im
 [`references`-Katalog](../references/README.md) mit Quelle und SHA-256 geordnet.
 
-Bewusst nicht gewählt: WEICON Epoxyd-Minutenkleber für die Segmentstöße.
-Trotz hoher nomineller Festigkeit und Temperaturbeständigkeit nennt das TDS
-nur 2,7 % Bruchdehnung und einen Glasübergang von 44,7 °C (46,1 °C nach
-Tempern). Das liegt deutlich unter `T_MAX = 85 °C`; RK-1300 passt außerdem
-mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
+Abgelöst: WEICON RK-1300. Der MMA-Strukturklebstoff war rechnerisch passend,
+hat im realen Fügeversuch am gedruckten ASA-GF aber nicht getragen
+(Nutzerbefund 2026-08-14). Sein Aktivatorschritt und die Verarbeitungszeit von
+wenigen Minuten machten ihn zusätzlich zu einem schlechten Kandidaten für
+Laienmontage. Das Datenblatt liegt weiter unter
+`references/datasheets/adhesives/evaluated-not-selected/`.
+
+Epoxid ist dabei nicht gleich Epoxid. Der WEICON Epoxyd-Minutenkleber bleibt
+ausgeschlossen: sein TDS nennt nur 2,7 % Bruchdehnung und einen Glasübergang
+von 44,7 °C (46,1 °C nach Tempern), also deutlich unter `T_MAX = 85 °C`.
+Dieselbe Grenze schließt alle schnellen 5-Minuten-Epoxide aus. Gewählt wurde
+deshalb ausdrücklich die langsam härtende Variante mit 90 Minuten Topfzeit und
+einer Temperaturbeständigkeit bis +100 °C.
 
 ## Bildliste (`build/documentation/<hash>/img/`)
 
@@ -106,7 +114,7 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 | 01 titel_explosion | Explosion 4 Segmente + Platte/Dichtring/Clips | — |
 | 02 teile_uebersicht | Universalteil + Belluna-Platte; Dichtring bereits eingelegt | — |
 | 03 fuegeflaechen | Lappenende, Fügeflächen | **grün** (Schulter + Stirn) |
-| 04 kleber_aktivator | Zwei Segmente am Stoß getrennt | **blau** (Aktivator auf beiden Flächen) / **grün** (danach RK-1300 einseitig) |
+| 04 kleber_auftrag | Zwei Segmente am Stoß getrennt | **grün** (2K-Epoxid auf beide Fügeflächen) |
 | 05 m5_montage | Stoß von oben | 1× roter M5-Achsmarker (Senkung) |
 | 06 m5_mutter | Stoß von unten | 1× roter M5-Achsmarker (Muttertasche) |
 | 07 rahmen_komplett | Gefügter Rahmen | 4× dezent rote M5-Marker |
@@ -165,8 +173,8 @@ mit seinem 0,15–0,25-mm-Festigkeitsoptimum direkt zur konstruierten Passung.
 - **`freecadcmd`**: Multiline nur per Skriptdatei, argv unzuverlässig;
   stdout wird mit `reconfigure(line_buffering=True)` explizit gepuffert.
 - **Segment-Basisfarbe vs. Hervorhebung**: In Bild 04 werden beide Segmente
-  mit derselben weißen ASA-Basisfarbe geladen; Grün und Blau bezeichnen damit
-  ausschließlich RK-1300- bzw. Aktivatorflächen.
+  mit derselben weißen ASA-Basisfarbe geladen. Grün bezeichnet damit
+  ausschließlich die beiden Klebstoffflächen.
 - **Halbschnitt-Beleuchtung**: Die Schnittfläche eines `y>0`-Schnitts zeigt
   nach +y — Kamera **und** Zusatzlicht auf die +y-Seite, sonst bleibt der
   Schnitt unbeleuchtet (Bild 09).

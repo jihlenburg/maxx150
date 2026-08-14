@@ -191,13 +191,13 @@ Stöße in den Seitenmitten (Spannungsmaxima liegen an den Ecken). Stoßverbindu
 (Toleranz `TOL_JOINT` = 0,25 mm, nach Probedruck justierbar) + eine
 Durchsteckschraube M5 je Stoß + Klebefläche. Unter der vollständigen
 konservativen 480-N-Stoßhülle liegt der einzelne M5 bei 62 %
-Lochleibungsauslastung; RK-1300 wird getrennt mit 77 % nachgewiesen.
+Lochleibungsauslastung. Die Epoxidklebung wird getrennt mit 77 % nachgewiesen.
 Die vier
 Kopien werden nur um Z gedreht, nie gespiegelt; ein starker Geometrietest
 prüft die Rotationsidentität über die symmetrische Differenz.
 
 **Thermik konstruktiv:** ASA-GF α = 60 µm/(m·K), konservative
-Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit RK-1300 und M5 vollständig
+Datenblatt-Lückenannahme, vs. GFK ≈25. Der mit Epoxid und M5 vollständig
 gefügte Rahmen wird thermisch als **500-mm-Baugruppe**, nicht als entkoppeltes
 Drucksegment gerechnet. Von 20 °C Klebetemperatur bis 85 °C entstehen 1,14 mm
 Differenzdehnung über die Kante; symmetrisch je Ende (0,57 mm) ergibt dies
@@ -216,11 +216,21 @@ Tragfähigkeitsgutschrift; (2) äußere
 untere Raupe, geschlossen über die Stöße; die innere Raupe ergänzt Tragfläche,
 bleibt aber an acht Trockenraum-Vents offen; (3) Ringklebenut der Belluna-Platte auf der
 Deckfläche, ebenfalls geschlossen; (4) Stöße selbst: Halbüberlappungs-Labyrinth + vollflächige
-WEICON-RK-1300-Verklebung der Fügeflächen (M5 = Verpressung/Redundanz, nicht Dichtung).
-WEICON Epoxyd-Minutenkleber bleibt trotz hoher nomineller Festigkeit verworfen:
-sein TDS nennt nur 2,7 % Bruchdehnung und Tg 44,7 °C (46,1 °C nach Tempern),
-also deutlich unter `T_MAX = 85 °C`. RK-1300 ist bis 130 °C spezifiziert und
-hat sein Zugscherfestigkeitsoptimum bei 0,15–0,25 mm, passend zu `TOL_JOINT`.
+2K-Epoxidverklebung der Fügeflächen (M5 = Verpressung/Redundanz, nicht Dichtung).
+
+**Klebstoffwechsel 2026-08-14:** WEICON RK-1300 ist abgelöst. Der MMA-Klebstoff
+war rechnerisch passend, hat am realen gedruckten ASA-GF aber nicht getragen.
+Ausgewählt ist jetzt **UHU plus endfest**, ein 2K-Epoxid mit 90 min Topfzeit,
+−40 bis +100 °C und 1:1-Doppelkammerspritze. Es ist ohne Aktivator, Waage und
+Zeitdruck zu verarbeiten und deshalb für die Laienmontage geeignet. Der
+Bemessungswert bleibt bewusst 0,50 MPa, obwohl er nun aus rund 19 MPa auf
+Aluminium statt aus 6 MPa auf ABS abgeleitet wird: der Wechsel soll die
+Nachweiskette nicht rechnerisch entlasten. Der WEICON Epoxyd-Minutenkleber
+bleibt trotzdem verworfen, sein TDS nennt nur 2,7 % Bruchdehnung und Tg 44,7 °C
+(46,1 °C nach Tempern), also deutlich unter `T_MAX = 85 °C`. Dieselbe Grenze
+schließt alle schnellen 5-Minuten-Epoxide aus. Die 0,25 mm `TOL_JOINT` bleiben
+unverändert, denn sie liegen im gut verklebbaren Bereich des Epoxids. Damit ist
+keine Geometrieänderung verbunden und `GEOM_REV` bleibt stehen.
 FDM-Mikroporosität: ≥4 Perimeter als dichte Haut; der festgelegte Mipa-Primer +
 RAL-9003-2K-PUR-Decklack ist PFLICHT (Solarreflexion, Porenschluss, Wetterschutz).
 Validierung praktisch (Flutungstest, dann Hochdruck aus
@@ -354,7 +364,7 @@ Defaults und erzwingen den Status `PROTOTYPE_ONLY`.
 | Druckservice-Toleranzen an den Stößen | `TOL_JOINT` parametrisch, Probedruck eines Stoßpaars vor Vollbestellung (Montagenotiz) |
 | 28 mm reichen nicht (Haube streift) | reale Fahrzeugmaße + geometrischer Freigang-Check vor Produktionsfreigabe |
 | Schwarzer Rohling heizt sich solar auf / Lack löst sich | RAL-9003-Pflichtlackierung mit festgelegtem Mipa-System; Lack trägt keine Struktur; jährliche Kontrolle und sofortige Ausbesserung |
-| Reale Grenzfläche schwächer als Datenblatt | `analysis/load_paths.py`: Sikaflex bis Faktor 60, RK-1300 Faktor 12 und Sandwich auf 0,05 MPa abgemindert; Ergebnis bleibt `PASS_ASSUMPTION_BASED`, nicht zugelassen |
+| Reale Grenzfläche schwächer als Datenblatt | `analysis/load_paths.py`: Sikaflex bis Faktor 60, Segmentstoß-Epoxid Faktor 38 und Sandwich auf 0,05 MPa abgemindert; Ergebnis bleibt `PASS_ASSUMPTION_BASED`, nicht zugelassen |
 | Zyklische Ermüdung (Thermozyklen x Vibration) nicht im FEM-Kollektiv | Dokumentiertes Restrisiko (quasistatische LF + konservative Faktoren decken es nur indirekt); Gegenmaßnahme: jährliche Sichtprüfung der Nähte, Flutungstest nach 1. Saison [DA-Review] |
 | Klemmkraft-Relaxation ASA bei 85 °C | Entschärft: real keine harte Klemmkette (§3.6) — Restrisiko nur seitliche Schrauben; Feder-/Sicherungselemente + Nachziehen bleiben empfohlen [DA-Review, aktualisiert] |
 | Freigang-Gate läuft auf Defaults (`EDGE_DIST/EDGE_H`) | Report und Release bleiben `PROTOTYPE_ONLY`, bis reale Fahrzeugmaße vorliegen |

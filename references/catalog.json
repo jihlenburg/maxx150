@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "checked_on": "2026-07-16",
+  "checked_on": "2026-08-14",
   "files": [
     {
       "path": "belluna/manuals/belluna-super-fan-installation.pdf",
@@ -15,10 +15,10 @@
       "sha256": "8c99e0c1268adb1087aff0202708243383e6258432d32d0bc0e231a828f85991"
     },
     {
-      "path": "datasheets/adhesives/weicon-rk-1300.pdf",
+      "path": "datasheets/adhesives/uhu-plus-endfest-source.md",
       "status": "selected_design_basis",
-      "source": "https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf",
-      "sha256": "da7dde7a05ac49a015a477be19374f8e2ab177e57895810f0e5e450e6a3346fa"
+      "source": "UHU plus endfest (90 min), veroeffentlichtes Herstellermerkblatt und Produktdaten, abgerufen 2026-08-14; Original-PDF liegt noch nicht im Repo",
+      "sha256": "af6bb1b4cb299d904f3ae079f7fdb349d88e0ace734924e6f1ddea0b20bfed7b"
     },
     {
       "path": "datasheets/adhesives/sikaforce-710-l35.pdf",
@@ -55,6 +55,12 @@
       "status": "evaluated_design_equivalent",
       "source": "vom Nutzer bereitgestelltes Carlofon-TDS; Original-SHA-256 b4dbd8213e0b37fe69204cb2b18fde1ef4012a4b50a6dd25a6b8006b5342a2a5",
       "sha256": "c89a809b31b80320152f2c282632ba4b1d262cdbf1a8844fdcc21da6bd2a0820"
+    },
+    {
+      "path": "datasheets/adhesives/evaluated-not-selected/weicon-rk-1300.pdf",
+      "status": "evaluated_field_failure",
+      "source": "https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf",
+      "sha256": "da7dde7a05ac49a015a477be19374f8e2ab177e57895810f0e5e450e6a3346fa"
     },
     {
       "path": "datasheets/adhesives/evaluated-not-selected/weicon-epoxyd-minutenkleber.pdf",

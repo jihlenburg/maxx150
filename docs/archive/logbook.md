@@ -491,3 +491,42 @@ vor). Ausgangsstand: `32e0a6c`, 75/75 grün, params_hash `da0d8553`.
   3,38/8,40 MPa, alles PASS. Gesamtstatus weiterhin bewusst **PASS mit
   Vorbehalt, keine Druckfreigabe** bis A3a/Ausschnitt/Holzrahmen real geprüft
   und ein helles ASA-Segment als Ebenheits-/Trocken-Fit-Probedruck vorliegt.
+
+## 2026-08-14 — Klebstoffwechsel Segmentstöße: RK-1300 raus, 2K-Epoxid rein
+
+Auslöser: Nutzerbefund aus der realen Montage. WEICON RK-1300 hat die
+Segmentstöße nicht verklebt, ein handelsüblicher 2K-Epoxidklebstoff dagegen
+schon. Auftrag war, ein für Laien handhabbares Produkt auszuwählen und die
+Anleitung darauf umzustellen.
+
+- Ausgewählt: **UHU plus endfest**, 2K-Epoxid mit 90 min Topfzeit,
+  Doppelkammerspritze mit Mischdüse, 1:1, −40 bis +100 °C, rund 19 MPa auf
+  Aluminium, rund 35.000 mPa·s. Quellenprotokoll unter
+  `references/datasheets/adhesives/uhu-plus-endfest-source.md`.
+- Auswahlgrund Laienmontage: die Mischdüse dosiert selbst, es entfallen Waage,
+  Aktivator und Ablüftzeit. 90 min Topfzeit statt weniger Minuten decken die
+  dreistufige Rahmenmontage ab. Das war die eigentliche Schwachstelle des
+  RK-1300 neben der fehlenden Haftung.
+- Wichtige Abgrenzung: Der WEICON Epoxyd-Minutenkleber bleibt verworfen
+  (Tg 44,7 °C). Dieselbe Grenze schließt alle 5-Minuten-Epoxide aus. Der
+  Wechsel gilt ausdrücklich nur für die langsam härtende Variante.
+- Namensfalle dokumentiert: Der frühere „endfest 300" hat eine andere
+  Härterrezeptur und ist nicht mehr dasselbe Produkt.
+- Rechnung: Bemessungswert bleibt bei **0,50 MPa**, jetzt als Faktor 38 auf den
+  Aluminiumwert statt Faktor 12 auf den ABS-Wert. Der Klebstoffwechsel soll die
+  Nachweiskette nicht entlasten. Auslastung unverändert 77 %, Stoß weiterhin
+  PASS. JSON-Schlüssel `rk1300_*` → `segment_bond_*` samt neuem
+  `segment_bond_product`.
+- Geometrie unverändert: `TOL_JOINT` = 0,25 mm liegt im gut verklebbaren
+  Bereich des Epoxids, deshalb **kein** `GEOM_REV`-Schritt.
+- Bild 04 heißt jetzt `04_kleber_auftrag.png`. Der Aktivatorschritt entfällt,
+  beide Fügeflächen sind grün. `COL_BLUE` wurde ersatzlos entfernt.
+- RK-1300-Datenblatt nach `evaluated-not-selected/` verschoben, neuer
+  Katalogstatus `evaluated_field_failure` für am Bauteil gescheiterte Produkte.
+- `docs/verification.md`: der Feldbefund ist als belastbare Negativaussage und
+  schwache Positivaussage eingeordnet. Neues Gate ist ein Klebeversuch mit dem
+  tatsächlich gekauften Gebinde an zwei Druckresten.
+- Testlage in dieser Umgebung: `load_paths`, `tools_toleranz` und
+  `reference_catalog` laufen grün. FreeCAD, Blender und Chrome fehlen hier,
+  deshalb sind `test_export` und der Seitenzahl-Check des Montage-PDFs
+  **offen**. `python3 -m pipeline manual` muss die zwölf Seiten bestätigen.

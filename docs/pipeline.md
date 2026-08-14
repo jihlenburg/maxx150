@@ -22,7 +22,7 @@ params.py
 | `doctor` | FreeCAD, Blender, Chrome, pdfinfo und Pfade | bricht bei fehlendem Werkzeug ab |
 | `test` | Geometrie-, FEM-, Export-, Referenz- und Toolchaintests | alle Tests müssen bestehen |
 | `engineering` | Rahmen, Segmente, DFM, vier globale Lastfälle, Stoßmodell, Analytik, Export; ruft danach `connections` auf | Reports dürfen nicht `FAIL` sein |
-| `connections` | obere Acht-Schrauben-Gruppe, 2×10-mm-Dachraupe, acht nicht angerechnete untere Seitenschrauben, RK-1300/ein M5 je Stoß und Holzrahmen–Dachsandwich | `PASS_ASSUMPTION_BASED`; JSON + Markdown |
+| `connections` | obere Acht-Schrauben-Gruppe, 2×10-mm-Dachraupe, acht nicht angerechnete untere Seitenschrauben, 2K-Epoxid/ein M5 je Stoß und Holzrahmen–Dachsandwich | `PASS_ASSUMPTION_BASED`; JSON + Markdown |
 | `fit` | Belluna-Rekonstruktion gegen Adapter | Kollision, Radialspiel, Auflage, Schraubpfade |
 | `cfd` | Aerohüllmodell, `snappyHexMesh`, stationäres RANS und Kräfteauswertung | vorläufige Kräfte/Momente; derzeit kein Release-Gate |
 | `render` | Standardansichten und Schnitte | PNG + Render-STL |

@@ -55,12 +55,13 @@ SOURCES = {
             "Tabelle ist nur Leitlinie und nennt ASA-GF nicht ausdrücklich"
         ),
     },
-    "rk_1300": {
-        "url": "https://media.weicon.de/fmds/307278/dld%3Ainline/"
-               "DE_TDS_10560060_RK-1300.pdf",
+    "uhu_plus_endfest": {
+        "url": "../../../../references/datasheets/adhesives/"
+               "uhu-plus-endfest-source.md",
         "basis": (
-            "6 MPa Zugscherfestigkeit auf ABS, 16 MPa auf GFK, "
-            "-50 bis +130 °C und Optimum bei 0,15 bis 0,25 mm Fuge"
+            "2K-Epoxid, 1:1, 90 min Topfzeit, -40 bis +100 °C und rund "
+            "19 MPa Zugscherfestigkeit auf Aluminium; kein Kunststoffwert "
+            "und keine Glasübergangstemperatur veröffentlicht"
         ),
     },
     "sikaforce_710_l35": {
@@ -102,9 +103,12 @@ class Assumptions:
     elastic_normal_allow_MPa: float = 0.030
     elastic_shear_allow_MPa: float = 0.050
 
-    # 6 MPa auf ABS ist der niedrigste passende RK-1300-TDS-Wert. 0,5 MPa
-    # entspricht Faktor 12 für ASA-Analogie, FDM, Alterung und Temperatur.
-    rk1300_lap_shear_allow_MPa: float = 0.50
+    # UHU plus endfest veröffentlicht nur rund 19 MPa auf Aluminium und keinen
+    # Kunststoffwert. 0,5 MPa ist daher Faktor 38 und deckt Substratwechsel auf
+    # ASA-GF, FDM-Oberfläche, Alterung und den Festigkeitsabfall bis T_MAX ab.
+    # Der Zahlenwert bleibt gegenüber dem abgelösten RK-1300 unverändert, damit
+    # der Klebstoffwechsel die Nachweiskette nicht rechnerisch entlastet.
+    segment_bond_lap_shear_allow_MPa: float = 0.50
 
     # Nicht die 9/14 MPa des SikaForce-Klebstoffs ansetzen: 0,05 MPa ist nur
     # ein Viertel des herstellerseitigen XPS-Vergleichswerts TR 200. Zudem
@@ -476,7 +480,7 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
     Belluna-Platte -> Adapter -> Dach: obere Elastikringfuge und Achtfach-
     Schraubengruppe, untere Doppelraupe (allein tragender Primärpfad), die acht
     seitlichen Holzschrauben (nur als Bedarfswert, NICHT zum PASS addiert) und
-    die Holz-Dach-Sandwichfläche. Zusätzlich Segmentstoß (RK-1300 + einzelner
+    die Holz-Dach-Sandwichfläche. Zusätzlich Segmentstoß (2K-Epoxid + einzelner
     M5 unter voller 480-N-Hülle), thermische Fugenscherung und die Schrauben-
     Ausfallsensitivität. ``status`` ist PASS_ASSUMPTION_BASED nur, wenn alle
     Nachweise halten -- ausdrücklich eine Plausibilisierung, keine Zulassung."""
@@ -548,7 +552,7 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
 
     lap_area = p.LAP_L * PRM.min_band(p)
     wind = PRM.wind_force(p)
-    rk_tau = wind / lap_area
+    bond_tau = wind / lap_area
     lap_h = PRM.lap_height(p)
     bolts_per_joint = len(p.JOINT_BOLT_OFFS)
     group_bearing = ((wind / bolts_per_joint)
@@ -559,10 +563,11 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "load_N": wind,
         "assumption": "volle 480-N-Horizontallast durch genau EINEN Stoß",
         "lap_area_mm2": lap_area,
-        "rk1300_shear_MPa": rk_tau,
-        "rk1300_allow_MPa": a.rk1300_lap_shear_allow_MPa,
-        "rk1300_utilization": rk_tau / a.rk1300_lap_shear_allow_MPa,
-        "rk1300_PASS": rk_tau <= a.rk1300_lap_shear_allow_MPa,
+        "segment_bond_product": "UHU plus endfest (90 min), 2K-Epoxid",
+        "segment_bond_shear_MPa": bond_tau,
+        "segment_bond_allow_MPa": a.segment_bond_lap_shear_allow_MPa,
+        "segment_bond_utilization": bond_tau / a.segment_bond_lap_shear_allow_MPa,
+        "segment_bond_PASS": bond_tau <= a.segment_bond_lap_shear_allow_MPa,
         "m5_count_per_joint": bolts_per_joint,
         "m5_group_bearing_MPa": group_bearing,
         "m5_one_remaining_bearing_MPa": one_remaining_bearing,
@@ -571,7 +576,7 @@ def assess(p: PRM.Params = PRM.P, a: Assumptions = DEFAULTS,
         "m5_one_remaining_utilization": one_remaining_bearing / short_allow,
         "m5_single_bolt_full_case_PASS": one_remaining_bearing <= short_allow,
     }
-    segment["PASS"] = (segment["rk1300_PASS"]
+    segment["PASS"] = (segment["segment_bond_PASS"]
                        and segment["m5_single_bolt_full_case_PASS"])
 
     thermal_util = FEM_ANALYTIC.glue_shear_utilization(p)
@@ -716,8 +721,8 @@ def to_markdown(result: dict) -> str:
         f"{roof_ring['nominal_volume_ml']:.0f} ml nominal, 0,030/0,050 MPa.",
         f"- Obere ST4.2x25 in ASA-GF: {asa['project_capacity_per_screw_N']:.0f} N "
         "je Schraube nach Detailfaktor 0,5.",
-        f"- Segmentstoß unter vollen 480 N: RK-1300 "
-        f"{_pct(seg['rk1300_utilization'])}; {seg['m5_count_per_joint']} M5 "
+        f"- Segmentstoß unter vollen 480 N: 2K-Epoxid "
+        f"{_pct(seg['segment_bond_utilization'])}; {seg['m5_count_per_joint']} M5 "
         f"{_pct(seg['m5_group_bearing_utilization'])}, einzelner M5-Vollfall "
         f"{_pct(seg['m5_one_remaining_utilization'])}; "
         f"{'PASS' if seg['PASS'] else 'FAIL'}.",
@@ -759,8 +764,10 @@ def to_markdown(result: dict) -> str:
         "- Acht seitliche ST4.2x25 sichern den Unterkragen im Holzrahmen. Ohne "
         "typgeprüften Schraubgrund wird nur der je Lastfall erforderliche "
         "Kapazitätswert ausgewiesen; die Schrauben werden nicht angerechnet.",
-        "- Ein M5 je Stoß trägt die volle 480-N-Hülle bereits allein. RK-1300 "
-        "bildet einen davon getrennt geprüften Fügepfad.",
+        "- Ein M5 je Stoß trägt die volle 480-N-Hülle bereits allein. Die "
+        "2K-Epoxidklebung bildet einen davon getrennt geprüften Fügepfad. "
+        "Diese Trennung trägt den Klebstoffwechsel von RK-1300 auf UHU plus "
+        "endfest: der Stoß bleibt auch ohne jede Klebwirkung nachgewiesen.",
         "- Sikaflex-522 und Carloflex 410 UV werden weiterhin nur mit den "
         "stark abgeminderten 0,030/0,050-MPa-Werten angesetzt. Produkte "
         "innerhalb einer Baugruppe nicht mischen.",

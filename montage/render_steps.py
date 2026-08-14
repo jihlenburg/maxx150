@@ -21,8 +21,7 @@ Konventionen
   * emissive Signalrot-Zylinder (1.0,0.08,0.05, Emission Strength 2.0) für
     Schraubachsen,
   * FLÄCHEN-Hervorhebung über zweites Material + Polygon-Filter nach Position:
-    Klebeflächen Grün (0.1,0.8,0.2), Aktivator Blau (0.15,0.4,1.0),
-    Maskierzonen Gelb (1.0,0.8,0.1).
+    Klebeflächen Grün (0.1,0.8,0.2), Maskierzonen Gelb (1.0,0.8,0.1).
 
 Aufruf
 ------
@@ -75,7 +74,6 @@ COL_XPS = (0.36, 0.48, 0.62)
 COL_HOLZ = (0.48, 0.25, 0.07)
 COL_RED = (1.00, 0.02, 0.01)
 COL_GREEN = (0.015, 0.90, 0.035)
-COL_BLUE = (0.01, 0.30, 1.00)
 COL_YELLOW = (1.00, 0.72, 0.01)
 
 
@@ -433,29 +431,30 @@ def img03_fuegeflaechen():
     _render(scene, "03_fuegeflaechen.png")
 
 
-def img04_kleber_aktivator():
-    """Bild 04: Kleber-/Aktivatorschritt -- die beiden Überlappungsschultern
-    des +y-Band-Stoßes (Stoß B), obere Hälfte grün, untere blau markiert."""
+def img04_kleber_auftrag():
+    """Bild 04: Klebstoffauftrag -- die beiden Überlappungsschultern des
+    +y-Band-Stoßes (Stoß B), beide grün markiert. Das 2K-Epoxid kommt auf
+    BEIDE Fügeflächen; einen Aktivatorschritt gibt es nicht mehr."""
     # Beide Fuegeflaechen (Ueberlappungsschulter) des geteilten +y-Band-Stosses
     # liegen bei x in [0, LAP_L], z=lap_h: seg0 haelt die obere (Schulter nach
     # -z), seg1 die untere Lappe (Schulter nach +z). Zwei nach oben/unten
     # zeigende Flaechen sind nur sichtbar, wenn die obere Haelfte (seg0)
     # angehoben und die Kamera ZWISCHEN beiden Schulterhoehen positioniert wird.
     scene = _new_scene()
-    # Einheitlich weiße Basis für beide; nur die markierten Flächen tragen die
-    # semantischen Grün-/Blau-Farben.
+    # Einheitlich weiße Basis für beide; nur die markierten Flächen tragen das
+    # semantische Grün.
     neutral = COL_ASA
     seg0 = load_seg(0, tint=neutral)
     seg1 = load_seg(1, tint=neutral)
     highlight(seg0, COL_GREEN, stossB_faces, emission=1.2)
-    highlight(seg1, COL_BLUE, stossB_faces, emission=1.2)
+    highlight(seg1, COL_GREEN, stossB_faces, emission=1.2)
     seg0.location = (0, 0, 50)          # obere Stoßhälfte kompakt angehoben
     seg1.location = (0, 0, 0)
     # Kamera zwischen beiden Schulterhöhen und weiter zurück: beide markierten
     # Fügeflächen bleiben sichtbar, der frühere große Leerraum verschwindet.
     cam, target = _rig(scene, area=60000, key=(-220, -260, 650))
     _cam(cam, target, (80, -70, 31), (12, 214, 31), lens=55)
-    _render(scene, "04_kleber_aktivator.png")
+    _render(scene, "04_kleber_auftrag.png")
 
 
 def img05_m5_montage():
@@ -625,7 +624,7 @@ def img15_fertig():
 
 
 ALL = [img01_titel_explosion, img02_teile_uebersicht, img03_fuegeflaechen,
-       img04_kleber_aktivator, img05_m5_montage, img06_m5_mutter,
+       img04_kleber_auftrag, img05_m5_montage, img06_m5_mutter,
        img07_rahmen_komplett, img08_maskierung_lack, img09_dach_holzrahmen,
        img10_aufsetzen, img11_hybrid_dachinterface, img12_kleberaupe,
        img13_aussenkehle, img14_platte_schrauben, img15_fertig]

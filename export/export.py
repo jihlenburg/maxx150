@@ -92,17 +92,19 @@ def _montagenotiz(p: PRM.Params, h: str) -> str:
   Zugluft, im geschlossenen Bauraum abkühlen. Erst ein Segment drucken und
   Ebenheit/Öffnungsmaß prüfen. Kein pauschales Tempern: Würth nennt für diesen
   Artikel keinen allgemeinen Temperprozess.
-## Fügen — WEICON RK-1300
-- Rohes ASA-GF K240 anschleifen. **WEICON RK-1300, 60-g-Set,
-  Art.-Nr. 10000118** verwenden. Wegen der rauen/porösen FDM-Flächen den
-  Aktivator beidseitig auftragen, mindestens 5 min ablüften, RK-1300 auf eine
-  Seite geben, fügen und je Stoß mit **{len(p.JOINT_BOLT_OFFS)}× M5x{_m5_bolt_length(p)} DIN 912 +
-  Muttern** bei 0,8 Nm sichern. Endfestigkeit nach 24 h.
-- Alle {PRM.joint_bolt_count(p)} M5-Kopftaschen bündig mit RK-1300 versiegeln. RK-1300 wurde gewählt,
-  weil WEICON den MMA-Strukturklebstoff für Hartkunststoffe/Fahrzeugbau sowie
-  hohe Schlag-, Schäl- und Scherfestigkeit spezifiziert. ASA-GF ist nicht
-  einzeln gelistet; die Rechnung setzt deshalb nur 0,50 statt 6 MPa an und
-  prüft den vollständigen 480-N-Pfad zusätzlich über M5.
+## Fügen — UHU plus endfest (2K-Epoxid, 90 min)
+- Rohes ASA-GF K240 anschleifen. **UHU plus endfest, 33-g-Doppelkammerspritze
+  mit Mischdüse** verwenden. Wegen der rauen/porösen FDM-Flächen den Klebstoff
+  beidseitig auftragen, fügen und je Stoß mit **{len(p.JOINT_BOLT_OFFS)}× M5x{_m5_bolt_length(p)} DIN 912 +
+  Muttern** bei 0,8 Nm sichern. Handfest nach 6 h, Endfestigkeit nach 24 h.
+- Alle {PRM.joint_bolt_count(p)} M5-Kopftaschen bündig mit dem Epoxid versiegeln. Das Produkt
+  ersetzt seit 2026-08-14 WEICON RK-1300, das am realen Bauteil nicht getragen
+  hat. Es ist laientauglich, weil die Mischdüse 1:1 dosiert und 90 min Topfzeit
+  ohne Aktivator und Zeitdruck bleiben. ASA-GF ist nicht gelistet. Die Rechnung
+  setzt deshalb nur 0,50 statt 19 MPa an und prüft den vollständigen
+  480-N-Pfad zusätzlich über M5.
+- Keine schnellen 5-Minuten-Epoxide verwenden: sie erweichen unterhalb der
+  Dachtemperatur von {p.T_MAX:.0f} °C.
 
 ## Weiße Schutzlackierung — Pflicht
 - Nach dem Fügen spätere Klebezonen roh lassen und abkleben: beide unteren

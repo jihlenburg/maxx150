@@ -38,7 +38,7 @@ nicht reduziert.
   Padabstand plus 0,6 mm Führungsvertiefung ergeben 3,6 mm Raupenhöhe und
   rund 120 ml Nennvolumen.
 - Obere ST4.2×25 in ASA-GF: 178 N je Schraube nach Detailfaktor 0,5.
-- Segmentstoß unter vollen 480 N: RK-1300 77 %; ein M5 62 %; beide getrennt PASS.
+- Segmentstoß unter vollen 480 N: 2K-Epoxid 77 %; ein M5 62 %; beide getrennt PASS.
 - Thermische Scherbewegung der 3-mm-Fuge: 38 % des 50-%-Grenzwerts; PASS.
 - Obere Schraubengruppe: Eine fehlende Schraube ergibt 83–87 %. Zwei fehlende
   Schrauben bestehen nicht in jeder Anordnung. Alle acht Belluna-Schrauben
@@ -63,7 +63,7 @@ nicht reduziert.
 - Acht seitliche ST4.2×25 sichern den Unterkragen im Holzrahmen. Ohne
   typgeprüften Schraubgrund wird nur der je Lastfall erforderliche Wert
   ausgewiesen; die Schrauben werden nicht angerechnet.
-- Ein M5 je Stoß trägt die volle 480-N-Hülle allein. RK-1300 bildet einen davon
+- Ein M5 je Stoß trägt die volle 480-N-Hülle allein. Das 2K-Epoxid bildet einen davon
   getrennt geprüften Fügepfad.
 - Sikaflex-522 und Carloflex 410 UV werden nur mit den stark abgeminderten
   0,030/0,050-MPa-Werten angesetzt. Produkte innerhalb einer Baugruppe nicht
@@ -118,7 +118,7 @@ Alternative.
 - [Sika-Leitfaden: zusätzliche, zugängliche Schutzdichtung sowie verzögerte Durchhärtung bei zu frühem Schließen angrenzender Fugen](https://industry.sika.com/dam/dms/global-industry/4/bonding-and-sealingwith1-componentsikaflex.pdf)
 - [Sika-Kompendium: Abminderung und typische zulässige thermische Scherverformung](https://industry.sika.com/dms/getdocument.get/8ffff4cd-c90d-4d24-969d-ee4db9093cf3_global-industry/compendium-elasticbonding.pdf)
 - [Sika-STP-Vorbehandlungstabelle, Version 8, 02/2026](https://industry.sika.com/dms/getdocument.get/776a779a-10a6-413c-b20b-c46467315e33/pre-treatment-chartforsilanterminatedpolymersstp-sikaflex-500ser.pdf)
-- [WEICON RK-1300: Zugscherwerte, Temperaturbereich und Fugendickenoptimum](https://media.weicon.de/fmds/307278/dld%3Ainline/DE_TDS_10560060_RK-1300.pdf)
+- [UHU plus endfest: Topfzeit, Temperaturbereich und Zugscherfestigkeit](../references/datasheets/adhesives/uhu-plus-endfest-source.md)
 - [SikaForce-710 L35 für Holz/GFK-Sandwich mit EPS/XPS-Kern](https://deu.sika.com/dms/getdocument.get/41466f3f-1639-4fc4-8298-5c9a0a2d34e1/sikaforce-710-l35.pdf)
 - [URSA-XPS-Vergleichswert TR 200; nicht das X150-Material](https://ursa.de/wp-content/uploads/2023/05/DB-xps.pdf)
 - [Carloflex-410-UV-Quelldokument](../references/datasheets/adhesives/carloflex-410-uv-source.md)

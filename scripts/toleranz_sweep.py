@@ -118,7 +118,7 @@ def _max_utilization(paths: dict, glue_util: float) -> float:
         werte.append(
             fall["wood_to_roof_sandwich"]["sikaforce_one_face_only"]
             ["normalized_interaction"])
-    werte.append(paths["segment_joint"]["rk1300_utilization"])
+    werte.append(paths["segment_joint"]["segment_bond_utilization"])
     werte.append(paths["segment_joint"]["m5_one_remaining_utilization"])
     return max(float(w) for w in werte)
 

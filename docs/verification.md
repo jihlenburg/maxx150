@@ -61,9 +61,23 @@ erstmals die Grenzflächenannahmen am realen Substrat; überwiegender
 Adhäsionsbruch wäre ein Eskalationssignal **vor** der Verklebung. Dieses
 Zeitfenster existiert nur einmal.
 
+Eine zweite, ungeplante Rückmeldung vom realen Bauteil betrifft die
+Segmentstöße. WEICON RK-1300 hat dort nicht getragen, ein handelsüblicher
+2K-Epoxidklebstoff dagegen schon (Nutzerbefund 2026-08-14). Daraus folgt eine
+belastbare Negativaussage und eine schwache Positivaussage: der MMA-Weg ist
+ausgeschieden, die Eignung des Epoxidwegs ist gezeigt, aber nicht beziffert.
+Der ausgewählte UHU plus endfest ist damit **nicht** quantitativ qualifiziert.
+Der Bemessungswert bleibt deshalb bei 0,50 MPa, und der Stoß bleibt so
+ausgelegt, dass ein M5 je Stoß die volle 480-N-Hülle auch ohne jede Klebwirkung
+trägt.
+
 Am realen Einbau weiterhin unmittelbar prüfbar und deshalb erforderlich sind:
 
 - Ebenheit, Öffnungsmaß und Trockenpassung des realen Segmentsatzes.
+- Ein Klebeversuch mit dem tatsächlich gekauften Gebinde an zwei Druckresten
+  derselben Charge: K240 anschleifen, verkleben, nach 24 h von Hand brechen und
+  das Bruchbild fotografieren. Bricht die Fuge adhäsiv, also blank von der
+  Druckoberfläche ab, ist das ein Eskalationssignal **vor** der Rahmenmontage.
 - Reales Ausschnittmaß und Zustand des Dachkerns bei Demontage.
 - Durchgehender, vollflächig gebundener 30-mm-Rahmen aus Nadelvollholz mit
   ρk ≥ 350 kg/m³ und Faser längs zur jeweiligen Rahmenseite. Beide 10-mm-

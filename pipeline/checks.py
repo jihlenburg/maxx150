@@ -18,7 +18,7 @@ EXPECTED_MANUAL_IMAGES = (
     "01_titel_explosion.png",
     "02_teile_uebersicht.png",
     "03_fuegeflaechen.png",
-    "04_kleber_aktivator.png",
+    "04_kleber_auftrag.png",
     "05_m5_montage.png",
     "06_m5_mutter.png",
     "07_rahmen_komplett.png",

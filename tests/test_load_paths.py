@@ -46,7 +46,8 @@ def test_wind_zeigt_getrennte_obere_schrauben_und_untere_klebung():
 def test_segmentstoss_und_thermik_bleiben_getrennte_nachweise():
     result = LP.assess(include_cfd=False)
     joint = result["segment_joint"]
-    assert 0.76 < joint["rk1300_utilization"] < 0.78
+    assert 0.76 < joint["segment_bond_utilization"] < 0.78
+    assert "Epoxid" in joint["segment_bond_product"]
     assert 0.61 < joint["m5_group_bearing_utilization"] < 0.63
     assert 0.61 < joint["m5_one_remaining_utilization"] < 0.63
     assert joint["PASS"]

@@ -18,7 +18,7 @@ Stand: 17.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
 - Acht Belluna-Plattenschrauben oben. Unten acht seitliche ST4.2×25 in den
   Holzrahmen als physische, mangels typgeprüftem Schraubgrund nicht
   angerechnete Rückfallebene; die Doppelraupe besteht den Primärnachweis allein.
-- Ein M5 je Segmentstoß; sowohl dieser einzelne Bolzen als auch RK-1300
+- Ein M5 je Segmentstoß; sowohl dieser einzelne Bolzen als auch die Epoxidklebung
   bestehen die vollständige konservative 480-N-Stoßhülle getrennt.
 - Digital vermessene Belluna-Rekonstruktion mit 397-mm-Unterkragen und
   1,5-mm-Wand; Metallclips und Dichtring als getrennte Referenzteile.
@@ -34,7 +34,7 @@ Stand: 17.07.2026 · GEOM_REV 10 · Parameterstand `8eb8b79f`
   beim aktuellen Parameterstand nach unten null Toleranz (50,0 mm liegt exakt
   auf der 2-mm-Mindestbreite der Entwässerungsfase — Messwerte darunter
   erfordern Nachparametrierung); die knappste freigabewirksame Grenzfläche
-  (RK-1300-Stoß bzw. Doppelraupe) bleibt im gesamten Messtoleranzband bei
+  (Epoxidstoß bzw. Doppelraupe) bleibt im gesamten Messtoleranzband bei
   77 % Auslastung; im Überlapp-Regime des Haubenfreigangs
   wäre `EDGE_H` ≤ 53 mm gefordert (Schätzwert 55 mm) — B1 entscheidet das
   Regime, B2/B4 dann das Gate.

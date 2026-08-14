@@ -268,6 +268,7 @@ manifest = {
         "m5_per_joint": len(P.JOINT_BOLT_OFFS),
         "m5_through_d": P.JOINT_BOLT_D,
         "nut_af": P.JOINT_NUT_AF,
+        "tol_joint": P.TOL_JOINT,
         "bead_ml": round(bead_ml),
         "bead_ml_exact": round(bead_ml, 1),
         "groove_len_mm": round(groove_len),

@@ -59,7 +59,7 @@ def test_montagenotiz_inhalt():
     h = PRM.params_hash()
     text = (OUT / f"montagenotiz_{h}.md").read_text(encoding="utf-8")
     for muss in ("140", "165", "Carloflex 410 UV", "Deckfläche nach unten", "Tempern",
-                 "4 Perimeter", "100 % Infill", "Dichtheit", "RK-1300",
+                 "4 Perimeter", "100 % Infill", "Dichtheit", "UHU plus endfest",
                  "PFLICHT gegen Verzug", "temperierter Bauraum", "Brim",
                  "PFLICHT", "ISO-20653", "M5x", "Würth ASA GF15",
                  "Mipa PUR HS", "SikaForce-710 L35", "Sikaflex-522", "RAL 9003",
